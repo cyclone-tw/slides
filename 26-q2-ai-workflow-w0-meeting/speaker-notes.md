@@ -14,7 +14,7 @@ _（無講稿）_
 
 ## 第 2 頁：會議議程總覽
 
-> 類型：content / numbered
+> 類型：content / bullets
 
 _（無講稿）_
 
@@ -60,9 +60,9 @@ _（無講稿）_
 
 ---
 
-## 第 8 頁：cyclone.tw 網站頁面總覽
+## 第 8 頁：網站頁面總覽
 
-> 類型：content / bullets
+> 類型：content / paragraph
 
 _（無講稿）_
 
