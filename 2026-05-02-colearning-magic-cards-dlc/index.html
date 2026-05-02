@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>5/2 共學團會議｜成果發表 × 魔法卡 × DLC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#070912; --panel:#111827cc; --panel2:#1e293bcc; --text:#f8fafc; --muted:#a7b2c6;
+      --gold:#f8d36a; --cyan:#63e6ff; --violet:#b99cff; --green:#7ef0b2; --red:#ff8e9d;
+      --line:rgba(255,255,255,.14); --shadow:0 28px 80px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box} html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Noto Sans TC',system-ui,sans-serif}
+    body::before{content:"";position:fixed;inset:-20%;background:radial-gradient(circle at 18% 14%,rgba(99,230,255,.22),transparent 28%),radial-gradient(circle at 82% 12%,rgba(185,156,255,.24),transparent 32%),radial-gradient(circle at 50% 88%,rgba(248,211,106,.20),transparent 34%),linear-gradient(135deg,#050711,#111827 56%,#090d18);z-index:-2}
+    body::after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black,transparent 80%);z-index:-1}
+    .deck{position:relative;width:100vw;height:100vh}.slide{position:absolute;inset:0;display:none;padding:54px 70px}.slide.active{display:grid}.frame{width:min(1180px,100%);height:min(650px,100%);margin:auto;padding:54px;border:1px solid var(--line);border-radius:34px;background:linear-gradient(145deg,rgba(15,23,42,.82),rgba(2,6,23,.70));box-shadow:var(--shadow);position:relative;overflow:hidden}.frame::after{content:"";position:absolute;inset:auto -80px -160px auto;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(248,211,106,.20),transparent 68%)}
+    .kicker{letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:900;font-size:15px}.title{font-family:'Cormorant Garamond','Noto Sans TC',serif;font-size:68px;line-height:.95;margin:18px 0 18px;font-weight:700}.subtitle{font-size:28px;color:var(--muted);line-height:1.45}.meta{position:absolute;right:48px;top:36px;color:var(--muted);font-size:15px}.big{font-size:48px;line-height:1.15;margin:0 0 28px;font-weight:900}.grid{display:grid;gap:22px}.cols2{grid-template-columns:1fr 1fr}.cols3{grid-template-columns:repeat(3,1fr)}.card{background:linear-gradient(180deg,rgba(30,41,59,.82),rgba(15,23,42,.72));border:1px solid var(--line);border-radius:24px;padding:26px;box-shadow:0 18px 44px rgba(0,0,0,.22)}.card h3{margin:0 0 12px;font-size:26px}.card p,.card li{color:#dbe6f7;font-size:21px;line-height:1.55}.card ul{margin:0;padding-left:1.1em}.num{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(248,211,106,.16);border:1px solid rgba(248,211,106,.4);color:var(--gold);font-weight:900;margin-bottom:12px}.tag{display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(99,230,255,.12);border:1px solid rgba(99,230,255,.32);color:#c9f7ff;font-weight:700;margin:6px 6px 0 0}.agenda li{font-size:28px;margin:18px 0}.highlight{color:var(--gold)}.quote{font-size:32px;line-height:1.45;border-left:5px solid var(--gold);padding-left:24px;color:#fff}.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}.step{padding:22px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid var(--line)}.step strong{display:block;color:var(--gold);font-size:22px;margin-bottom:8px}.step span{color:#dbe6f7;font-size:18px;line-height:1.45}.screenshot{max-width:100%;max-height:440px;object-fit:contain;border-radius:20px;border:1px solid var(--line);background:#fff}.split{display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-items:center}.controls{position:fixed;left:24px;right:24px;bottom:18px;display:flex;justify-content:space-between;align-items:center;color:#b6c2d7;font-size:14px}.btn{background:rgba(15,23,42,.72);border:1px solid var(--line);color:#fff;border-radius:999px;padding:10px 16px}.progress{height:5px;background:rgba(255,255,255,.12);position:fixed;left:0;right:0;bottom:0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--gold),var(--violet));transition:.25s}.small{font-size:17px;color:var(--muted);line-height:1.5}.pillrow{margin-top:20px}.center{display:grid;place-items:center;text-align:center}.checklist li{list-style:none;margin:16px 0;font-size:25px}.checklist li::before{content:'✦';color:var(--gold);margin-right:12px}.footer{position:absolute;left:54px;right:54px;bottom:34px;color:#94a3b8;font-size:15px}.qr{font-size:18px;color:#dbe6f7;background:rgba(255,255,255,.07);padding:18px;border-radius:18px;border:1px solid var(--line)}
+    @media print{body{overflow:visible}.slide{position:relative;display:grid;page-break-after:always;height:100vh}.controls,.progress{display:none}}
+  </style>
+</head>
+<body>
+<div class="deck" id="deck">
+  <section class="slide active"><div class="frame center"><div><div class="kicker">5/2 共學團作戰會議</div><h1 class="title">成果發表 × 魔法卡 × DLC</h1><p class="subtitle">今晚 21:00｜才藝室｜把 22 天的實作變成下一階段的行動契約</p><div class="pillrow"><span class="tag">成果與心得</span><span class="tag">4 張魔法卡</span><span class="tag">DLC 延伸共學</span><span class="tag">黑客聊聊</span></div></div><div class="meta">Cyclone 共學團</div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">今晚要完成的 4 件事</h2><ol class="agenda"><li>快速確認每位成員的成果 / 心得發表形式</li><li>決定最後一週 <span class="highlight">4 張魔法卡</span> 的使用策略</li><li>表決 DLC 是否開啟、名單與陪跑方式</li><li>敲定黑客聊聊：日期、時間、分享者</li></ol><div class="footer">目標：不要只討論「要不要繼續」，而是定義「繼續要完成什麼」。</div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">成果 / 心得發表：不用完美，要可見</h2><div class="grid cols3"><div class="card"><span class="num">1</span><h3>公開頁面</h3><p>Notion、個人網站 cyclone.tw、GitHub Pages，任何可以打開看的成果都可以。</p></div><div class="card"><span class="num">2</span><h3>簡短分享</h3><p>3–5 分鐘：我做了什麼、卡在哪裡、下一步想完成什麼。</p></div><div class="card"><span class="num">3</span><h3>沒到場也要交</h3><p>今晚不克與會者，請提供公開連結或簡短文字發表。</p></div></div><p class="quote" style="margin-top:30px">共學結束不是交作業，而是把每個人的進度變成團隊下一步的素材。</p></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">魔法卡：最後一週怎麼打？</h2><div class="split"><div class="card"><h3>建議討論順序</h3><ul><li>4 張卡是否最後一週 ALL-in？</li><li>每張卡要解決的「共學經營問題」是什麼？</li><li>罕見卡要問什麼，才能幫團隊往下一階段走？</li><li>卡片結果要如何轉成公開發表或 DLC 任務？</li></ul></div><div class="card"><h3>卡片使用原則</h3><p><span class="highlight">不是為了把卡用完。</span><br>是用卡片逼出更好的問題、更清楚的承諾、更具體的下一步。</p><div class="pillrow"><span class="tag">聚焦</span><span class="tag">提問</span><span class="tag">承諾</span><span class="tag">行動</span></div></div></div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">DLC：先定義階段性目標</h2><div class="grid cols2"><div class="card"><h3>開 DLC 前先問</h3><ul><li>22 天沒有完成、但值得延續的是什麼？</li><li>這件事需要團隊陪跑，還是個人自走即可？</li><li>DLC 預計到什麼程度算完成？</li><li>要延長多久：2–3 週、1 個月，或到成發前？</li></ul></div><div class="card"><h3>Cyclone 版本範例</h3><p>「我還有很多自動化要做，預計 DLC 用 2–3 週做出記帳 APP。」</p><p class="small">把個人目標說清楚，其他人也比較容易對齊自己的 DLC 任務。</p></div></div><div class="footer">提醒：如果沒有共同目標，今晚就先問出每位小隊員各自的 DLC 目標。</div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">DLC 建議流程</h2><div class="timeline"><div class="step"><strong>① 統計</strong><span>確認想加入 DLC 的人，以及是否加入陪跑員。</span></div><div class="step"><strong>② 設條件</strong><span>例如：願意參與黑客聊聊、提供公開進度、固定週回報。</span></div><div class="step"><strong>③ 照舊開會</strong><span>沿用原本共學節奏，但把每週進度改成 DLC 任務驗收。</span></div><div class="step"><strong>④ 一個月內成發</strong><span>黑客聊聊盡量在 22 天結束後一個月內完成。</span></div></div><p class="quote" style="margin-top:36px">DLC 的重點不是無限延長，而是讓還沒完成的事有一段可管理的延伸跑道。</p></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">今晚表決清單</h2><ul class="checklist"><li>4 張魔法卡是否最後一週 ALL-in？</li><li>罕見卡要問哪些共學經營問題？</li><li>哪些人想參加 DLC？是否納入陪跑員？</li><li>DLC 的階段性目標與預計週期</li><li>黑客聊聊日期、時間、分享者</li></ul><div class="qr">共學規則重點：成果發表期需安排黑客聊聊語音時間、登記共學室、發布心得貼文、鼓勵填寫結業回饋與領取證書。</div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">會議主持節奏建議</h2><div class="grid cols2"><div class="card"><h3>60 分鐘版</h3><ul><li>00–05｜開場與今晚目標</li><li>05–25｜成果 / 心得快速 round</li><li>25–38｜魔法卡使用討論</li><li>38–52｜DLC 目標與名單</li><li>52–60｜黑客聊聊與結論確認</li></ul></div><div class="card"><h3>主持句型</h3><ul><li>「先不要討論細節，先說你想完成什麼。」</li><li>「這件事 2–3 週內可驗收的版本是什麼？」</li><li>「誰願意公開分享？哪個時間能排？」</li><li>「我們現在把決議寫成待辦。」</li></ul></div></div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">決議輸出格式</h2><div class="grid cols2"><div class="card"><h3>會後公告可直接用</h3><ul><li>成果 / 心得連結收件截止日</li><li>魔法卡使用安排</li><li>DLC 名單與每週進度節奏</li><li>黑客聊聊日期、時間、分享者</li><li>下次會議時間與任務</li></ul></div><div class="card"><h3>避免散掉的關鍵</h3><p>今天會議最後一定要留下「誰、何時、交付什麼」三件事。</p><p class="small">沒有 owner 的決議，只是聊天紀錄；有 owner 的決議，才會變成下一步。</p></div></div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">原始會議通知</h2><div class="split"><div><p class="subtitle">今晚 21:00 在才藝室，請各位做簡單成果或心得發表；同時討論 DLC 如何進行、每週進度安排。</p><p class="small">未能與會者：提供公開 Notion 頁面、cyclone.tw 網站頁面，或任何形式的簡單發表。</p></div><img class="screenshot" src="assets/meeting-call.png" alt="會議通知截圖"></div></div></section>
+
+  <section class="slide"><div class="frame"><h2 class="big">DLC 討論素材</h2><div class="split"><div><p class="subtitle">從對話整理出的共識：</p><ul class="checklist"><li>DLC 可以延續，但要統計意願</li><li>最好設定階段性目標，避免散掉</li><li>黑客聊聊建議一個月內處理</li><li>今晚要確認分享日期與分享者</li></ul></div><img class="screenshot" src="assets/dlc-discussion.png" alt="DLC 討論截圖"></div></div></section>
+
+  <section class="slide"><div class="frame center"><div><div class="kicker">Closing</div><h2 class="title">把 22 天變成下一段旅程</h2><p class="subtitle">成果可見、問題可問、承諾可追、下一步可做。</p><div class="pillrow"><span class="tag">今晚定案</span><span class="tag">明天公告</span><span class="tag">下週執行</span></div></div></div></section>
+</div>
+<div class="controls"><button class="btn" onclick="prev()">← 上一頁</button><div id="count">1 / 12</div><button class="btn" onclick="next()">下一頁 →</button></div><div class="progress"><div class="bar" id="bar"></div></div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')]; let i=0;
+  function show(n){i=(n+slides.length)%slides.length;slides.forEach((s,k)=>s.classList.toggle('active',k===i));document.getElementById('count').textContent=`${i+1} / ${slides.length}`;document.getElementById('bar').style.width=`${(i+1)/slides.length*100}%`;history.replaceState(null,'',`#${i+1}`)}
+  function next(){show(i+1)} function prev(){show(i-1)}
+  addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))next(); if(['ArrowLeft','PageUp'].includes(e.key))prev(); if(e.key==='Home')show(0); if(e.key==='End')show(slides.length-1)});
+  const start=parseInt(location.hash.replace('#',''),10); if(start) show(start-1); else show(0);
+</script>
+</body>
+</html>
