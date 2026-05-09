@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CycloneOS 七日改造報告</title>
+  <style>
+    :root {
+      --paper: #f7f4ee;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d7d2c7;
+      --panel: #ffffff;
+      --teal: #0f766e;
+      --green: #15803d;
+      --amber: #b45309;
+      --red: #b42318;
+      --blue: #2563eb;
+      --violet: #7c3aed;
+      --shadow: 0 18px 50px rgba(23, 32, 42, 0.10);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.65;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: #fbfaf7;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .period {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    .toc {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #344054;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .toc a:hover { background: #ece7dd; }
+
+    main { min-width: 0; }
+
+    section {
+      padding: 72px clamp(24px, 6vw, 96px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      align-content: center;
+      background:
+        linear-gradient(90deg, rgba(247,244,238,0.98), rgba(247,244,238,0.74)),
+        url("data:image/svg+xml,%3Csvg width='1200' height='900' viewBox='0 0 1200 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%230f766e' stroke-opacity='.22' stroke-width='2'%3E%3Cpath d='M120 690 C260 520 360 760 510 560 S760 310 940 430 1080 600 1140 500'/%3E%3Cpath d='M90 420 C220 280 340 530 490 330 S770 100 1000 250'/%3E%3Cpath d='M180 785 C330 625 460 820 640 610 S880 420 1110 570'/%3E%3C/g%3E%3Cg fill='%23b45309' fill-opacity='.30'%3E%3Ccircle cx='188' cy='420' r='8'/%3E%3Ccircle cx='520' cy='330' r='8'/%3E%3Ccircle cx='930' cy='430' r='8'/%3E%3Ccircle cx='645' cy='610' r='8'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .kicker {
+      color: var(--teal);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 { line-height: 1.18; margin: 0; }
+
+    h1 {
+      max-width: 980px;
+      font-size: clamp(42px, 7vw, 86px);
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 52px);
+      margin-bottom: 24px;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .lead {
+      max-width: 900px;
+      color: #344054;
+      font-size: clamp(18px, 2.2vw, 26px);
+      margin: 24px 0 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .stat {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-height: 160px;
+    }
+
+    .stat strong {
+      font-size: 42px;
+      line-height: 1;
+      color: var(--teal);
+    }
+
+    .muted { color: var(--muted); }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      position: relative;
+    }
+
+    .day {
+      display: grid;
+      grid-template-columns: 94px 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .day:first-child { border-top: 0; }
+
+    .date {
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eee8dd;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.green { background: #dcfce7; color: #166534; }
+    .tag.amber { background: #fef3c7; color: #92400e; }
+    .tag.red { background: #fee4e2; color: #912018; }
+    .tag.blue { background: #dbeafe; color: #1e40af; }
+
+    .diagram {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .lane-title {
+      padding: 14px;
+      border-radius: var(--radius);
+      color: white;
+      font-weight: 800;
+      background: var(--teal);
+    }
+
+    .nodes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(130px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .node {
+      min-height: 86px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      position: relative;
+    }
+
+    .node::after {
+      content: "→";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .node:last-child::after { content: ""; }
+
+    .node strong { display: block; margin-bottom: 4px; }
+    .node span { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+    .node.warn { border-color: #f59e0b; background: #fffbeb; }
+    .node.done { border-color: #22c55e; background: #f0fdf4; }
+    .node.todo { border-color: #ef4444; background: #fff1f2; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    ul.clean {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    ul.clean li {
+      padding-left: 18px;
+      position: relative;
+    }
+
+    ul.clean li::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      position: absolute;
+      left: 0;
+      top: 0.72em;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    .table th, .table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table th {
+      color: #344054;
+      background: #eee8dd;
+      font-size: 13px;
+    }
+
+    .table tr:last-child td { border-bottom: 0; }
+
+    .callout {
+      border-left: 5px solid var(--amber);
+      background: #fff8e6;
+      padding: 18px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin-top: 24px;
+    }
+
+    .footer-note {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    code {
+      background: #eee8dd;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid, .grid.two, .split { grid-template-columns: 1fr; }
+      .lane { grid-template-columns: 1fr; }
+      .nodes { grid-template-columns: 1fr; }
+      .node::after { content: ""; }
+    }
+
+    @media print {
+      nav { display: none; }
+      .shell { display: block; }
+      section { break-inside: avoid; }
+      .card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand">CycloneOS Briefing</div>
+      <div class="period">2026-05-02 至 2026-05-09</div>
+      <ul class="toc">
+        <li><a href="#summary">總覽</a></li>
+        <li><a href="#timeline">七日時間線</a></li>
+        <li><a href="#layers">改造層次</a></li>
+        <li><a href="#current">目前架構</a></li>
+        <li><a href="#openab">OpenAB 狀態</a></li>
+        <li><a href="#future">未來架構</a></li>
+        <li><a href="#risks">缺口與風險</a></li>
+        <li><a href="#roadmap">下一步</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section class="hero" id="summary">
+        <div class="kicker">Cloud Control Plane Progress Report</div>
+        <h1>CycloneOS 七日改造：從本機工具箱走向雲端控制平面</h1>
+        <p class="lead">這一週的重點不是把本機 Dashboard 搬上雲，而是把「控制、紀錄、審核」與「實際執行」切開：Dashboard 管控，OpenAB 代理任務，Mac mini 的 Draco/OpenClaw 才做本機動作。</p>
+      </section>
+
+      <section>
+        <h2>一頁摘要</h2>
+        <div class="grid">
+          <div class="card stat">
+            <strong>58</strong>
+            <div>近七日 CycloneOS 相關 commit</div>
+            <p class="muted">涵蓋雲端部署、OAuth、Storage Adapter、Postgres 記憶、OpenAB runtime。</p>
+          </div>
+          <div class="card stat">
+            <strong>9</strong>
+            <div>核心 issue 脈絡</div>
+            <p class="muted">#21 到 #29 串出 cloud-first、OpenAB、OpenClaw、SkillGraph 與 worker governance。</p>
+          </div>
+          <div class="card stat">
+            <strong>1</strong>
+            <div>新的 CycloneOS 專屬 OpenAB</div>
+            <p class="muted"><code>cycloneos-openab-cal</code> 已在 Zeabur 內部 health/task smoke 通過，但尚未公開 domain 與 Dashboard cutover。</p>
+          </div>
+        </div>
+        <div class="callout">
+          會議主軸：CycloneOS 正在變成一個能管理 AI worker、雲端 API、Mac mini 自動化與審核紀錄的控制平面，而不是單一聊天介面或 Discord bot 替代品。
+        </div>
+      </section>
+
+      <section id="timeline">
+        <h2>七日時間線</h2>
+        <div class="card timeline">
+          <div class="day">
+            <div class="date">05/02</div>
+            <div>
+              <h3>Cloud-first 基礎</h3>
+              <p>建立 job/pipeline storage foundation，#21 定義 Dashboard/API、Queue、Postgres、Object Storage、Edge Executor 的目標架構。</p>
+              <div class="tags"><span class="tag blue">jobs</span><span class="tag">pipeline</span><span class="tag">#21</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/03</div>
+            <div>
+              <h3>Mobile/PWA 覆蓋</h3>
+              <p>加入 mobile app shell、URL-backed navigation 與 local usage snapshot，讓 Dashboard 更接近可長時間使用的操作台。</p>
+              <div class="tags"><span class="tag green">PWA</span><span class="tag">mobile</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/04</div>
+            <div>
+              <h3>雲端邊界與執行面切開</h3>
+              <p>加入 Google OAuth allowlist、VaultStorage adapter、OpenAB/OpenClaw HTTP env gates、Mac-only executor gate、ArtifactPublisher boundary 與 channel control plane。</p>
+              <div class="tags"><span class="tag green">OAuth</span><span class="tag green">VaultStorage</span><span class="tag amber">Mac Executor</span><span class="tag">#24</span><span class="tag">#25</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/05</div>
+            <div>
+              <h3>Zeabur Dashboard 與 Google Drive</h3>
+              <p>Dashboard 上 Zeabur，Drive/VaultStorage 可用 Google Drive backend；同時確立 web request 不直接 spawn Codex/Claude，而是走 task broker。</p>
+              <div class="tags"><span class="tag green">Zeabur</span><span class="tag green">Google Drive</span><span class="tag amber">runtime target</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/06</div>
+            <div>
+              <h3>部署與舊 runtime 清理</h3>
+              <p>移除 Dashboard 內 legacy Discord bot runtime，修正 Zeabur build/deploy script，避免 SQLite lock，改善 OpenAB env runtime 與聊天 layout。</p>
+              <div class="tags"><span class="tag red">remove legacy bot</span><span class="tag green">deploy hardening</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/07</div>
+            <div>
+              <h3>PostgreSQL 記憶 MVP</h3>
+              <p>新增 <code>agent_channels</code>、<code>agent_messages</code>、<code>agent_tasks</code> 與 migrations，Aqurlume/OpenAB 的訊息與 task history 開始進資料庫。</p>
+              <div class="tags"><span class="tag green">Postgres</span><span class="tag">agent memory</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/08</div>
+            <div>
+              <h3>Work History 與 UI 調整</h3>
+              <p>新增 Work History UI/API、修正 chat scroll、把 Zeebo 顯示名稱改成 Aqurlume，並開出 Mac mini Draco worker 與 OpenAB broker contract tickets。</p>
+              <div class="tags"><span class="tag green">Work History</span><span class="tag">Aqurlume</span><span class="tag">#28</span><span class="tag">#29</span></div>
+            </div>
+          </div>
+          <div class="day">
+            <div class="date">05/09</div>
+            <div>
+              <h3>專屬 OpenAB runtime</h3>
+              <p>從 upstream <code>openabdev/openab</code> 匯入 <code>services/openab</code>，加入 CycloneOS broker overlay，並把新 OpenAB service 部署到 Zeabur 內部驗證。</p>
+              <div class="tags"><span class="tag green">OpenAB import</span><span class="tag green">Zeabur smoke</span><span class="tag amber">cutover pending</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="layers">
+        <h2>改造層次</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>已建立的邊界</h3>
+            <ul class="clean">
+              <li>Dashboard 是 control plane：登入、UI、審核、task history、provider API。</li>
+              <li>OpenAB 是 broker/agent runtime：接任務、排隊、未來管理 worker lifecycle。</li>
+              <li>Mac mini/OpenClaw 是 execution plane：只做 allowlisted、可追蹤的 Mac/local 動作。</li>
+              <li>Postgres 是 durable state：channel、message、task history 已開始落地。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>刻意不做的事</h3>
+            <ul class="clean">
+              <li>Dashboard web request 不直接啟動 Codex/Claude 長任務。</li>
+              <li>Zeabur Dashboard 不依賴 <code>/Users/*</code>、local Drive sync、local Obsidian path。</li>
+              <li>legacy Discord bot 不再是 Dashboard repo runtime。</li>
+              <li>舊有 native OpenAB 目前沒有被改原始碼，新 CycloneOS OpenAB 是分離候選。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="current">
+        <h2>目前架構</h2>
+        <p class="muted">這是 2026-05-09 的實際狀態：Dashboard 已上雲，新 OpenAB 已驗證但還沒成為正式路徑。</p>
+        <div class="diagram">
+          <div class="lane">
+            <div class="lane-title">使用者入口</div>
+            <div class="nodes">
+              <div class="node done"><strong>Browser</strong><span>使用者操作 Dashboard</span></div>
+              <div class="node done"><strong>Google OAuth</strong><span>allowlist 保護頁面與 API</span></div>
+              <div class="node done"><strong>CycloneOS Dashboard</strong><span>Zeabur managed runtime</span></div>
+              <div class="node warn"><strong>Channel UI</strong><span>OpenAB / OpenClaw / Ops / Skills 方向已定，部分 UI 仍待整合</span></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">狀態與資料</div>
+            <div class="nodes">
+              <div class="node done"><strong>Postgres</strong><span>agent_channels/messages/tasks</span></div>
+              <div class="node done"><strong>Google Drive</strong><span>VaultStorage / Drive provider</span></div>
+              <div class="node warn"><strong>ArtifactPublisher</strong><span>有邊界，cloud backend 尚未完成</span></div>
+              <div class="node warn"><strong>Local history</strong><span>舊 session backfill 尚未做</span></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Agent 與執行</div>
+            <div class="nodes">
+              <div class="node warn"><strong>Existing OpenAB</strong><span>目前仍可能承接舊路徑</span></div>
+              <div class="node done"><strong>New OpenAB</strong><span>cycloneos-openab-cal internal smoke OK</span></div>
+              <div class="node warn"><strong>Broker</strong><span>in-memory tasks，尚未 worker claim/update</span></div>
+              <div class="node todo"><strong>Mac mini Draco</strong><span>polling worker 尚未接上</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="openab">
+        <h2>新 CycloneOS OpenAB 狀態</h2>
+        <div class="split">
+          <div class="card">
+            <h3>已完成</h3>
+            <ul class="clean">
+              <li>upstream <code>openabdev/openab</code> 匯入 <code>services/openab</code>。</li>
+              <li>加入 <code>Dockerfile.cycloneos-openab</code> 與 Zeabur overlay。</li>
+              <li>broker-only boot 可在缺少完整 bot/provider secret 時啟動。</li>
+              <li><code>/health</code> 回傳 OK；authenticated <code>POST /tasks</code> 可建立 queued task。</li>
+              <li>Rust release build 已在 Zeabur 通過。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>尚未完成</h3>
+            <ul class="clean">
+              <li>尚未綁公開 domain，因此 Dashboard 還不能穩定 cutover。</li>
+              <li>task store 仍是 in-memory，服務重啟會遺失。</li>
+              <li>worker claim、heartbeat、complete/update API 尚未做。</li>
+              <li>broker 還沒有 enforce allowlisted action，只做基礎 type/target validation。</li>
+              <li>舊 service 與測試 service 需要最後清理。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="future">
+        <h2>未來目標架構</h2>
+        <p class="muted">目標是把 Dashboard、OpenAB、雲端 provider、Mac mini/OpenClaw 變成可審核、可替換、可追蹤的工作流系統。</p>
+        <div class="diagram">
+          <div class="lane">
+            <div class="lane-title">Control Plane</div>
+            <div class="nodes">
+              <div class="node done"><strong>Dashboard</strong><span>UI / auth / approvals</span></div>
+              <div class="node done"><strong>Task History</strong><span>訊息、任務、結果</span></div>
+              <div class="node warn"><strong>SkillGraph</strong><span>React Flow workflow definition</span></div>
+              <div class="node warn"><strong>Ops Console</strong><span>deploy log / status cards</span></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Broker Plane</div>
+            <div class="nodes">
+              <div class="node warn"><strong>OpenAB</strong><span>task intake / sessions</span></div>
+              <div class="node warn"><strong>Queue DB</strong><span>openab_tasks / events / worker heartbeats</span></div>
+              <div class="node warn"><strong>Policy</strong><span>allowlist / approvals / audit</span></div>
+              <div class="node warn"><strong>Dispatch</strong><span>cloud-agent 或 mac-automation</span></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Execution Plane</div>
+            <div class="nodes">
+              <div class="node warn"><strong>Cloud Agent</strong><span>Codex / Claude / OpenAI-compatible worker</span></div>
+              <div class="node warn"><strong>Cloud APIs</strong><span>Drive / Notion / Gmail / GitHub</span></div>
+              <div class="node warn"><strong>Mac mini Draco</strong><span>outbound polling worker</span></div>
+              <div class="node warn"><strong>OpenClaw</strong><span>本機 browser、filesystem、Mac-only automation</span></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">State Plane</div>
+            <div class="nodes">
+              <div class="node warn"><strong>Postgres</strong><span>durable jobs/tasks/events</span></div>
+              <div class="node warn"><strong>Object Storage</strong><span>artifacts / exports / generated outputs</span></div>
+              <div class="node warn"><strong>Long Memory</strong><span>summaries / embeddings / decisions</span></div>
+              <div class="node warn"><strong>Audit Log</strong><span>who asked, who approved, who executed</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="risks">
+        <h2>缺口與風險</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>目前狀態</th>
+              <th>需要的決策或工作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>OpenAB public domain</td>
+              <td>新 service running，但沒有穩定公開 URL。</td>
+              <td>先綁 domain，再讓 Dashboard 以 env cutover。</td>
+            </tr>
+            <tr>
+              <td>OpenAB broker durability</td>
+              <td>in-memory task store。</td>
+              <td>導入 Postgres tables：tasks、events、worker heartbeats。</td>
+            </tr>
+            <tr>
+              <td>Mac mini Draco worker</td>
+              <td>#28 已定義，尚未實作。</td>
+              <td>Mac mini outbound polling，不開 inbound tunnel 作第一版。</td>
+            </tr>
+            <tr>
+              <td>Artifact cloud backend</td>
+              <td>已有 boundary，但 production backend 未完成。</td>
+              <td>選 Zeabur volume、S3-compatible 或 Google Drive export 策略。</td>
+            </tr>
+            <tr>
+              <td>SkillGraph runtime</td>
+              <td>React Flow UI 與 runtime target 概念已出現。</td>
+              <td>把 Documents / YouTube / Social 轉為 workflow steps，不再只是聊天頻道。</td>
+            </tr>
+            <tr>
+              <td>Worker governance</td>
+              <td>Codex 監督 Claude worker 的模式已形成。</td>
+              <td>把「worker 可做什麼」寫入 OpenAB policy 與 Dashboard approvals。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="roadmap">
+        <h2>下一步路線圖</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>0-7 天</h3>
+            <ul class="clean">
+              <li>綁定新 OpenAB public domain。</li>
+              <li>Dashboard cutover 到 CycloneOS OpenAB。</li>
+              <li>實作 broker claim/update/heartbeat。</li>
+              <li>Mac mini Draco 最小 worker：ping、status、tail recent log。</li>
+              <li>清理錯誤或測試 Zeabur OpenAB services。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>2-4 週</h3>
+            <ul class="clean">
+              <li>OpenAB broker Postgres durability。</li>
+              <li>Work History task detail、approval、result preview。</li>
+              <li>Artifact cloud backend。</li>
+              <li>Documents / YouTube / Social workflow 化。</li>
+              <li>GitHub-backed deploy 流程決策。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>1-2 個月</h3>
+            <ul class="clean">
+              <li>SkillGraph / React Flow 成為主工作流入口。</li>
+              <li>Discord 改成 OpenAB entrypoint，而不是獨立 bot runtime。</li>
+              <li>Long-term memory：summary、embedding、decision log。</li>
+              <li>多 worker provider：Codex、Claude、OpenClaw、cloud API 可替換。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout">
+          建議會議決策：先把 CycloneOS 專屬 OpenAB 接成正式 broker，再做 Mac mini Draco worker。這能讓後續每個自動化都進入同一套 history、approval、policy。
+        </div>
+        <p class="footer-note">資料來源：CycloneOS 近七日 git history、GitHub issues #21-#29、Zeabur OpenAB deployment smoke、Codex/Claude worker handoff records。</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
