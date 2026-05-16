@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CycloneOS Weekly Progress Briefing | 2026-05-10 - 2026-05-16</title>
+  <style>
+    :root {
+      --bg: #070a10;
+      --panel: #101722;
+      --panel-2: #121c2a;
+      --panel-3: #0b111a;
+      --line: #26374d;
+      --line-soft: rgba(128, 166, 205, 0.18);
+      --text: #eef5ff;
+      --muted: #98a8bb;
+      --faint: #66778c;
+      --cyan: #38c7ff;
+      --teal: #2be4bd;
+      --green: #2ef08d;
+      --amber: #f5c84b;
+      --rose: #ff6b8a;
+      --violet: #ad7bff;
+      --blue: #5d8cff;
+      --shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(56, 199, 255, 0.16), transparent 30%),
+        radial-gradient(circle at 82% 18%, rgba(43, 228, 189, 0.12), transparent 32%),
+        linear-gradient(180deg, #080c14 0%, #05070c 46%, #070a10 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.32;
+      background-image:
+        linear-gradient(rgba(120, 167, 217, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 167, 217, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, black 0%, transparent 86%);
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .shell {
+      width: min(var(--max), calc(100vw - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      align-items: center;
+      padding: 72px 0 48px;
+      position: relative;
+    }
+
+    .eyebrow {
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.16;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      font-size: clamp(2.45rem, 6vw, 5.8rem);
+      font-weight: 850;
+    }
+
+    h2 {
+      font-size: clamp(1.65rem, 3vw, 2.55rem);
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .lead {
+      max-width: 870px;
+      margin-top: 26px;
+      color: #c9d7e8;
+      font-size: clamp(1rem, 1.6vw, 1.25rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: #dce9f9;
+      background: rgba(14, 23, 34, 0.74);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 16px var(--green);
+      flex: none;
+    }
+
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 54px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 14px 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      color: #c8d6e7;
+      background: rgba(13, 21, 32, 0.72);
+      font-size: 0.86rem;
+    }
+
+    section {
+      padding: 74px 0;
+      border-top: 1px solid rgba(128, 166, 205, 0.14);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.55fr);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-kicker {
+      color: var(--cyan);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.74rem;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(145deg, rgba(22, 33, 49, 0.92), rgba(10, 15, 24, 0.92)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      min-height: 100%;
+    }
+
+    .card.compact {
+      padding: 17px;
+      box-shadow: none;
+      background: rgba(14, 22, 33, 0.74);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat strong {
+      font-size: 1.48rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--faint);
+      font-size: 0.84rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: #0b111a;
+      background: var(--teal);
+      font-size: 0.76rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.blue { background: var(--cyan); }
+    .tag.green { background: var(--green); }
+    .tag.amber { background: var(--amber); }
+    .tag.rose { background: var(--rose); color: #18070d; }
+    .tag.violet { background: var(--violet); color: #13091f; }
+    .tag.dark { color: #d8e5f6; background: rgba(108, 132, 162, 0.22); border: 1px solid rgba(128, 166, 205, 0.18); }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: linear-gradient(var(--cyan), var(--teal));
+      opacity: 0.45;
+    }
+
+    .event {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      position: relative;
+    }
+
+    .event-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(56, 199, 255, 0.55);
+      background: #0b111a;
+      box-shadow: 0 0 22px rgba(56, 199, 255, 0.2);
+      z-index: 1;
+    }
+
+    .event-body {
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line-soft);
+      background: rgba(14, 22, 33, 0.75);
+    }
+
+    .event-body .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      color: #bfe8ff;
+      background: rgba(56, 199, 255, 0.09);
+      border: 1px solid rgba(56, 199, 255, 0.18);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 0.9em;
+    }
+
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 22px;
+    }
+
+    .lane {
+      border: 1px solid rgba(128, 166, 205, 0.22);
+      border-radius: var(--radius);
+      background: rgba(11, 17, 26, 0.76);
+      padding: 16px;
+    }
+
+    .lane-title {
+      color: var(--teal);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .node {
+      border: 1px solid rgba(56, 199, 255, 0.25);
+      border-radius: var(--radius);
+      background: rgba(17, 28, 42, 0.9);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .node strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .node small {
+      display: block;
+      color: var(--faint);
+      line-height: 1.45;
+    }
+
+    .arrow {
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--line-soft);
+      background: rgba(13, 20, 31, 0.72);
+    }
+
+    .matrix th, .matrix td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(128, 166, 205, 0.13);
+      vertical-align: top;
+    }
+
+    .matrix th {
+      color: #dfeaf9;
+      background: rgba(56, 199, 255, 0.08);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .matrix td {
+      color: var(--muted);
+    }
+
+    .matrix tr:last-child td { border-bottom: 0; }
+
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li { margin: 6px 0; }
+
+    .callout {
+      border-left: 3px solid var(--teal);
+      background: rgba(43, 228, 189, 0.08);
+      padding: 16px 18px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: #cdeee7;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: rgba(245, 200, 75, 0.08);
+      color: #f1dfaa;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .flow-step {
+      min-height: 118px;
+      border: 1px solid rgba(56, 199, 255, 0.2);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(19, 31, 47, 0.9), rgba(8, 13, 21, 0.9));
+    }
+
+    .flow-step .num {
+      color: var(--teal);
+      font-weight: 900;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 160px;
+      gap: 16px;
+      align-items: start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(128, 166, 205, 0.12);
+    }
+
+    .phase:last-child { border-bottom: 0; }
+
+    .phase-name {
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .progress {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(128, 166, 205, 0.16);
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--teal));
+    }
+
+    .agenda {
+      counter-reset: agenda;
+      display: grid;
+      gap: 12px;
+    }
+
+    .agenda-item {
+      counter-increment: agenda;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) 88px;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      background: rgba(14, 22, 33, 0.72);
+    }
+
+    .agenda-item::before {
+      content: counter(agenda);
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #051017;
+      background: var(--cyan);
+      font-weight: 900;
+    }
+
+    .agenda-time {
+      color: var(--teal);
+      font-weight: 800;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .footer {
+      padding: 48px 0 76px;
+      color: var(--faint);
+      border-top: 1px solid rgba(128, 166, 205, 0.14);
+    }
+
+    @media (max-width: 980px) {
+      .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section-head, .arch, .grid.cols-2, .grid.cols-3, .grid.cols-4, .flow {
+        grid-template-columns: 1fr;
+      }
+      .phase, .agenda-item {
+        grid-template-columns: 1fr;
+      }
+      .agenda-time { text-align: left; }
+    }
+
+    @media print {
+      body { background: #07101a; }
+      section { break-inside: avoid; }
+      .hero { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <div class="eyebrow">CycloneOS Weekly Progress Briefing</div>
+      <h1>從 Dashboard 到 Agent Workflow OS：本週開發進度與下一階段架構</h1>
+      <p class="lead">
+        本頁整理 2026-05-10 至 2026-05-16 的 CycloneOS 改造：Cloud control plane、OpenAB / OpenClaw 邊界、Pipeline-based Skills、資料來源整合、approval gate，以及後續 issue roadmap。設計為 15 分鐘會議說明頁，可直接用瀏覽器滾動展示。
+      </p>
+      <div class="hero-actions">
+        <span class="pill"><span class="dot"></span> Zeabur deployed: <span class="code">1c832a5</span></span>
+        <span class="pill">PR #35: OpenAB / OpenClaw control plane</span>
+        <span class="pill">PR #36: Pipeline 中文化第一層</span>
+        <span class="pill">Open trackers: #21 / #30 / #33 / #37</span>
+      </div>
+      <nav class="toc" aria-label="Page navigation">
+        <a href="#summary">01 本週總結</a>
+        <a href="#architecture">02 目前架構</a>
+        <a href="#features">03 功能地圖</a>
+        <a href="#agents">04 Agent 邊界</a>
+        <a href="#code-map">05 程式碼對照</a>
+        <a href="#roadmap">06 後續 Roadmap</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="summary">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Executive Summary</div>
+            <h2>本週重點：把 CycloneOS 從「很多工作站」收斂成「可治理的工作流系統」</h2>
+          </div>
+          <p>
+            這週不是單純新增頁面，而是在補核心骨架：資料怎麼進來、誰執行、哪些行為必須 approval、輸出如何成為 artifact、哪些能力要 fail-closed。
+          </p>
+        </div>
+
+        <div class="grid cols-4">
+          <div class="card stat">
+            <span class="tag green">Merged</span>
+            <strong>2 PRs</strong>
+            <span>#35 control plane / source flow，#36 Pipeline 中文化。</span>
+          </div>
+          <div class="card stat">
+            <span class="tag blue">Runtime</span>
+            <strong>Zeabur</strong>
+            <span>Dashboard 已部署 main <span class="code">1c832a5</span>。</span>
+          </div>
+          <div class="card stat">
+            <span class="tag amber">Roadmap</span>
+            <strong>4 Issues</strong>
+            <span>#21 cloud foundation、#30 mega Pipeline、#33 browser、#37 editor UX。</span>
+          </div>
+          <div class="card stat">
+            <span class="tag violet">Safety</span>
+            <strong>Fail-closed</strong>
+            <span>高風險 write / download 不直接 allowlist，先 preview / approval。</span>
+          </div>
+        </div>
+
+        <div class="timeline" style="margin-top: 26px;">
+          <article class="event">
+            <div class="event-marker"></div>
+            <div class="event-body">
+              <div class="meta"><span class="tag blue">2026-05-14</span><span class="tag dark">PR #35</span></div>
+              <h3>OpenAB / OpenClaw control plane 與 Pipeline source flow 合併</h3>
+              <p>加入 stateful OpenAB conversation context、artifact references、Pipeline source/output picker、publish approval fingerprint、OpenClaw planned command preview 與 fail-closed execute gate。</p>
+            </div>
+          </article>
+          <article class="event">
+            <div class="event-marker"></div>
+            <div class="event-body">
+              <div class="meta"><span class="tag blue">2026-05-16</span><span class="tag dark">PR #36</span></div>
+              <h3>Pipeline 工作站中文化第一層</h3>
+              <p>把 templates、node palette、inspector、run dialog、OpenAB task card、approval records 改成更容易使用的中文說明，並補回 YouTube 範本的安全邊界提示。</p>
+            </div>
+          </article>
+          <article class="event">
+            <div class="event-marker"></div>
+            <div class="event-body">
+              <div class="meta"><span class="tag amber">Issues</span><span class="tag dark">Consolidated</span></div>
+              <h3>開發焦點收斂到四個主 tracker</h3>
+              <p>#30 作為 Pipeline-based Skills 主線；#21 處理 Postgres / worker / queue 等 cloud foundation；#33 規劃 Camofox browser capability；#37 補 Pipeline 編輯器 guardrails。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Current Architecture</div>
+            <h2>目前 CycloneOS 的定位：雲端控制台 + 本地工具執行器 + 外部知識來源</h2>
+          </div>
+          <p>
+            Dashboard 不應直接 SSH 到 Mac mini，也不應把 Google Drive local sync path 當 production database。它的責任是建立任務、顯示狀態、收斂資料流、控制 approval。
+          </p>
+        </div>
+
+        <div class="arch">
+          <div class="lane">
+            <div class="lane-title">Input / Knowledge</div>
+            <div class="node"><strong>Google Drive / Obsidian Vault</strong><small>Drive API / VaultStorage 讀取來源與匯出結果。</small></div>
+            <div class="node"><strong>Notion</strong><small>任務、頁面、研究資料與未來 publish target。</small></div>
+            <div class="node"><strong>URL / YouTube / Upload</strong><small>Pipeline input nodes 的入口。</small></div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">CycloneOS Dashboard on Zeabur</div>
+            <div class="node"><strong>Pipeline 工作站</strong><small>React Flow graph、source picker、agent / skill / approval / output nodes。</small></div>
+            <div class="node"><strong>Approval Gate</strong><small>preview -> approval -> execute；external write 必須綁定 fingerprint。</small></div>
+            <div class="node"><strong>OpenAB Task Broker Client</strong><small>建立 cloud task，接收狀態與事件，不直接持有本地工具權限。</small></div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Agent / Executor Layer</div>
+            <div class="node"><strong>OpenAB on Zeabur</strong><small>Cloud broker / knowledge agent / Codex CLI task runtime。</small></div>
+            <div class="node"><strong>OpenClaw / Draco on Mac mini</strong><small>本地 allowlisted tools：yt-dlp、Whisper、python-docx、未來 browser automation。</small></div>
+            <div class="node"><strong>Hermes / Aurelion</strong><small>Research、Felo skills、圖片、簡報、deep research 的候選 agent adapter。</small></div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 20px;">
+          <strong>本週架構共識：</strong>
+          CycloneOS 不再把每個 Skill 做成獨立孤島，而是把所有輸入、Agent 處理、artifact、approval、publish target 串成可重用資料流。
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Feature Map</div>
+            <h2>目前能說明的功能：哪些已可用，哪些是安全預覽，哪些仍在規劃</h2>
+          </div>
+          <p>
+            這裡用「產品功能」而不是「commit」來看，方便對一般聽眾說明目前 CycloneOS 到底能做什麼。
+          </p>
+        </div>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>區塊</th>
+              <th>目前功能</th>
+              <th>狀態</th>
+              <th>下一步</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OpenAB Chat / Task</strong></td>
+              <td>Dashboard 內可對話、建立 OpenAB task、顯示 work history；本週補 conversation context 與 thread summary 設計。</td>
+              <td><span class="tag green">可測</span></td>
+              <td>把 session memory / task log 轉成 durable Postgres state，避免每次對話像單次 request。</td>
+            </tr>
+            <tr>
+              <td><strong>Pipeline 工作站</strong></td>
+              <td>可開模板、拖拉 input / agent / skill / approval / output 節點，已有中文 UI 與 OpenAB task 狀態卡。</td>
+              <td><span class="tag amber">MVP</span></td>
+              <td>#37：刪除節點、連線規則、Run 前 validation、execution boundary 說明。</td>
+            </tr>
+            <tr>
+              <td><strong>資料來源</strong></td>
+              <td>Prompt、Text、URL、Drive File、Notion Page、OpenClaw File、Artifact Ref 等 source node 已進入設計與部分 UI。</td>
+              <td><span class="tag amber">部分可用</span></td>
+              <td>整合現有 Drive browser / Notion search，讓使用者不用手打 path 或 page id。</td>
+            </tr>
+            <tr>
+              <td><strong>Publish / Output</strong></td>
+              <td>Clipboard、Obsidian、Drive、Notion、GitHub Pages、Discord 的輸出目標已在 UI / contract 中出現。</td>
+              <td><span class="tag rose">多數 preview-only</span></td>
+              <td>#30 Phase 6：每個外部寫入都要 preview / approval / execute / audit。</td>
+            </tr>
+            <tr>
+              <td><strong>OpenClaw / Mac mini</strong></td>
+              <td>Dashboard 能透過 OpenAB 對 Mac mini 建立安全任務；YouTube subtitle detection 已作為低風險 action。</td>
+              <td><span class="tag green">已接線</span></td>
+              <td>逐步啟用 audio download、Whisper、python-docx、document conversion，但必須先有 approval gate。</td>
+            </tr>
+            <tr>
+              <td><strong>Cloud Foundation</strong></td>
+              <td>已建立 cloud state / queue / object storage / store contract 的方向與部分 local implementation。</td>
+              <td><span class="tag amber">架構中</span></td>
+              <td>#21：Postgres schema、queue worker、artifact store、approval store 正式化。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="agents">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Agent Boundaries</div>
+            <h2>每個 Agent 的工作邊界：誰負責想，誰負責做，誰負責管制</h2>
+          </div>
+          <p>
+            這是後續架構穩定的關鍵。CycloneOS 不是把所有能力塞進同一隻 agent，而是用 Dashboard 控制任務與權限，用不同 agent / executor 負責不同層。
+          </p>
+        </div>
+
+        <div class="grid cols-3">
+          <div class="card">
+            <span class="tag blue">Cloud Broker</span>
+            <h3>OpenAB</h3>
+            <p>負責 Dashboard 內的 knowledge chat、task creation、Codex CLI runtime、OpenClaw command broker。它可以思考、草擬、建立任務，但不能繞過 approval 直接寫外部系統。</p>
+            <ul>
+              <li>適合：repo 分析、任務拆解、preview-only 草稿、broker task。</li>
+              <li>不適合：直接跑 Mac local tool、任意下載、未審核 publish。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="tag green">Edge Executor</span>
+            <h3>OpenClaw / Draco</h3>
+            <p>跑在 Mac mini，本地工具由它執行。Dashboard 不直接 SSH 執行，而是透過 OpenAB 建立 allowlisted task，再由 Draco worker claim / execute / 回報結果。</p>
+            <ul>
+              <li>適合：yt-dlp、Whisper、python-docx、本機檔案、Mac automation。</li>
+              <li>限制：每個 action 要 allowlist；高風險 action 需要 approval。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="tag violet">Specialist Agent</span>
+            <h3>Hermes / Aurelion</h3>
+            <p>適合放在 Research、Felo、圖片、簡報、Deep Research 類工作。建議用 adapter 方式接入，不把 Hermes 程式碼混進 CycloneOS 核心，保留未來升級 Hermes 的彈性。</p>
+            <ul>
+              <li>適合：web research、Felo skills、圖片 / 簡報生成。</li>
+              <li>下一步：定義 Hermes adapter contract 與 task/event format。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div class="card compact">
+            <h3>Dashboard 的責任</h3>
+            <p>提供使用者操作介面、source picker、Pipeline editor、status / logs、approval gate、audit trail。Dashboard 是控制台，不是萬能執行器。</p>
+          </div>
+          <div class="card compact">
+            <h3>Codex / Claude Code 的責任</h3>
+            <p>目前是開發協作 agent，不應被視為 CycloneOS runtime 的正式產品功能。開發 session log 若要保留，應轉為 engineering audit 或 PR review log。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code-map">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Code Architecture Map</div>
+            <h2>目前程式碼如何對應到產品架構</h2>
+          </div>
+          <p>
+            這張表適合在會議中快速解釋「不是只有 UI 改版」，而是底層 contract、runner、approval、artifact、edge executor 都已經開始拆分。
+          </p>
+        </div>
+
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>產品層</th>
+              <th>主要程式碼位置</th>
+              <th>責任</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Pipeline UI</strong></td>
+              <td><span class="code">src/components/skills/workstations/pipeline/*</span></td>
+              <td>React Flow editor、node palette、inspector、run dialog、OpenAB task card、中文化 UI。</td>
+            </tr>
+            <tr>
+              <td><strong>Pipeline runtime</strong></td>
+              <td><span class="code">src/lib/pipeline-runner.ts</span><br><span class="code">src/lib/pipeline-runtime.ts</span><br><span class="code">src/lib/pipeline-source-input.ts</span></td>
+              <td>解析 source、執行 graph、產生 artifacts、處理 run overrides 與來源資料。</td>
+            </tr>
+            <tr>
+              <td><strong>Skill System</strong></td>
+              <td><span class="code">src/lib/skill-system/*</span></td>
+              <td>SkillAction registry、artifact store、publish plan、template lint、bundle contract。</td>
+            </tr>
+            <tr>
+              <td><strong>OpenAB integration</strong></td>
+              <td><span class="code">src/app/api/openab/*</span><br><span class="code">src/lib/openab-*.ts</span><br><span class="code">services/openab/src/cycloneos_broker.rs</span></td>
+              <td>OpenAB task API、conversation context、thread summary、artifact references、broker allowlist。</td>
+            </tr>
+            <tr>
+              <td><strong>OpenClaw / Mac mini</strong></td>
+              <td><span class="code">src/app/api/openclaw/*</span><br><span class="code">scripts/openclaw/draco-openab-worker.mjs</span></td>
+              <td>本地 worker 安裝、doctor、smoke、任務 claim / execute / telemetry。</td>
+            </tr>
+            <tr>
+              <td><strong>Drive / Vault / Notion</strong></td>
+              <td><span class="code">src/app/api/drive/*</span><br><span class="code">src/lib/vault-storage/*</span><br><span class="code">src/app/api/notion/*</span></td>
+              <td>資料來源與輸出目標；Google Drive 不再被視為本機 sync path，而是 cloud provider。</td>
+            </tr>
+            <tr>
+              <td><strong>Cloud state foundation</strong></td>
+              <td><span class="code">src/lib/cloud-state/*</span><br><span class="code">src/lib/artifacts/*</span><br><span class="code">src/lib/pipeline-approval-store.ts</span></td>
+              <td>未來 Postgres / object storage / approval / audit 的抽象邊界。</td>
+            </tr>
+            <tr>
+              <td><strong>Browser / Hermes adapters</strong></td>
+              <td><span class="code">src/lib/browser-*.ts</span><br><span class="code">src/lib/hermes-*.ts</span></td>
+              <td>Camofox / Hermes 等外部能力的 adapter contract，不把第三方 agent 綁死到核心。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="workflows">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Target Workflows</div>
+            <h2>下一階段要讓資料流真正跑起來的三條主線</h2>
+          </div>
+          <p>
+            這三條是使用者價值最高的主線：會議紀錄、YouTube / research、模板文件產出。它們都要共享 source、artifact、approval 與 publish 機制。
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step"><div class="num">01 Source</div><strong>匯入資料</strong><p>Prompt、Drive file、Notion page、URL、YouTube、OpenClaw local file、Artifact ref。</p></div>
+          <div class="flow-step"><div class="num">02 Agent / Skill</div><strong>選擇處理者</strong><p>OpenAB 思考 / Hermes research / OpenClaw local tool / SkillAction。</p></div>
+          <div class="flow-step"><div class="num">03 Artifact</div><strong>產生中間結果</strong><p>Transcript、summary、docx data、markdown、slides HTML、evidence。</p></div>
+          <div class="flow-step"><div class="num">04 Approval</div><strong>預覽與確認</strong><p>外部寫入、下載、發布、Mac automation 都需要明確確認。</p></div>
+          <div class="flow-step"><div class="num">05 Publish</div><strong>輸出與再利用</strong><p>Obsidian、Drive、Notion、GitHub Pages、Discord；產物可再次當 input。</p></div>
+        </div>
+
+        <div class="grid cols-3" style="margin-top: 18px;">
+          <div class="card compact">
+            <h3>會議紀錄 / IEP / 課發會</h3>
+            <p>語音、文件、圖片進來後，由 OpenClaw 或其他 agent 讀取，套用你的範本與指引，用 <span class="code">python-docx</span> 產生可交付文件。</p>
+          </div>
+          <div class="card compact">
+            <h3>YouTube / Media / Research</h3>
+            <p>先偵測字幕；無字幕才走 audio download + Whisper；後續摘要可輸出 Notion、Obsidian、簡報 HTML 或 GitHub Pages。</p>
+          </div>
+          <div class="card compact">
+            <h3>模板驅動文件</h3>
+            <p>任何 docx template 都能搭配 Drive / Notion / prior artifact 產出申請計畫、IEP、課程計畫、教案與簡報。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Roadmap</div>
+            <h2>後續 issue 與建議優先順序</h2>
+          </div>
+          <p>
+            建議先補使用者操作可理解性，再補資料流輸入整合，最後才擴大 Mac 工具與外部發布；否則功能會很多，但使用者不知道怎麼安全地跑。
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="phase">
+            <div class="phase-name">#37</div>
+            <div>
+              <h3>Pipeline editor guardrails 與節點操作 UX</h3>
+              <p>刪除 node / edge、阻擋不合理連線、Run 前 validation、Inspector 顯示每個節點由 OpenAB / OpenClaw / preview-only / unavailable 哪一層驅動。</p>
+            </div>
+            <div class="progress"><span class="tag amber">Next</span><div class="bar"><span style="width: 10%;"></span></div></div>
+          </div>
+          <div class="phase">
+            <div class="phase-name">#30</div>
+            <div>
+              <h3>Pipeline-based Skills 與統一資料流工作台</h3>
+              <p>把 legacy workstations 包進共用 SkillFrame，讓 artifacts 可以跨 skill 重用，讓 Drive / Notion / local / URL 都能作為一致 input。</p>
+            </div>
+            <div class="progress"><span class="tag blue">Active</span><div class="bar"><span style="width: 42%;"></span></div></div>
+          </div>
+          <div class="phase">
+            <div class="phase-name">#21</div>
+            <div>
+              <h3>Cloud-first runtime foundation</h3>
+              <p>Postgres、queue、object storage、durable pipeline runs、approval records、audit log。這會解決「對話 / session / artifact 記錄不夠持久」的根本問題。</p>
+            </div>
+            <div class="progress"><span class="tag amber">Foundation</span><div class="bar"><span style="width: 28%;"></span></div></div>
+          </div>
+          <div class="phase">
+            <div class="phase-name">#33</div>
+            <div>
+              <h3>Camofox controlled browser capability</h3>
+              <p>建立受控瀏覽器能力，供 OpenAB / Hermes / Pipeline skill 使用；需要 evidence、approval、network boundary，不直接暴露 secrets。</p>
+            </div>
+            <div class="progress"><span class="tag dark">Planned</span><div class="bar"><span style="width: 18%;"></span></div></div>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top: 18px;">
+          <div class="callout warning">
+            <strong>建議新增方向：</strong>
+            建立「Data Source Picker v2」issue，把現有 Drive browser、Notion search、本地 OpenClaw file browser、artifact history 合併成 Pipeline input 的統一選擇器。這會直接解決目前 file path / page id 不直覺的問題。
+          </div>
+          <div class="callout">
+            <strong>建議新增方向：</strong>
+            建立「Agent Adapter Contract」issue，定義 OpenAB、Hermes、OpenClaw 都要回傳的 task event / artifact / capability metadata，讓未來換 agent 不需要重寫 Pipeline。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="talk-track">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">15-Minute Talk Track</div>
+            <h2>建議會議講法</h2>
+          </div>
+          <p>
+            可照下面節奏講，不需要逐字念完整頁面。重點是讓聽眾理解：CycloneOS 正從工具集合升級成可治理的 agent workflow platform。
+          </p>
+        </div>
+
+        <div class="agenda">
+          <div class="agenda-item">
+            <div>
+              <h3>定位</h3>
+              <p>CycloneOS 現在是雲端控制台，負責資料流、任務、approval 和可觀測性。</p>
+            </div>
+            <div class="agenda-time">2 min</div>
+          </div>
+          <div class="agenda-item">
+            <div>
+              <h3>本週完成</h3>
+              <p>PR #35 建立 OpenAB / OpenClaw control plane；PR #36 讓 Pipeline 第一層中文化、可被理解。</p>
+            </div>
+            <div class="agenda-time">3 min</div>
+          </div>
+          <div class="agenda-item">
+            <div>
+              <h3>架構圖</h3>
+              <p>說明 Dashboard、OpenAB、OpenClaw、Hermes、Drive、Notion、Artifacts 的分工。</p>
+            </div>
+            <div class="agenda-time">4 min</div>
+          </div>
+          <div class="agenda-item">
+            <div>
+              <h3>產品功能</h3>
+              <p>展示 Pipeline source -> agent / skill -> artifact -> approval -> publish 的主流程。</p>
+            </div>
+            <div class="agenda-time">3 min</div>
+          </div>
+          <div class="agenda-item">
+            <div>
+              <h3>下一步</h3>
+              <p>先做 #37 操作 guardrails，再做 source picker v2、Postgres durable state、Mac tool expansion、Hermes adapter。</p>
+            </div>
+            <div class="agenda-time">3 min</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <p>
+        Generated from local CycloneOS repo state on 2026-05-16. References: PR #35, PR #36, issue #21, issue #30, issue #33, issue #37, current main commit <span class="code">1c832a5</span>.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
