@@ -15,6 +15,9 @@
       --accent: #176b57;
       --accent-strong: #0e4f40;
       --warn: #9b4d16;
+      --good: #287a3e;
+      --risk: #b65f14;
+      --bad: #9f2f28;
       --shadow: 0 14px 38px rgba(52, 43, 30, 0.12);
     }
 
@@ -224,6 +227,126 @@
       color: var(--muted);
     }
 
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #faf6ef;
+    }
+
+    .score-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 14px;
+    }
+
+    .score-label {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .score-value {
+      margin: 0;
+      color: var(--accent-strong);
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .meter {
+      height: 9px;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5ddd0;
+    }
+
+    .meter span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 160ms ease;
+    }
+
+    .expert-pill {
+      display: none;
+      min-width: 76px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #edf4ef;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .diff-pill {
+      display: none;
+      min-width: 52px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f3ede3;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .show-expert .item {
+      grid-template-columns: 44px 1fr auto auto auto;
+    }
+
+    .show-expert .expert-pill,
+    .show-expert .diff-pill {
+      display: inline-block;
+    }
+
+    details {
+      padding: 0 18px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--accent-strong);
+      font-weight: 700;
+      padding: 12px 0;
+    }
+
+    .expert-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 14px;
+      margin-top: 2px;
+      color: #302d29;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .expert-grid div {
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      border-bottom: 1px dashed #e2d8ca;
+      padding-bottom: 5px;
+    }
+
     .footer {
       display: grid;
       gap: 10px;
@@ -262,6 +385,22 @@
       .layout {
         grid-template-columns: 1fr;
       }
+
+      .scoreboard,
+      .expert-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .show-expert .item {
+        grid-template-columns: 38px 1fr;
+      }
+
+      .show-expert .expert-pill,
+      .show-expert .diff-pill,
+      .show-expert .move {
+        grid-column: 2;
+        justify-self: start;
+      }
     }
 
     @media print {
@@ -277,6 +416,7 @@
       .toolbar,
       .move,
       .hint,
+      details,
       .status {
         display: none;
       }
@@ -293,9 +433,10 @@
     <header>
       <div>
         <h1>沙漠求生</h1>
-        <p class="subtitle">請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序。</p>
+        <p class="subtitle">請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序；活動結束後可顯示專家答案並自動計分。</p>
       </div>
       <div class="toolbar">
+        <button type="button" id="expertBtn">顯示專家答案</button>
         <button type="button" id="resetBtn">重設</button>
         <button type="button" id="copyBtn">複製結果</button>
         <button type="button" class="primary" id="printBtn">列印</button>
@@ -320,9 +461,27 @@
         <div class="ranker-head">
           <div>
             <h2 id="rankerTitle">你的選擇順序</h2>
-            <p class="hint">排序會即時更新下方結果，可直接複製或列印。</p>
+            <p class="hint">差距分 = 你的順位和專家順位的差距絕對值；總差距越低越接近專家判斷。</p>
           </div>
         </div>
+        <div class="scoreboard">
+          <section class="score-card" aria-label="總差距分">
+            <p class="score-label">總差距分</p>
+            <p class="score-value" id="gapScore">--</p>
+            <p class="score-note" id="gapNote">顯示專家答案後開始計分。</p>
+          </section>
+          <section class="score-card" aria-label="存活換算分數">
+            <p class="score-label">存活換算分數</p>
+            <p class="score-value" id="survivalScore">--</p>
+            <div class="meter" aria-hidden="true"><span id="survivalMeter"></span></div>
+            <p class="score-note" id="survivalNote">課堂用 0-100 換算，越高代表越接近專家排序。</p>
+          </section>
+        </div>
+        <details id="expertDetails">
+          <summary>專家排序與計分方式</summary>
+          <div class="expert-grid" id="expertGrid"></div>
+          <p class="hint">每一項分數取「你的拿取順序 - 專家順序」的絕對值，再把 15 項加總。常見課堂版本以總差距分比較團隊和個人的判斷品質。</p>
+        </details>
         <ol class="list" id="list"></ol>
         <div class="footer">
           <textarea id="result" readonly aria-label="排序結果"></textarea>
@@ -334,51 +493,208 @@
 
   <script>
     const defaultItems = [
-      "手電筒",
-      "大摺刀",
-      "美國境內航空地圖",
-      "大型塑膠雨衣",
-      "指南針",
-      "內裝紗布的急救包 1 箱",
-      "0.45 口徑手槍（6 發彈藥）",
-      "紅白色相間降落傘",
-      "鹽片一瓶（一千片）",
-      "清水每人四公升",
-      "一本名為「沙漠中可食的動物」的書",
-      "太陽眼鏡每人一副",
-      "伏特加酒四公升",
-      "外套每人一件",
-      "化妝鏡一面"
+      { name: "手電筒", expert: 4 },
+      { name: "大摺刀", expert: 6 },
+      { name: "美國境內航空地圖", expert: 12 },
+      { name: "大型塑膠雨衣", expert: 7 },
+      { name: "指南針", expert: 11 },
+      { name: "內裝紗布的急救包 1 箱", expert: 10 },
+      { name: "0.45 口徑手槍（6 發彈藥）", expert: 8 },
+      { name: "紅白色相間降落傘", expert: 5 },
+      { name: "鹽片一瓶（一千片）", expert: 15 },
+      { name: "清水每人四公升", expert: 3 },
+      { name: "一本名為「沙漠中可食的動物」的書", expert: 13 },
+      { name: "太陽眼鏡每人一副", expert: 9 },
+      { name: "伏特加酒四公升", expert: 14 },
+      { name: "外套每人一件", expert: 2 },
+      { name: "化妝鏡一面", expert: 1 }
     ];
 
     const list = document.querySelector("#list");
     const result = document.querySelector("#result");
     const status = document.querySelector("#status");
-    let items = [...defaultItems];
+    const gapScore = document.querySelector("#gapScore");
+    const gapNote = document.querySelector("#gapNote");
+    const survivalScore = document.querySelector("#survivalScore");
+    const survivalMeter = document.querySelector("#survivalMeter");
+    const survivalNote = document.querySelector("#survivalNote");
+    const expertBtn = document.querySelector("#expertBtn");
+    const expertDetails = document.querySelector("#expertDetails");
+    const expertGrid = document.querySelector("#expertGrid");
+    const maxGap = defaultItems.reduce((sum, item) => sum + Math.abs((16 - item.expert) - item.expert), 0);
+    let items = defaultItems.map((item) => ({ ...item }));
+    let showExpert = false;
     let draggedIndex = null;
 
     function render() {
+      document.body.classList.toggle("show-expert", showExpert);
       list.innerHTML = "";
-      items.forEach((name, index) => {
+      items.forEach((item, index) => {
+        const diff = Math.abs(index + 1 - item.expert);
         const li = document.createElement("li");
         li.className = "item";
         li.draggable = true;
         li.dataset.index = String(index);
         li.innerHTML = `
           <span class="rank">${index + 1}</span>
-          <span class="name">${name}</span>
+          <span class="name">${item.name}</span>
+          <span class="expert-pill">專家 ${item.expert}</span>
+          <span class="diff-pill">差 ${diff}</span>
           <span class="move">
-            <button type="button" aria-label="上移 ${name}" data-action="up">↑</button>
-            <button type="button" aria-label="下移 ${name}" data-action="down">↓</button>
+            <button type="button" aria-label="上移 ${item.name}" data-action="up">↑</button>
+            <button type="button" aria-label="下移 ${item.name}" data-action="down">↓</button>
           </span>
         `;
         list.appendChild(li);
       });
+      renderExpertGrid();
       updateResult();
     }
 
+    function getTotalGap() {
+      return items.reduce((sum, item, index) => sum + Math.abs(index + 1 - item.expert), 0);
+    }
+
+    function getTier(score) {
+      if (score <= 25) return "非常接近專家判斷";
+      if (score <= 40) return "判斷品質良好";
+      if (score <= 55) return "中等，仍有幾個關鍵物品排序偏離";
+      if (score <= 70) return "風險偏高，建議回頭討論求救策略";
+      return "高風險，和專家排序差距很大";
+    }
+
+    function renderExpertGrid() {
+      const byExpert = [...defaultItems].sort((a, b) => a.expert - b.expert);
+      expertGrid.innerHTML = byExpert
+        .map((item) => `<div><span>${item.expert}. ${item.name}</span></div>`)
+        .join("");
+    }
+
     function updateResult() {
-      result.value = items.map((name, index) => `${index + 1}. ${name}`).join("\n");
+      const totalGap = getTotalGap();
+      const survival = Math.max(0, Math.round((1 - totalGap / maxGap) * 100));
+      gapScore.textContent = showExpert ? String(totalGap) : "--";
+      survivalScore.textContent = showExpert ? String(survival) : "--";
+      survivalMeter.style.width = showExpert ? `${survival}%` : "0";
+      gapNote.textContent = showExpert ? getTier(totalGap) : "顯示專家答案後開始計分。";
+      survivalNote.textContent = showExpert
+        ? `100 分代表完全符合專家排序；目前接近度約 ${survival}%。`
+        : "課堂用 0-100 換算，越高代表越接近專家排序。";
+
+      const lines = items.map((item, index) => {
+        if (!showExpert) return `${index + 1}. ${item.name}`;
+        const diff = Math.abs(index + 1 - item.expert);
+        return `${index + 1}. ${item.name}｜專家 ${item.expert}｜差距 ${diff}`;
+      });
+      if (showExpert) {
+        lines.push("");
+        lines.push(`總差距分：${totalGap}`);
+        lines.push(`存活換算分數：${survival}/100`);
+      }
+      result.value = lines.join("\n");
+    }
+
+    function buildPrintableRows() {
+      return items.map((item, index) => {
+        const diff = Math.abs(index + 1 - item.expert);
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${showExpert ? item.expert : ""}</td>
+            <td>${showExpert ? diff : ""}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function printRanking() {
+      const totalGap = getTotalGap();
+      const survival = Math.max(0, Math.round((1 - totalGap / maxGap) * 100));
+      const scoreHtml = showExpert
+        ? `<p><strong>總差距分：</strong>${totalGap}　<strong>存活換算分數：</strong>${survival}/100</p>`
+        : "<p>尚未顯示專家答案，列印內容只包含目前排序。</p>";
+      const printWindow = window.open("", "_blank", "noopener,noreferrer,width=900,height=700");
+
+      if (!printWindow) {
+        window.print();
+        return;
+      }
+
+      printWindow.document.write(`
+        <!doctype html>
+        <html lang="zh-Hant">
+        <head>
+          <meta charset="utf-8">
+          <title>沙漠求生排序列印</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+              color: #111;
+              margin: 28px;
+            }
+
+            h1 {
+              margin: 0 0 10px;
+              font-size: 28px;
+            }
+
+            p {
+              margin: 0 0 16px;
+              line-height: 1.6;
+            }
+
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              font-size: 16px;
+            }
+
+            th,
+            td {
+              border: 1px solid #333;
+              padding: 8px 10px;
+              text-align: left;
+            }
+
+            th:nth-child(1),
+            th:nth-child(3),
+            th:nth-child(4),
+            td:nth-child(1),
+            td:nth-child(3),
+            td:nth-child(4) {
+              width: 90px;
+              text-align: center;
+            }
+
+            @page {
+              margin: 14mm;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>沙漠求生排序</h1>
+          ${scoreHtml}
+          <table>
+            <thead>
+              <tr>
+                <th>拿取順序</th>
+                <th>物品</th>
+                <th>專家順序</th>
+                <th>差距</th>
+              </tr>
+            </thead>
+            <tbody>${buildPrintableRows()}</tbody>
+          </table>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
     }
 
     function moveItem(from, to) {
@@ -438,9 +754,17 @@
     });
 
     document.querySelector("#resetBtn").addEventListener("click", () => {
-      items = [...defaultItems];
+      items = defaultItems.map((item) => ({ ...item }));
       render();
       status.textContent = "已重設為原始順序。";
+    });
+
+    expertBtn.addEventListener("click", () => {
+      showExpert = !showExpert;
+      expertBtn.textContent = showExpert ? "隱藏專家答案" : "顯示專家答案";
+      expertDetails.open = showExpert;
+      render();
+      status.textContent = showExpert ? "已顯示專家答案並完成計分。" : "已隱藏專家答案。";
     });
 
     document.querySelector("#copyBtn").addEventListener("click", async () => {
@@ -454,7 +778,7 @@
     });
 
     document.querySelector("#printBtn").addEventListener("click", () => {
-      window.print();
+      printRanking();
     });
 
     render();
