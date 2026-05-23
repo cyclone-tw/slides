@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>沙漠求生排序</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #fffdf8;
+      --text: #1d1d1f;
+      --muted: #6b655d;
+      --line: #d8d0c3;
+      --accent: #176b57;
+      --accent-strong: #0e4f40;
+      --warn: #9b4d16;
+      --shadow: 0 14px 38px rgba(52, 43, 30, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 54px);
+      letter-spacing: 0;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      min-height: 42px;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .brief,
+    .ranker {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .brief {
+      padding: 22px;
+    }
+
+    .brief h2,
+    .ranker h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .brief p {
+      margin: 0 0 14px;
+      color: #302d29;
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    .facts {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .fact {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .fact strong {
+      color: var(--text);
+      font-weight: 650;
+      text-align: right;
+    }
+
+    .ranker {
+      overflow: hidden;
+    }
+
+    .ranker-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 56px;
+      padding: 10px 12px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: grab;
+      user-select: none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .item:active {
+      cursor: grabbing;
+    }
+
+    .item.dragging {
+      opacity: 0.55;
+      transform: scale(0.99);
+      border-color: var(--accent);
+    }
+
+    .rank {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #efe8dc;
+      color: var(--accent-strong);
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .name {
+      font-size: 17px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .move {
+      display: flex;
+      gap: 4px;
+    }
+
+    .move button {
+      width: 34px;
+      height: 34px;
+      min-height: 34px;
+      padding: 0;
+      border-radius: 7px;
+      color: var(--muted);
+    }
+
+    .footer {
+      display: grid;
+      gap: 10px;
+      padding: 14px 18px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--warn);
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      main {
+        width: 100%;
+        padding: 0;
+      }
+
+      .toolbar,
+      .move,
+      .hint,
+      .status {
+        display: none;
+      }
+
+      .brief,
+      .ranker {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>沙漠求生</h1>
+        <p class="subtitle">請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序。</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" id="resetBtn">重設</button>
+        <button type="button" id="copyBtn">複製結果</button>
+        <button type="button" class="primary" id="printBtn">列印</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <article class="brief" aria-labelledby="briefTitle">
+        <h2 id="briefTitle">情境</h2>
+        <p>2003 年 8 月某個天氣晴朗的日子，上午 10 點鐘，您乘坐的美國國內航線班機在起飛 20 分鐘後發生事故，緊急迫降在美國亞歷桑納州索諾拉大沙漠。</p>
+        <p>飛機即將在 15 分鐘後爆炸燃燒。全機只剩下你及幾位乘客毫髮無傷，其餘人員已遇難。通訊設備無法使用，機長未能發出緊急求救訊號。</p>
+        <p>你們知道迫降點距離起飛城市約 120 公里，距離原定目標位置還差約 100 公里，最近城鎮約在西北偏北 80 公里附近。沙漠相當平坦，偶有仙人掌，白天氣溫約 42 度，夜間約 5 度。</p>
+        <div class="facts">
+          <div class="fact"><span>現金</span><strong>50 美元</strong></div>
+          <div class="fact"><span>每人穿著</span><strong>T 恤、短褲、涼鞋</strong></div>
+          <div class="fact"><span>每人攜帶</span><strong>手帕</strong></div>
+          <div class="fact"><span>目標</span><strong>按重要性取得物品</strong></div>
+        </div>
+      </article>
+
+      <article class="ranker" aria-labelledby="rankerTitle">
+        <div class="ranker-head">
+          <div>
+            <h2 id="rankerTitle">你的選擇順序</h2>
+            <p class="hint">排序會即時更新下方結果，可直接複製或列印。</p>
+          </div>
+        </div>
+        <ol class="list" id="list"></ol>
+        <div class="footer">
+          <textarea id="result" readonly aria-label="排序結果"></textarea>
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const defaultItems = [
+      "手電筒",
+      "大摺刀",
+      "美國境內航空地圖",
+      "大型塑膠雨衣",
+      "指南針",
+      "內裝紗布的急救包 1 箱",
+      "0.45 口徑手槍（6 發彈藥）",
+      "紅白色相間降落傘",
+      "鹽片一瓶（一千片）",
+      "清水每人四公升",
+      "一本名為「沙漠中可食的動物」的書",
+      "太陽眼鏡每人一副",
+      "伏特加酒四公升",
+      "外套每人一件",
+      "化妝鏡一面"
+    ];
+
+    const list = document.querySelector("#list");
+    const result = document.querySelector("#result");
+    const status = document.querySelector("#status");
+    let items = [...defaultItems];
+    let draggedIndex = null;
+
+    function render() {
+      list.innerHTML = "";
+      items.forEach((name, index) => {
+        const li = document.createElement("li");
+        li.className = "item";
+        li.draggable = true;
+        li.dataset.index = String(index);
+        li.innerHTML = `
+          <span class="rank">${index + 1}</span>
+          <span class="name">${name}</span>
+          <span class="move">
+            <button type="button" aria-label="上移 ${name}" data-action="up">↑</button>
+            <button type="button" aria-label="下移 ${name}" data-action="down">↓</button>
+          </span>
+        `;
+        list.appendChild(li);
+      });
+      updateResult();
+    }
+
+    function updateResult() {
+      result.value = items.map((name, index) => `${index + 1}. ${name}`).join("\n");
+    }
+
+    function moveItem(from, to) {
+      if (to < 0 || to >= items.length || from === to) return;
+      const [item] = items.splice(from, 1);
+      items.splice(to, 0, item);
+      render();
+    }
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll(".item:not(.dragging)")];
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        }
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    list.addEventListener("dragstart", (event) => {
+      const item = event.target.closest(".item");
+      if (!item) return;
+      draggedIndex = Number(item.dataset.index);
+      item.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    });
+
+    list.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      const dragging = list.querySelector(".dragging");
+      if (!dragging) return;
+      const afterElement = getDragAfterElement(list, event.clientY);
+      if (afterElement == null) {
+        list.appendChild(dragging);
+      } else {
+        list.insertBefore(dragging, afterElement);
+      }
+    });
+
+    list.addEventListener("dragend", () => {
+      const dragging = list.querySelector(".dragging");
+      if (!dragging || draggedIndex == null) return;
+      const newIndex = [...list.children].indexOf(dragging);
+      dragging.classList.remove("dragging");
+      moveItem(draggedIndex, newIndex);
+      draggedIndex = null;
+    });
+
+    list.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      const item = event.target.closest(".item");
+      if (!button || !item) return;
+      const index = Number(item.dataset.index);
+      moveItem(index, button.dataset.action === "up" ? index - 1 : index + 1);
+    });
+
+    document.querySelector("#resetBtn").addEventListener("click", () => {
+      items = [...defaultItems];
+      render();
+      status.textContent = "已重設為原始順序。";
+    });
+
+    document.querySelector("#copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(result.value);
+        status.textContent = "排序結果已複製。";
+      } catch {
+        result.select();
+        status.textContent = "瀏覽器不允許自動複製，請手動複製文字框內容。";
+      }
+    });
+
+    document.querySelector("#printBtn").addEventListener("click", () => {
+      window.print();
+    });
+
+    render();
+  </script>
+</body>
+</html>
