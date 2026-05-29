@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026-05-29 AI 工作流共學黑客聊聊｜會議記錄</title>
+  <meta name="description" content="2026-05-29 AI 工作流共學黑客聊聊會議記錄，整理珊迪與 Cyclone 的 AI agent 工作流分享、踩坑經驗、共學延續與後續行動。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #17211d;
+      --paper: #f7f3e8;
+      --paper-soft: #fffaf0;
+      --moss: #546a4e;
+      --pine: #203b33;
+      --clay: #b85f43;
+      --ochre: #d49b43;
+      --sky: #4b91a8;
+      --line: rgba(32, 59, 51, .18);
+      --muted: #6b746d;
+      --shadow: 0 18px 60px rgba(32, 59, 51, .14);
+      --radius: 8px;
+      --sans: "Noto Sans TC", sans-serif;
+      --serif: "Noto Serif TC", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(32, 59, 51, .045) 1px, transparent 1px),
+        linear-gradient(rgba(32, 59, 51, .035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 42px 42px;
+      font-family: var(--sans);
+      line-height: 1.8;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(212, 155, 67, .18), transparent 30%),
+        radial-gradient(circle at 92% 8%, rgba(75, 145, 168, .18), transparent 28%),
+        radial-gradient(circle at 80% 90%, rgba(184, 95, 67, .16), transparent 34%);
+      z-index: -1;
+    }
+
+    a { color: var(--pine); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      align-items: end;
+      padding: 54px 0 42px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr);
+      gap: 34px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--clay);
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 3px;
+      background: var(--clay);
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.18; }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(44px, 8vw, 92px);
+      letter-spacing: 0;
+      margin: 20px 0 18px;
+      max-width: 880px;
+    }
+
+    .lead {
+      font-size: clamp(19px, 2.3vw, 28px);
+      color: var(--pine);
+      max-width: 820px;
+      line-height: 1.55;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .meta-panel {
+      background: rgba(255, 250, 240, .82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 15px;
+    }
+
+    .meta-row:last-child { border-bottom: 0; }
+    .meta-row strong { color: var(--pine); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .chip {
+      border: 1px solid rgba(32, 59, 51, .24);
+      background: rgba(84, 106, 78, .08);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: rgba(247, 243, 232, .84);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 12px 0;
+    }
+
+    .nav-inner a {
+      white-space: nowrap;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255, 250, 240, .72);
+    }
+
+    main { padding: 48px 0 80px; }
+    section { scroll-margin-top: 80px; margin-bottom: 58px; }
+    .section-head {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .section-no {
+      color: var(--clay);
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 13px;
+      padding-top: 10px;
+    }
+
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(31px, 4.8vw, 58px);
+    }
+
+    h3 {
+      font-size: 22px;
+      color: var(--pine);
+      margin-bottom: 10px;
+    }
+
+    p { margin: 0 0 14px; }
+    .prose {
+      background: rgba(255, 250, 240, .72);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 12px 36px rgba(32, 59, 51, .08);
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: rgba(255, 250, 240, .76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 12px 36px rgba(32, 59, 51, .08);
+    }
+
+    .card.accent { border-top: 5px solid var(--ochre); }
+    .card.blue { border-top: 5px solid var(--sky); }
+    .card.red { border-top: 5px solid var(--clay); }
+    .card.green { border-top: 5px solid var(--moss); }
+    .card ul, .prose ul, .prose ol { margin: 0; padding-left: 1.25em; }
+    li { margin: 6px 0; }
+    .quote {
+      font-family: var(--serif);
+      font-size: clamp(25px, 3.4vw, 42px);
+      line-height: 1.42;
+      color: var(--pine);
+      border-left: 6px solid var(--clay);
+      padding: 14px 0 14px 22px;
+      margin: 12px 0 0;
+      background: linear-gradient(90deg, rgba(184, 95, 67, .08), transparent);
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 18px;
+      background: rgba(255, 250, 240, .76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .time {
+      color: var(--clay);
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: .08em;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 18px;
+    }
+
+    .node {
+      min-height: 122px;
+      border: 1px solid rgba(32, 59, 51, .24);
+      background: var(--paper-soft);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+      display: grid;
+      align-content: start;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      width: 10px;
+      height: 2px;
+      background: var(--clay);
+    }
+
+    .node:last-child::after { display: none; }
+    .node b { color: var(--pine); font-size: 17px; }
+    .node span { color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+    .diagram {
+      background: var(--pine);
+      color: #fffaf0;
+      border-radius: var(--radius);
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .diagram::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .12;
+      background-image:
+        linear-gradient(30deg, transparent 48%, #fff 49%, transparent 51%),
+        linear-gradient(150deg, transparent 48%, #fff 49%, transparent 51%);
+      background-size: 80px 80px;
+    }
+
+    .diagram > * { position: relative; }
+    .diagram h3 { color: #fffaf0; }
+    .orbit {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .orbit div {
+      border: 1px solid rgba(255, 250, 240, .22);
+      background: rgba(255, 250, 240, .08);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 92px;
+    }
+
+    .orbit b { display: block; color: #f7c96d; }
+    .orbit span { color: rgba(255, 250, 240, .82); font-size: 14px; }
+    .statline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      background: rgba(255, 250, 240, .8);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .stat strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 34px;
+      color: var(--clay);
+      line-height: 1;
+    }
+
+    .stat span { color: var(--muted); font-size: 14px; }
+    .table {
+      display: grid;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255, 250, 240, .7);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.05fr 1.8fr 1.3fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .row:last-child { border-bottom: 0; }
+    .cell {
+      padding: 14px 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .cell:last-child { border-right: 0; }
+    .head { background: rgba(84, 106, 78, .14); font-weight: 900; color: var(--pine); }
+    .note {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 14px;
+    }
+
+    .speaker {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      background: var(--pine);
+      color: #fffaf0;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0 46px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .hero { min-height: auto; padding-top: 34px; }
+      .hero-grid, .section-head, .grid.two, .grid.three, .flow, .statline, .orbit { grid-template-columns: 1fr; }
+      .timeline-item, .row { grid-template-columns: 1fr; }
+      .cell { border-right: 0; border-bottom: 1px solid var(--line); }
+      .cell:last-child { border-bottom: 0; }
+      .node::after { display: none; }
+      .prose, .card, .diagram { padding: 20px; }
+      nav { position: relative; }
+    }
+
+    @media print {
+      nav { display: none; }
+      body { background: #fff; }
+      .hero { min-height: auto; }
+      .card, .prose, .diagram, .meta-panel { box-shadow: none; break-inside: avoid; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">Meeting Record</div>
+        <h1>AI 工作流共學黑客聊聊</h1>
+        <p class="lead">這份文稿依 2026-05-29 逐字稿重整，將分享內容整理成可閱讀、可追蹤、可回顧的會議記錄：從收藏機器人、Hermes agent、CycloneOS，到共學如何延續成下一段實作。</p>
+      </div>
+      <aside class="meta-panel" aria-label="會議基本資料">
+        <div class="meta-row"><strong>日期</strong><span>2026-05-29</span></div>
+        <div class="meta-row"><strong>形式</strong><span>快閃黑客聊聊，約一小時語音分享</span></div>
+        <div class="meta-row"><strong>主題</strong><span>AI agent 如何改善工作、學習與日常資料流</span></div>
+        <div class="meta-row"><strong>來源</strong><span>Notion 逐字稿整理，語音辨識錯字已按語意校正</span></div>
+        <div class="chips">
+          <span class="chip">AI 共學</span>
+          <span class="chip">Hermes agent</span>
+          <span class="chip">Discord Bot</span>
+          <span class="chip">Obsidian / Notion</span>
+          <span class="chip">GitHub workflow</span>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <nav aria-label="頁面導覽">
+    <div class="wrap nav-inner">
+      <a href="#summary">摘要</a>
+      <a href="#agenda">流程</a>
+      <a href="#sandy">珊迪分享</a>
+      <a href="#cyclone">Cyclone 分享</a>
+      <a href="#principles">共同原則</a>
+      <a href="#followup">後續行動</a>
+      <a href="#appendix">補充說明</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="summary">
+      <div class="section-head">
+        <div class="section-no">01 Summary</div>
+        <div>
+          <h2>會議摘要</h2>
+          <p class="quote">這場分享的核心不是「用了哪些 AI 工具」，而是如何把資料流、開發流、共學流整理成能維護、能排查、能延續的系統。</p>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <article class="card accent">
+          <h3>從收藏到消化</h3>
+          <p>珊迪分享「收藏鼠」工作流：把平常收藏的文章、連結與文字，透過 Discord 交給 agent 整理，再用晚間摘要與隔日提問，轉成個人化心得。</p>
+        </article>
+        <article class="card blue">
+          <h3>從工具到開發流程</h3>
+          <p>Cyclone 分享近兩個月將 CycloneOS、Hermes agent、Discord Bot、OpenAB、GitHub issue / PR 串成個人工作流的進展。</p>
+        </article>
+        <article class="card green">
+          <h3>從個人到共學</h3>
+          <p>與會者認為每個人做的題目雖不同，但互看彼此實作會帶來新 idea；後續可在 server 持續補內容、陪跑與手把手實作。</p>
+        </article>
+      </div>
+
+      <div class="statline" aria-label="會議重點數字">
+        <div class="stat"><strong>2</strong><span>主要分享者：珊迪、Cyclone</span></div>
+        <div class="stat"><strong>3</strong><span>常見知識落點：Obsidian、Notion、GitHub</span></div>
+        <div class="stat"><strong>5</strong><span>Cyclone 近期維護的核心 repo / 系統</span></div>
+        <div class="stat"><strong>11</strong><span>珊迪整理出的 agent 開發踩坑經驗</span></div>
+      </div>
+    </section>
+
+    <section id="agenda">
+      <div class="section-head">
+        <div class="section-no">02 Flow</div>
+        <div><h2>會議流程與段落</h2></div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="time">開場</div>
+          <div>
+            <h3>快閃活動定位</h3>
+            <p>主持人說明這是「打造 AI 工作流」共學的黑客聊聊，時間控制在一小時左右，目標是讓夥伴分享這一兩個月用 AI 改善工作效率、生活紀錄與學習輸出的實作。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="time">第一段</div>
+          <div>
+            <h3>珊迪：收藏鼠與知識消化流程</h3>
+            <p>從「收藏很多但沒有真正拿出來用」的痛點出發，說明如何設計一隻 Hermes agent，透過 Discord、Obsidian、Notion 與 GitHub 把收藏資料變成個人化心得。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="time">第二段</div>
+          <div>
+            <h3>Cyclone：個人 AI 工作流與系統盤點</h3>
+            <p>分享從 VPS / Zeabur、Hermes agent、Discord Bot 到 CycloneOS Dashboard、Cyclone Workflow、OpenAB code review 的整體推進，以及 issue / PR 如何讓非工程背景的人管理開發。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="time">收束</div>
+          <div>
+            <h3>共學延續與下一步</h3>
+            <p>討論共學的價值不只在同做一件事，而是透過彼此展示與回饋看見不同切入點。Cyclone 表示後續會持續在 server 新增內容，也願意協助需要的人架設 Hermes agent。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sandy">
+      <div class="section-head">
+        <div class="section-no">03 Speaker</div>
+        <div>
+          <h2>珊迪分享：讓收藏真正變成自己的知識</h2>
+          <p class="lead">痛點很明確：收藏當下覺得有用，但幾天後就忘了；沒有輸出與應用，收藏最後只會變成資料堆積。</p>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <article class="prose">
+          <span class="speaker">珊</span>
+          <h3>核心設計</h3>
+          <p>珊迪設計的「收藏鼠」是一隻放在雲端伺服器上的 Hermes agent。Discord Bot 是它的身體與嘴巴，使用者把連結或文字貼給它，它先讀內容並做第一次整理，再把資料放入倉庫。</p>
+          <p>每天晚上，agent 會整理當天收藏資料的知識重點，並提供三個簡單問題讓使用者複習。隔天早上，它再提出更深層的問題，例如「這個資訊可以用在我哪些情境？」使用者回答後，agent 會把原始重點與個人回答整合成個人化心得。</p>
+        </article>
+        <aside class="diagram">
+          <h3>收藏鼠資料流</h3>
+          <div class="orbit">
+            <div><b>輸入</b><span>Discord 貼連結、貼文字、丟收藏資料。</span></div>
+            <div><b>初整</b><span>agent 讀全文，先萃取重點。</span></div>
+            <div><b>互動</b><span>晚間摘要、隔日提問，逼自己消化。</span></div>
+            <div><b>輸出</b><span>個人化心得放進 Notion / 系統 inbox。</span></div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="flow" aria-label="珊迪收藏鼠工作流圖">
+        <div class="node"><b>1. 收藏入口</b><span>在 Discord 貼上連結或文字。</span></div>
+        <div class="node"><b>2. 初步整理</b><span>agent 抓取內容並生成知識重點。</span></div>
+        <div class="node"><b>3. Obsidian 倉庫</b><span>原始整理先存放，主要給 agent 讀。</span></div>
+        <div class="node"><b>4. 早晚問答</b><span>晚間複習、隔天深問，形成反思。</span></div>
+        <div class="node"><b>5. Notion / Inbox</b><span>輸出可複習、可取用的個人化心得。</span></div>
+      </div>
+
+      <div class="grid three" style="margin-top: 16px;">
+        <article class="card red">
+          <h3>踩坑一：需求一開始太模糊</h3>
+          <p>最早只想做「丟連結就收藏」，後來才逐步釐清：資料從哪裡來、放在哪裡、誰要讀、最後輸出到哪裡。她的心得是不要一開始就想串完整功能，先拆資料流。</p>
+        </article>
+        <article class="card accent">
+          <h3>踩坑二：開發環境與部署環境不一致</h3>
+          <p>Windows、本機環境、Zeabur 伺服器、Hermes agent 安裝都會造成卡關。她提醒初學者要先了解部署需要哪些環境，並盡量貼近正式部署環境。</p>
+        </article>
+        <article class="card blue">
+          <h3>踩坑三：串接不是單點問題</h3>
+          <p>Discord 不回、cron job 沒跑、Notion 欄位對不上，常常不是某個工具壞掉，而是整條鏈缺少必要設定。debug 時要看整條資料鏈。</p>
+        </article>
+      </div>
+
+      <div class="prose" style="margin-top: 16px;">
+        <h3>安全提醒</h3>
+        <p>珊迪特別提醒：GitHub repo 可以記錄開發過程、版本與經驗，讓未來的 agent 能回頭看；但絕對不能把 `.env`、API key、token、private key 等密碼類資訊推到雲端。她建議一開始就把這條規則寫進 `AGENTS.md` 或 agent 的工作規範。</p>
+        <p class="quote">自動化系統不只是把工具接起來，而是建立一條清楚、可排查、可維護，而且安全的資料流程。</p>
+      </div>
+    </section>
+
+    <section id="cyclone">
+      <div class="section-head">
+        <div class="section-no">04 Speaker</div>
+        <div>
+          <h2>Cyclone 分享：把 AI agent 接進工作與開發流程</h2>
+          <p class="lead">Cyclone 的分享聚焦在近兩三個月的實作：從「需要一台 24 小時跑的主機」開始，逐步把 VPS、Zeabur、Discord、Notion、Google Drive、GitHub 與個人 dashboard 串起來。</p>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <article class="prose">
+          <span class="speaker">Cy</span>
+          <h3>從本機到雲端</h3>
+          <p>一開始看到許多文章建議買 Mac mini 當常駐主機，但成本與空間都不容易。後來改用 VPS / Zeabur 這類雲端伺服器，讓 agent 可以 24 小時運行，再透過 SSH 與部署流程把資料與服務放上去。</p>
+          <p>這段過程也帶出一個關鍵觀念：如果 agent 只是照死規則跑，就失去「代理人」的意義。真正有價值的是讓 agent 能理解使用者的行為模式、期待樣式，並在開發過程中逐步修正。</p>
+        </article>
+        <aside class="diagram">
+          <h3>Cyclone 系統星圖</h3>
+          <div class="orbit">
+            <div><b>CycloneOS</b><span>個人工作 dashboard，串 Google Drive、Gmail、Notion、Obsidian。</span></div>
+            <div><b>Cyclone Workflow</b><span>共學網站，知識庫、AI 工具箱與許願池。</span></div>
+            <div><b>Aurelion / Polylong</b><span>部署在 Zeabur / k3s 的 Hermes agent。</span></div>
+            <div><b>OpenAB</b><span>管理 GitHub、PR 偵測、code review 與部署流程。</span></div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="table" style="margin-top: 16px;">
+        <div class="row head">
+          <div class="cell">系統 / repo</div>
+          <div class="cell">目前用途</div>
+          <div class="cell">分享中的狀態</div>
+        </div>
+        <div class="row">
+          <div class="cell">CycloneOS</div>
+          <div class="cell">個人 dashboard，整合雲端硬碟、Gmail、Notion、Obsidian 與工作提醒。</div>
+          <div class="cell">從本機轉向雲端，並開發節點式 pipeline。</div>
+        </div>
+        <div class="row">
+          <div class="cell">Cyclone Workflow</div>
+          <div class="cell">共學網站，承載知識庫、AI 工具箱、許願池與彼此分享。</div>
+          <div class="cell">仍有 bug 與細節待修，但值得後續共同維護。</div>
+        </div>
+        <div class="row">
+          <div class="cell">Hermes agents</div>
+          <div class="cell">Aurelion、Polylong 等 agent，負責 Discord 互動、搜尋、摘要、陪伴與資料處理。</div>
+          <div class="cell">已部署在 Zeabur / k3s，與 Discord Bot 聯動。</div>
+        </div>
+        <div class="row">
+          <div class="cell">OpenAB</div>
+          <div class="cell">偵測 PR、做 code review、把結果貼回 Discord，形成第二道檢查。</div>
+          <div class="cell">目前仍偏粗糙，但已能輔助 GitHub 開發流程。</div>
+        </div>
+      </div>
+
+      <div class="grid three" style="margin-top: 16px;">
+        <article class="card green">
+          <h3>工作提醒</h3>
+          <p>Dashboard 能讀 Gmail、Notion 與 Google Calendar 類資料，讓他不用每次打開所有工具，就能知道近期要處理哪些事。</p>
+        </article>
+        <article class="card blue">
+          <h3>文件輸出 pipeline</h3>
+          <p>節點式流程可以規劃資料來源、處理方式與輸出位置，未來可支援會議記錄、課程計畫、申請文件、簡報與 GitHub Pages HTML。</p>
+        </article>
+        <article class="card accent">
+          <h3>GitHub 開發管理</h3>
+          <p>issue / PR 讓需求、進度、卡點與 code review 都有紀錄。這不只是給人看，也讓 AI agent 能理解目前哪些工作已完成、哪些還未完成。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="section-head">
+        <div class="section-no">05 Principles</div>
+        <div><h2>兩段分享整理出的共同原則</h2></div>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <h3>1. 先畫資料流，再做自動化</h3>
+          <p>先釐清資料從哪裡來、存在哪裡、誰讀取、如何輸出。沒有資料流，就會在串接工具時一直改版。</p>
+        </article>
+        <article class="card">
+          <h3>2. debug 要看整條鏈</h3>
+          <p>Discord 沒回覆、cron job 沒跑、Notion 沒寫入，可能是 token、欄位、權限、排程或部署環境其中一段出了問題。</p>
+        </article>
+        <article class="card">
+          <h3>3. agent 需要工作規則</h3>
+          <p>`AGENTS.md` 或類似文件不是形式，而是讓 agent 知道怎麼做事、怎麼紀錄、哪些東西不能碰。</p>
+        </article>
+        <article class="card">
+          <h3>4. 安全規則要一開始寫清楚</h3>
+          <p>`.env`、API key、token、private key 都不能推上 GitHub。安全規則不能等出事後才補。</p>
+        </article>
+        <article class="card">
+          <h3>5. 小步交付比一次做完有效</h3>
+          <p>一次開一個 issue、處理一段功能、用 PR 驗收，可以讓 AI 更聚焦，也比較容易追蹤進度。</p>
+        </article>
+        <article class="card">
+          <h3>6. 共學的價值來自互看與互問</h3>
+          <p>每個人的題目不同，反而能看到不同思路；別人的成果、卡點與提問，會變成自己的下一個 idea。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="followup">
+      <div class="section-head">
+        <div class="section-no">06 Actions</div>
+        <div><h2>後續行動與待追蹤事項</h2></div>
+      </div>
+
+      <div class="table">
+        <div class="row head">
+          <div class="cell">項目</div>
+          <div class="cell">內容</div>
+          <div class="cell">建議下一步</div>
+        </div>
+        <div class="row">
+          <div class="cell">共學延續</div>
+          <div class="cell">主持人希望共學能持續，平常互相幫助、分享各自進度並一起學習。</div>
+          <div class="cell">固定整理可公開的學習材料與 demo，讓新成員能接上。</div>
+        </div>
+        <div class="row">
+          <div class="cell">Cyclone server</div>
+          <div class="cell">後續會在 server 持續新增 AI 工作流與實作資訊。</div>
+          <div class="cell">把常見問題、架設流程、Hermes agent 範例整理成入口頁。</div>
+        </div>
+        <div class="row">
+          <div class="cell">手把手協助</div>
+          <div class="cell">若有人在實作 Hermes agent、OpenAB 或部署上卡住，Cyclone 願意協助處理。</div>
+          <div class="cell">建立申請協助的格式：目標、目前環境、錯誤訊息、已試過方法。</div>
+        </div>
+        <div class="row">
+          <div class="cell">Cyclone Workflow</div>
+          <div class="cell">知識庫、AI 工具箱與許願池仍需補資料與修 bug。</div>
+          <div class="cell">用 issue 拆成小任務，讓 dar / Cyclone / agent 能分段處理。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="appendix">
+      <div class="section-head">
+        <div class="section-no">07 Appendix</div>
+        <div><h2>整理說明</h2></div>
+      </div>
+
+      <div class="prose">
+        <p>本頁依 Notion 逐字稿整理。原稿是語音轉文字，含有常見辨識誤差，例如 Discord、Obsidian、Zeabur、Hermes、GitHub、cron job、API key 等詞彙被轉成近音字。本稿以會議脈絡與語意為準，整理成正式會議記錄文稿，並保留分享者原本的段落順序。</p>
+        <p>若後續要轉成簡報版，可直接從本頁抽出 8 至 12 張投影片：會議摘要、珊迪資料流、珊迪踩坑、Cyclone 系統星圖、repo 盤點、GitHub 工作流、共同原則、後續行動。</p>
+        <p class="note">追蹤 issue：cyclone-tw/slides#1。原始 Notion 頁面日期：2026-05-29。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">Generated for Cyclone slides repo. HTML is static and printable; no external JavaScript is required.</div>
+  </footer>
+</body>
+</html>
