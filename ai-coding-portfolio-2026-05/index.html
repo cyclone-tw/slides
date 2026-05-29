@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cyclone AI Coding Portfolio 2026/04-05 - Visual Deck</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --panel: #111824;
+      --panel-2: #172033;
+      --ink: #f2f6ff;
+      --muted: #aab5c8;
+      --subtle: #748198;
+      --line: rgba(255,255,255,.15);
+      --blue: #4aa3ff;
+      --cyan: #39d5c6;
+      --gold: #f2b84b;
+      --red: #ff7568;
+      --green: #70d99b;
+      --shadow: rgba(0,0,0,.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-snap-type: y mandatory;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 16% 12%, rgba(74,163,255,.16), transparent 26%),
+        radial-gradient(circle at 88% 20%, rgba(57,213,198,.12), transparent 28%),
+        linear-gradient(180deg, #070b12 0%, #0e1420 46%, #070b12 100%);
+      font-family: "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: grid;
+      align-content: center;
+      padding: clamp(34px, 6vw, 88px);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide::before {
+      content: attr(data-section);
+      position: absolute;
+      top: clamp(22px, 3vw, 38px);
+      left: clamp(34px, 6vw, 88px);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .content {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 850;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 2px;
+      background: var(--cyan);
+    }
+
+    h1, h2, h3, p { margin: 0; letter-spacing: 0; }
+
+    h1 {
+      max-width: 1160px;
+      font-size: clamp(44px, 6.8vw, 88px);
+      line-height: 1.02;
+      font-weight: 860;
+      text-wrap: balance;
+    }
+
+    h2 {
+      max-width: 1040px;
+      font-size: clamp(34px, 5vw, 66px);
+      line-height: 1.07;
+      font-weight: 850;
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 820;
+      margin-bottom: 10px;
+    }
+
+    .lead {
+      max-width: 900px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: clamp(18px, 2.1vw, 27px);
+    }
+
+    .caption {
+      color: var(--subtle);
+      font-size: 14px;
+      margin-top: 16px;
+    }
+
+    .hero-card {
+      margin-top: 38px;
+      max-width: 780px;
+      padding: 24px 28px;
+      background: rgba(17,24,36,.82);
+      border: 1px solid var(--line);
+      box-shadow: 0 24px 64px var(--shadow);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .stat {
+      min-height: 150px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+      border: 1px solid var(--line);
+      padding: 22px;
+      box-shadow: 0 16px 44px var(--shadow);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(40px, 5vw, 68px);
+      line-height: .95;
+      font-weight: 860;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-top: 34px;
+      border: 1px solid var(--line);
+      background: rgba(17,24,36,.74);
+    }
+
+    .matrix > div {
+      padding: 20px;
+      border-right: 1px solid var(--line);
+      min-height: 216px;
+    }
+
+    .matrix > div:last-child { border-right: 0; }
+
+    .num {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 32px;
+      align-items: center;
+    }
+
+    .visual-col {
+      display: grid;
+      grid-template-columns: .86fr 1.14fr;
+      gap: 34px;
+      margin-top: 32px;
+      align-items: center;
+    }
+
+    .visual-col.reverse {
+      grid-template-columns: 1.14fr .86fr;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: rgba(23,32,51,.86);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      padding: 24px;
+      min-height: 204px;
+      box-shadow: 0 18px 44px var(--shadow);
+    }
+
+    .card.cyan { border-top-color: var(--cyan); }
+    .card.gold { border-top-color: var(--gold); }
+    .card.red { border-top-color: var(--red); }
+    .card.green { border-top-color: var(--green); }
+
+    .card p,
+    .matrix p,
+    li {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 11px; }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 6px 9px;
+      color: var(--ink);
+      background: rgba(74,163,255,.18);
+      border: 1px solid rgba(74,163,255,.35);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .shot {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.2);
+      background: #070b12;
+      box-shadow: 0 26px 80px rgba(0,0,0,.56);
+      overflow: hidden;
+    }
+
+    .shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .shot.tall img {
+      height: auto;
+    }
+
+    .shot.crop-right img {
+      height: auto;
+    }
+
+    .shot.full {
+      margin-top: 32px;
+    }
+
+    .shot.full img {
+      height: auto;
+    }
+
+    .image-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .kpi-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 26px;
+      background: rgba(17,24,36,.82);
+      border: 1px solid var(--line);
+      font-size: 15px;
+    }
+
+    .kpi-table th,
+    .kpi-table td {
+      padding: 15px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .kpi-table th {
+      color: var(--blue);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .kpi-table td {
+      color: var(--muted);
+    }
+
+    .kpi-table td:first-child {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .big-quote {
+      max-width: 1040px;
+      font-size: clamp(30px, 5.2vw, 72px);
+      line-height: 1.08;
+      font-weight: 860;
+      text-wrap: balance;
+    }
+
+    .blue { color: var(--blue); }
+    .cyan-text { color: var(--cyan); }
+    .gold-text { color: var(--gold); }
+
+    .footer {
+      padding: 24px clamp(34px, 6vw, 88px);
+      color: var(--subtle);
+      background: #05070b;
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 960px) {
+      html { scroll-snap-type: none; }
+      .slide { min-height: auto; padding-top: 74px; }
+      .two-col,
+      .visual-col,
+      .visual-col.reverse,
+      .three-col,
+      .matrix,
+      .stat-grid,
+      .image-pair {
+        grid-template-columns: 1fr;
+      }
+      .matrix > div {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .matrix > div:last-child { border-bottom: 0; }
+      .shot.tall img,
+      .shot.crop-right img,
+      .shot.full img {
+        height: auto;
+        object-fit: contain;
+      }
+      .kpi-table,
+      .kpi-table tbody,
+      .kpi-table tr,
+      .kpi-table td {
+        display: block;
+        width: 100%;
+      }
+      .kpi-table thead { display: none; }
+      .kpi-table tr {
+        border-bottom: 1px solid var(--line);
+        padding: 14px 0;
+      }
+      .kpi-table td {
+        border-bottom: 0;
+        padding: 7px 16px;
+      }
+      .kpi-table td:first-child {
+        color: var(--blue);
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="slide" data-section="00 / Executive Brief">
+      <div class="content">
+        <div class="eyebrow">Cyclone AI Coding Portfolio</div>
+        <h1>兩個月，把 AI coding 變成一套可運作的工作系統</h1>
+        <p class="lead">2026/04/01-2026/05/29：從個人 Dashboard、共學網站、Discord agent，到 OpenAB code review bot。這份簡報整理的不只是「AI 幫我寫了什麼」，而是「我如何用 AI 管理真實產品與 agent runtime」。</p>
+        <div class="hero-card">
+          <h3>核心訊息</h3>
+          <p>AI coding 的槓桿不只在程式碼，而是在把需求、issue、PR、agent、Discord、雲端部署串成可以持續迭代的工程流程。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="01 / Portfolio Scale">
+      <div class="content">
+        <div class="eyebrow">Scale of Work</div>
+        <h2>5 個 repo，約 856 個 commits，201 個 PR</h2>
+        <p class="lead">這些不是孤立專案，而是同一套 AI-native 工作流的不同層：使用者介面、社群產品、個人助理、Discord 導覽 agent、Git / code review bot。</p>
+        <div class="stat-grid">
+          <div class="stat"><strong>5</strong><span>主要 GitHub repos</span></div>
+          <div class="stat"><strong>856</strong><span>4/1-5/29 commits</span></div>
+          <div class="stat"><strong>272</strong><span>issues tracked</span></div>
+          <div class="stat"><strong>201</strong><span>pull requests</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="02 / System Map">
+      <div class="content">
+        <div class="eyebrow">Operating Model</div>
+        <h2>Dashboard 指揮，agents 執行，OpenAB 管 Git</h2>
+        <div class="matrix">
+          <div><div class="num">01</div><h3>CycloneOS</h3><p>個人工作流 Dashboard，正在從本地轉向雲端 control plane。</p></div>
+          <div><div class="num">02</div><h3>cyclone-workflow</h3><p>共學網站，Cyclone 提需求、Dar 主開發，承載社群互動與課程產品。</p></div>
+          <div><div class="num">03</div><h3>Aurelion</h3><p>Cyclone 本人的貼身助理，串接 Felo、Notion、Calendar、Gmail 與 Discord。</p></div>
+          <div><div class="num">04</div><h3>Polylong</h3><p>龍之洞窟 Discord Server 的導覽機器人、互動活寶與 Bookmark 管家。</p></div>
+          <div><div class="num">05</div><h3>OpenAB</h3><p>Git steward 與 code review bot，負責 PR watch、review、Discord 通知。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="03 / CycloneOS">
+      <div class="content">
+        <div class="eyebrow">Personal Workflow Control Plane</div>
+        <h2>CycloneOS：從本地 Dashboard 轉向雲端 AI 工作流控制台</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>目前主要功能定位</h3>
+            <ul>
+              <li>整合個人 Gmail、Google Drive 與 OpenClaw 產出的內容。</li>
+              <li>從本地 dashboard 逐步轉成雲端可用的工作流控制台。</li>
+              <li>透過 OpenAB 串接 agent / executor / GitHub / Discord 的工作流程。</li>
+              <li>具備 React Flow 節點式 Pipeline，可以拉節點組出資料處理與輸出流程。</li>
+            </ul>
+          </div>
+          <div class="card cyan">
+            <h3>這兩個月完成的工程推進</h3>
+            <ul>
+              <li>Pipeline Workstation：節點 inspector、input / output adapters、graph validation、resume、approval。</li>
+              <li>Obsidian / Google Drive publish execute E2E：預覽、安全審核、寫入邊界。</li>
+              <li>DOCX / Mac executor pipeline：template render、artifact metadata、OpenAB contract。</li>
+              <li>Finance Workstation：記帳資料、幣別、狀態、summary filters 與 UI polish。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="04 / CycloneOS Dashboard">
+      <div class="content">
+        <div class="eyebrow">Dashboard View</div>
+        <h2>把 Gmail、Calendar、週回顧與 OpenAB 對話放進同一個工作台</h2>
+        <div class="visual-col">
+          <div>
+            <div class="card cyan">
+              <h3>這張畫面代表什麼</h3>
+              <ul>
+                <li>左側是個人工作流資訊：行事曆、郵件摘要、週回顧。</li>
+                <li>右側是 OpenAB：可在 Dashboard 裡直接與雲端 task broker / knowledge agent 對話。</li>
+                <li>重點是把每天零散的信件、行程、任務、agent 對話，放到同一個決策介面。</li>
+              </ul>
+            </div>
+          </div>
+          <figure class="shot crop-right">
+            <img src="assets/cycloneos-dashboard.png" alt="CycloneOS Dashboard with OpenAB panel">
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="05 / Pipeline Workstation">
+      <div class="content">
+        <div class="eyebrow">React Flow Pipeline</div>
+        <h2>Pipeline 工作站：用節點把 AI 工作流程拉出來</h2>
+        <div class="visual-col reverse">
+          <figure class="shot full">
+            <img src="assets/cycloneos-pipeline.png" alt="CycloneOS Pipeline React Flow workstation">
+          </figure>
+          <div class="card gold">
+            <h3>從 prompt 進到 workflow</h3>
+            <ul>
+              <li>以 React Flow 呈現節點式流程，能把輸入、代理、技能、輸出串起來。</li>
+              <li>畫面中的 YouTube 字幕到音訊預判流程，示範了可視化節點與 approval gate。</li>
+              <li>這是 CycloneOS 走向「雲端 control plane」的核心介面。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="06 / Aurelion Hermes">
+      <div class="content">
+        <div class="eyebrow">Personal Assistant Agent</div>
+        <h2>Aurelion Hermes：Cyclone 的貼身助理，不只是聊天機器人</h2>
+        <div class="visual-col">
+          <div class="card gold">
+            <h3>主要功能</h3>
+            <ul>
+              <li>串接 Felo Super Agent，能做深度研究、生成圖片、生成簡報。</li>
+              <li>具備 GPT 二代引擎生圖能力，協助內容產出。</li>
+              <li>串接 Notion、Google Calendar、Gmail，能新增行事曆活動與 task。</li>
+              <li>協助蒐集資訊、整理摘要，並輸出到 Notion 或 Discord。</li>
+              <li>每天搜尋 x.deepsrt.com，將動態摘要去重、分類後轉送到 Discord。</li>
+            </ul>
+          </div>
+          <figure class="shot tall">
+            <img src="assets/aurelion-discord.png" alt="Aurelion Discord information collection and Notion output">
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="07 / Polylong Hermes">
+      <div class="content">
+        <div class="eyebrow">Discord Server Guide Agent</div>
+        <h2>Polylong Hermes：龍之洞窟的導覽機器人、互動活寶與 Bookmark 管家</h2>
+        <div class="two-col">
+          <div class="card red">
+            <h3>Server 互動角色</h3>
+            <ul>
+              <li>主要服務 Dragon Cave / 龍之洞窟 Discord Server。</li>
+              <li>負責導覽、回答問題、陪大家互動聊天，是 server 裡的活寶型角色。</li>
+              <li>處理 mention、thread、channel context，讓對話能接住場景脈絡。</li>
+              <li>身兼 Bookmark 功能，協助把重要訊息收藏、整理、回頭找得到。</li>
+            </ul>
+          </div>
+          <div class="card gold">
+            <h3>Runtime 與排程治理</h3>
+            <ul>
+              <li>Zeabur / K3s / PVC storage mount 與 live runtime 修復。</li>
+              <li>每日早安文、threaded cron delivery、成長日記討論串與排程。</li>
+              <li>繁體中文輸出、成員稱呼、記憶壓力、knowledge path 與模型切換。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="image-pair">
+          <figure class="shot tall"><img src="assets/polylong-morning.png" alt="Polylong daily good morning cron message"></figure>
+          <figure class="shot tall"><img src="assets/polylong-chat.png" alt="Polylong Discord playful interaction"></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="08 / Workflow Site">
+      <div class="content">
+        <div class="eyebrow">Community Product</div>
+        <h2>cyclone-workflow：共學網站從內容頁變成社群產品</h2>
+        <div class="visual-col reverse">
+          <figure class="shot full">
+            <img src="assets/workflow-home.png" alt="AI workflow learning group homepage">
+          </figure>
+          <div class="card green">
+            <h3>產品化成果</h3>
+            <ul>
+              <li>首頁、團隊頁、導覽列、深淺色主題。</li>
+              <li>討論區留言、回覆、Markdown、排序、刪除、登入權限。</li>
+              <li>知識庫 / AI 工具箱 CRUD、多網址、標籤、留言回饋。</li>
+              <li>許願樹多人認領、卡片留言、工具箱關聯、完成確認。</li>
+              <li>AdminPanel、GA 趨勢圖、Gemini AI insights、agent discovery。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="09 / OpenAB">
+      <div class="content">
+        <div class="eyebrow">Git Steward Bot</div>
+        <h2>OpenAB：把 GitHub review 與 repo 管理變成常駐服務</h2>
+        <div class="three-col">
+          <div class="card"><h3>PR Watch</h3><p>監看 CycloneOS / Hermes 相關 repo 的 PR，將 review 狀態與提醒丟到 Discord thread。</p></div>
+          <div class="card cyan"><h3>Code Review</h3><p>建立 Codex + Cursor dual-agent review workflow，支援 GitHub API access inside worker。</p></div>
+          <div class="card gold"><h3>Governance</h3><p>固化 AGENTS workflow、repo working copy scope、Polylong / Aurelion 修改規則與 sandbox 邊界。</p></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><strong>0</strong><span>open issues</span></div>
+          <div class="stat"><strong>22</strong><span>merged PRs</span></div>
+          <div class="stat"><strong>1m</strong><span>GitHub watch interval</span></div>
+          <div class="stat"><strong>2</strong><span>review agents</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="10 / Issue-Driven Development">
+      <div class="content">
+        <div class="eyebrow">Management Method</div>
+        <h2>用 issue / PR 管理 AI coding，而不是只靠聊天記憶</h2>
+        <div class="visual-col reverse">
+          <figure class="shot full">
+            <img src="assets/github-issues.png" alt="CycloneOS open GitHub issues">
+          </figure>
+          <div class="card">
+            <h3>這是 AI coding 能規模化的關鍵</h3>
+            <ul>
+              <li>每個功能、修復、部署與 runtime 變更，都先落到 issue。</li>
+              <li>PR 對應 issue，讓 CTO / 協作者能看懂需求脈絡與驗收條件。</li>
+              <li>OpenAB 再把 PR watch、review、Discord thread 串起來，形成可追蹤循環。</li>
+              <li>結果是：AI 可以快速寫 code，但流程仍保有工程治理。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-section="11 / Evidence Table">
+      <div class="content">
+        <div class="eyebrow">Evidence Table</div>
+        <h2>Repo 盤點結果</h2>
+        <table class="kpi-table">
+          <thead><tr><th>Repo</th><th>定位</th><th>Commits</th><th>Issues</th><th>PRs</th></tr></thead>
+          <tbody>
+            <tr><td>CycloneOS</td><td>個人工作流 Dashboard / 雲端 control plane</td><td>334</td><td>48（7 open）</td><td>9 merged</td></tr>
+            <tr><td>cyclone-workflow</td><td>共學網站與社群產品</td><td>281</td><td>82（2 open）</td><td>105（96 merged）</td></tr>
+            <tr><td>Aurelion Hermes</td><td>Cyclone 貼身助理 agent</td><td>60</td><td>32（3 open）</td><td>31（27 merged）</td></tr>
+            <tr><td>Polylong Hermes</td><td>Discord Server 導覽 / 互動 / Bookmark agent</td><td>90</td><td>41（4 open）</td><td>44（1 open, 40 merged）</td></tr>
+            <tr><td>OpenAB Codex Runtime</td><td>Git steward / code review bot</td><td>91</td><td>34（0 open）</td><td>24（22 merged）</td></tr>
+          </tbody>
+        </table>
+        <p class="caption">資料來源：GitHub issues / PRs / commit API，期間 2026-04-01 至 2026-05-29。</p>
+      </div>
+    </section>
+
+    <section class="slide" data-section="12 / Takeaway">
+      <div class="content">
+        <p class="big-quote">最大的改變不是 <span class="blue">AI 寫 code 變快</span>，而是我可以用 issue、PR、agent workflow 管理真實產品系統。</p>
+        <p class="lead">對非傳統工程背景的人來說，AI coding 的真正槓桿是：把需求變成工程任務，把任務變成 PR，把 PR 變成可部署服務，再讓 agent 幫我維護下一輪。</p>
+      </div>
+    </section>
+
+    <section class="slide" data-section="13 / Next Moves">
+      <div class="content">
+        <div class="eyebrow">Next 30 Days</div>
+        <h2>下一步：從高速建造轉向穩定收斂</h2>
+        <div class="two-col">
+          <div class="card"><h3>系統收斂</h3><ul><li>CycloneOS：收斂 cloud-first runtime、pipeline-based skills、DOCX production。</li><li>OpenAB：把 PR watch / review / Discord thread 整理成 runbook。</li><li>Aurelion：補 session / state retention policy。</li></ul></div>
+          <div class="card gold"><h3>社群與 agent 體驗</h3><ul><li>Polylong：處理模型、繁中輸出、threaded output guard。</li><li>cyclone-workflow：把產品化過程整理成共學案例。</li><li>分享主軸：AI coding = 需求、產品、工程治理的完整工作流。</li></ul></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Source: GitHub issues / PRs / commit API, 2026-04-01 to 2026-05-29. Visual assets from CycloneOS, Discord, GitHub, and cyclone.tw screenshots.
+  </footer>
+</body>
+</html>
