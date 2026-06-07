@@ -368,13 +368,73 @@
     </section>
 
     <section class="slide">
+      <div class="kicker">OpenAB On z-c</div>
+      <h2>OpenAB 是控制面，不是第四隻角色龍</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>定位</h3>
+          <p>OpenAB 在 z-c 上是 Cyclone 的 operations / code review / GitHub watch 控制面。</p>
+          <p class="muted">它負責讀 PR、追 issue、觸發 Codex review、把工作拆到正確 repo，而不是取代 Polylong、Asheron 或 Aurelion 的角色互動。</p>
+        </div>
+        <div class="card">
+          <h3>它應該做什麼</h3>
+          <span class="tag violet">PR / issue watch</span>
+          <span class="tag">Codex review</span>
+          <span class="tag">Discord thread reporting</span>
+          <span class="tag">Dashboard bridge</span>
+          <span class="tag">Routing governance</span>
+          <span class="tag">No secret output</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-top: 18px;">一句話：OpenAB 是「幫 Cyclone 看 GitHub 與調度工作的營運代理」，三隻 Hermes Agent 則是各自的 Discord / runtime 工作角色。</p>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">OpenAB Runtime</div>
+      <h2>z-c 上的 OpenAB service map</h2>
+      <table class="table" style="margin-top: 24px;">
+        <thead>
+          <tr><th>Surface</th><th>Current z-c value</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Native sidecar</strong></td>
+            <td><code>openab-codex.service</code><br>active / running</td>
+            <td>Discord-reachable OpenAB Codex runtime，負責接任務與 code review。</td>
+          </tr>
+          <tr>
+            <td><strong>Dashboard bridge</strong></td>
+            <td><code>openab-dashboard-bridge.service</code><br>active / running<br><code>127.0.0.1:8787</code></td>
+            <td>給 CycloneOS / dashboard 讀取 OpenAB 狀態的 HTTP bridge。</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub watch</strong></td>
+            <td><code>openab-github-watch-codex.timer</code><br>every 3 minutes</td>
+            <td>掃 PR / issue 變更，必要時建立 Discord thread 與 review 任務。</td>
+          </tr>
+          <tr>
+            <td><strong>Digest</strong></td>
+            <td><code>openab-github-digest.timer</code><br>06:00 / 18:00 Taipei</td>
+            <td>每日兩次摘要 GitHub 狀態。</td>
+          </tr>
+          <tr>
+            <td><strong>Source / state</strong></td>
+            <td><code>/root/cyclone-openab-codex-runtime</code><br><code>/root/openab-state</code></td>
+            <td>前者是可 replay 的控制面 repo，後者是 live state / auth home，不能混淆。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="slide">
       <div class="kicker">Close</div>
       <h2>現在的核心原則</h2>
-      <p class="lead">先問「這隻 agent 真正在哪裡跑、讀哪個 profile、哪個 repo 才是 source of truth」，再談功能或修改。</p>
+      <p class="lead">先問「這個工作是角色 agent 的 runtime 問題，還是 OpenAB 控制面的 GitHub / review / routing 問題」，再談功能或修改。</p>
       <div class="card" style="margin-top: 28px;">
         <p><strong>Polylong</strong>：社群與記憶連續性。</p>
         <p><strong>Asheron</strong>：洞窟管理與可執行操作。</p>
         <p><strong>Aurelion</strong>：Mac mini 本地創作與知識工作流。</p>
+        <p><strong>OpenAB</strong>：z-c 上的 operations / GitHub watch / Codex review 控制面。</p>
       </div>
       <div class="footer"><span>Prepared 2026-06-07</span><span>HTML deck · about 10 minutes</span></div>
     </section>
