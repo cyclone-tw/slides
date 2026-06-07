@@ -81,6 +81,7 @@
     .grid { display: grid; gap: 18px; }
     .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .card {
       background: linear-gradient(180deg, var(--panel), rgba(14, 18, 24, .94));
       border: 1px solid var(--line);
@@ -147,6 +148,7 @@
     .agent-name.polylong { color: var(--green); }
     .agent-name.asheron { color: var(--red); }
     .agent-name.aurelion { color: var(--blue); }
+    .agent-name.openab { color: var(--violet); }
 
     .footer {
       display: flex;
@@ -160,7 +162,7 @@
     }
 
     @media (max-width: 820px) {
-      .grid.two, .grid.three, .matrix { grid-template-columns: 1fr; }
+      .grid.two, .grid.three, .grid.four, .matrix { grid-template-columns: 1fr; }
       .timeline { grid-template-columns: 1fr; }
       .slide { min-height: auto; padding: 54px 0; }
     }
@@ -169,17 +171,17 @@
 <body>
   <main class="deck">
     <section class="slide">
-      <div class="kicker">Runtime Briefing · 10 minutes</div>
-      <h1>三隻 Hermes Agent 現況盤點</h1>
-      <p class="lead">Polylong、Asheron、Aurelion 已經不是同一種部署型態，也不該被同一份舊 repo 或舊路徑誤導。</p>
-      <p class="muted">盤點時間：<span class="stamp">2026-06-07</span>。資料來源：z-c systemd / skills list / repo status，以及 Mac mini Aurelion live profile。</p>
-      <div class="footer"><span>cyclone-tw/slides · #3</span><span>不含 secret、token、env value</span></div>
+      <div class="kicker">Runtime Briefing · 10-12 minutes</div>
+      <h1>Hermes Agents 與 OpenAB 控制面現況盤點</h1>
+      <p class="lead">Polylong、Asheron、Aurelion 是三個角色型 Hermes Agent；OpenAB 是 z-c 上的營運、GitHub watch、Codex review 控制面。</p>
+      <p class="muted">盤點時間：<span class="stamp">2026-06-07</span>。資料來源：z-c systemd / skills list / repo status、OpenAB services，以及 Mac mini Aurelion live profile。</p>
+      <div class="footer"><span>cyclone-tw/slides · #3 / #4</span><span>不含 secret、token、env value</span></div>
     </section>
 
     <section class="slide">
       <div class="kicker">Executive View</div>
       <h2>一句話結論</h2>
-      <div class="grid three" style="margin-top: 28px;">
+      <div class="grid four" style="margin-top: 28px;">
         <article class="card">
           <div class="agent-name polylong">Polylong</div>
           <p>社群與記憶連續性 agent。</p>
@@ -195,12 +197,17 @@
           <p>Mac mini 本地創作與知識工作流 agent。</p>
           <p class="muted">聚焦圖片/GIF/去背、資訊收集、Notion/Google、GitHub 與本機工具整合。</p>
         </article>
+        <article class="card">
+          <div class="agent-name openab">OpenAB</div>
+          <p>z-c 上的控制面。</p>
+          <p class="muted">負責 PR/issue watch、Codex review、Discord thread reporting、dashboard bridge 與 routing governance。</p>
+        </article>
       </div>
     </section>
 
     <section class="slide">
       <div class="kicker">Runtime Map</div>
-      <h2>三者部署位置不同</h2>
+      <h2>角色 agent 與控制面的部署位置不同</h2>
       <table class="table" style="margin-top: 24px;">
         <thead>
           <tr><th>Agent</th><th>Host / Service</th><th>Live Runtime</th><th>Replayable Source</th></tr>
@@ -224,9 +231,15 @@
             <td><code>~/.hermes/profiles/aurelion</code></td>
             <td><code>~/cyclone-hermes/repos/cyclone-aurelion-hermes</code></td>
           </tr>
+          <tr>
+            <td><strong>OpenAB</strong></td>
+            <td><code>z-c</code><br><code>openab-codex.service</code><br><code>openab-dashboard-bridge.service</code></td>
+            <td><code>/root/openab-state</code><br><code>/root/openab-state/codex-home</code></td>
+            <td><code>/root/cyclone-openab-codex-runtime</code></td>
+          </tr>
         </tbody>
       </table>
-      <p class="muted" style="margin-top: 18px;">注意：Aurelion 的 launchd job 目前 loaded 但 not running；實際運作中的是手動 restart process。</p>
+      <p class="muted" style="margin-top: 18px;">注意：Aurelion 的 launchd job 目前 loaded 但 not running；實際運作中的是手動 restart process。OpenAB 則是 z-c native sidecar 與 timer-driven GitHub watch。</p>
     </section>
 
     <section class="slide">
@@ -299,94 +312,25 @@
     </section>
 
     <section class="slide">
-      <div class="kicker">Operating Model</div>
-      <h2>不要再用一套路徑理解所有 agent</h2>
-      <div class="matrix" style="margin-top: 24px;">
-        <div class="card">
-          <h3>Polylong</h3>
-          <p><code>/opt/data</code> 是 live state。</p>
-          <p><code>/opt/polylong-runtime</code> 是 runtime overlay。</p>
-          <p class="muted">偏社群與記憶，所以資料邊界比 code 邊界更重要。</p>
-        </div>
-        <div class="card">
-          <h3>Asheron</h3>
-          <p><code>/root/.hermes-asheron</code> 是 profile。</p>
-          <p><code>/usr/local/lib/hermes-agent</code> 是實際 Hermes install。</p>
-          <p class="muted">patch/scripts 會影響工具行為，不能只看 SOUL。</p>
-        </div>
-        <div class="card">
-          <h3>Aurelion</h3>
-          <p><code>~/.hermes/profiles/aurelion</code> 是 live profile。</p>
-          <p><code>cyclone-aurelion-hermes</code> 是可追蹤 repo。</p>
-          <p class="muted">runtime 先跑，repo 要回補，避免 drift。</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="kicker">Risk Register</div>
-      <h2>目前最需要注意的風險</h2>
-      <div class="timeline">
-        <div class="time">文件 drift</div>
-        <div>舊 README 還保留 Zeabur/z1 歷史。已新增 2026-06-07 runtime audit 區塊，但之後仍要定期更新。</div>
-      </div>
-      <div class="timeline">
-        <div class="time">Asheron media</div>
-        <div>本機檔案路徑可能被 Discord gateway 安全檢查擋下；video generation 需要先轉成可接受的 URL/base64。</div>
-      </div>
-      <div class="timeline">
-        <div class="time">Aurelion process</div>
-        <div>目前不是 launchd 常駐，而是手動 restart process。若要穩定長期運行，需要整理 launchd 狀態。</div>
-      </div>
-      <div class="timeline">
-        <div class="time">Secret hygiene</div>
-        <div>任何簡報、README、issue 都只寫路徑與能力，不寫 token、env value 或 OAuth 狀態內容。</div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="kicker">Recommended Next Steps</div>
-      <h2>接下來的整理順序</h2>
-      <div class="grid two" style="margin-top: 24px;">
-        <div class="card">
-          <h3>短期</h3>
-          <ul>
-            <li>把 Polylong / Asheron README 的 runtime audit 視為目前入口。</li>
-            <li>確認 Asheron media path 與 video input workflow。</li>
-            <li>確認 Aurelion 是否要恢復 launchd 常駐。</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>中期</h3>
-          <ul>
-            <li>為三隻 agent 建立固定「runtime map」格式。</li>
-            <li>把 runtime-only patch 全部回補到正確 repo。</li>
-            <li>每次搬遷或改工具後更新 README 與簡報。</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="kicker">OpenAB On z-c</div>
-      <h2>OpenAB 是控制面，不是第四隻角色龍</h2>
+      <div class="kicker">OpenAB</div>
+      <h2>營運控制面、GitHub watch 與 Codex review</h2>
       <div class="grid two" style="margin-top: 24px;">
         <div class="card">
           <h3>定位</h3>
-          <p>OpenAB 在 z-c 上是 Cyclone 的 operations / code review / GitHub watch 控制面。</p>
-          <p class="muted">它負責讀 PR、追 issue、觸發 Codex review、把工作拆到正確 repo，而不是取代 Polylong、Asheron 或 Aurelion 的角色互動。</p>
+          <p>OpenAB 不是第四隻角色龍，而是幫 Cyclone 讀 PR、追 issue、觸發 review、把任務導到正確 repo 的控制面。</p>
+          <p class="muted">它把「使用者口述需求」轉成可追蹤的 GitHub / Discord thread / Codex review 工作流。</p>
         </div>
         <div class="card">
-          <h3>它應該做什麼</h3>
-          <span class="tag violet">PR / issue watch</span>
+          <h3>服務組成</h3>
+          <span class="tag violet">openab-codex.service</span>
+          <span class="tag">dashboard bridge</span>
+          <span class="tag">GitHub watch timer</span>
+          <span class="tag">digest timer</span>
           <span class="tag">Codex review</span>
-          <span class="tag">Discord thread reporting</span>
-          <span class="tag">Dashboard bridge</span>
-          <span class="tag">Routing governance</span>
-          <span class="tag">No secret output</span>
+          <span class="tag">routing governance</span>
         </div>
       </div>
-      <p class="muted" style="margin-top: 18px;">一句話：OpenAB 是「幫 Cyclone 看 GitHub 與調度工作的營運代理」，三隻 Hermes Agent 則是各自的 Discord / runtime 工作角色。</p>
+      <p class="muted" style="margin-top: 18px;">工作邊界：OpenAB 可以協助 repo/review/ops，但不應取代角色 agent 的 live personality，也不能輸出 secret 或直接繞過 repo governance。</p>
     </section>
 
     <section class="slide">
@@ -424,6 +368,86 @@
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Operating Model</div>
+      <h2>不要再用一套路徑理解整個系統</h2>
+      <div class="grid four" style="margin-top: 24px;">
+        <div class="card">
+          <h3>Polylong</h3>
+          <p><code>/opt/data</code> 是 live state。</p>
+          <p><code>/opt/polylong-runtime</code> 是 runtime overlay。</p>
+          <p class="muted">偏社群與記憶，所以資料邊界比 code 邊界更重要。</p>
+        </div>
+        <div class="card">
+          <h3>Asheron</h3>
+          <p><code>/root/.hermes-asheron</code> 是 profile。</p>
+          <p><code>/usr/local/lib/hermes-agent</code> 是實際 Hermes install。</p>
+          <p class="muted">patch/scripts 會影響工具行為，不能只看 SOUL。</p>
+        </div>
+        <div class="card">
+          <h3>Aurelion</h3>
+          <p><code>~/.hermes/profiles/aurelion</code> 是 live profile。</p>
+          <p><code>cyclone-aurelion-hermes</code> 是可追蹤 repo。</p>
+          <p class="muted">runtime 先跑，repo 要回補，避免 drift。</p>
+        </div>
+        <div class="card">
+          <h3>OpenAB</h3>
+          <p><code>/root/openab-state</code> 是 live state。</p>
+          <p><code>cyclone-openab-codex-runtime</code> 是控制面 repo。</p>
+          <p class="muted">看 GitHub、報告、review、分流，不是角色 profile。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Risk Register</div>
+      <h2>目前最需要注意的風險</h2>
+      <div class="timeline">
+        <div class="time">文件 drift</div>
+        <div>舊 README 還保留 Zeabur/z1 歷史。已新增 2026-06-07 runtime audit 區塊，但之後仍要定期更新。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Asheron media</div>
+        <div>本機檔案路徑可能被 Discord gateway 安全檢查擋下；video generation 需要先轉成可接受的 URL/base64。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Aurelion process</div>
+        <div>目前不是 launchd 常駐，而是手動 restart process。若要穩定長期運行，需要整理 launchd 狀態。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">OpenAB routing</div>
+        <div>OpenAB 是控制面，應把 Polylong、Asheron、Aurelion 任務分流到各自 source of truth；不能把自己的 repo 當成三隻 agent 的 runtime 來源。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Secret hygiene</div>
+        <div>任何簡報、README、issue 都只寫路徑與能力，不寫 token、env value 或 OAuth 狀態內容。</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Recommended Next Steps</div>
+      <h2>接下來的整理順序</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>短期</h3>
+          <ul>
+            <li>把 Polylong / Asheron README 的 runtime audit 視為目前入口。</li>
+            <li>把 OpenAB 的 z-c 控制面定位寫進後續 handoff 與 review 流程。</li>
+            <li>確認 Asheron media path 與 video input workflow。</li>
+            <li>確認 Aurelion 是否要恢復 launchd 常駐。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>中期</h3>
+          <ul>
+            <li>為三隻 agent 與 OpenAB 建立固定「runtime map」格式。</li>
+            <li>把 runtime-only patch 全部回補到正確 repo。</li>
+            <li>每次搬遷或改工具後更新 README 與簡報。</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="slide">
