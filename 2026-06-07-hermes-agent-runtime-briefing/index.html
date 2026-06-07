@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hermes Agents Runtime Briefing｜2026-06-07</title>
+  <meta name="description" content="Polylong、Asheron、Aurelion 三隻 Hermes Agent 的實際 runtime、定位與工具盤點。">
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #141820;
+      --panel-2: #1b212b;
+      --ink: #f3f6f2;
+      --muted: #aab5af;
+      --line: rgba(243, 246, 242, .16);
+      --green: #64d4a2;
+      --blue: #7bb7ff;
+      --red: #ff7a72;
+      --gold: #e7c46a;
+      --violet: #b39dff;
+      --radius: 8px;
+      --shadow: 0 24px 90px rgba(0, 0, 0, .42);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      --mono: "SFMono-Regular", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+        radial-gradient(circle at 12% 12%, rgba(100, 212, 162, .16), transparent 30%),
+        radial-gradient(circle at 86% 6%, rgba(123, 183, 255, .14), transparent 28%),
+        var(--bg);
+      background-size: 48px 48px, 48px 48px, auto, auto, auto;
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+
+    a { color: var(--blue); text-underline-offset: 4px; }
+    code {
+      font-family: var(--mono);
+      font-size: .92em;
+      color: #d6f8ff;
+      background: rgba(123, 183, 255, .09);
+      border: 1px solid rgba(123, 183, 255, .18);
+      border-radius: 6px;
+      padding: 2px 5px;
+    }
+
+    .deck { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .slide {
+      min-height: 100vh;
+      display: grid;
+      align-content: center;
+      padding: 72px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kicker {
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.16; letter-spacing: 0; }
+    h1 { font-size: clamp(48px, 8vw, 98px); max-width: 950px; }
+    h2 { font-size: clamp(34px, 5vw, 64px); max-width: 980px; }
+    h3 { font-size: 23px; margin-bottom: 12px; }
+    p { margin: 0 0 14px; }
+    .lead { color: #dbe4df; font-size: clamp(20px, 2.5vw, 31px); max-width: 900px; }
+    .muted { color: var(--muted); }
+    .stamp { color: var(--gold); font-weight: 800; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: linear-gradient(180deg, var(--panel), rgba(14, 18, 24, .94));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .card strong { color: #fff; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #d7e5dd;
+      font-size: 13px;
+      font-weight: 800;
+      margin: 0 6px 8px 0;
+      background: rgba(255, 255, 255, .045);
+    }
+    .tag.green { border-color: rgba(100, 212, 162, .38); color: #bfffe3; }
+    .tag.blue { border-color: rgba(123, 183, 255, .38); color: #cfe7ff; }
+    .tag.red { border-color: rgba(255, 122, 114, .38); color: #ffd3d0; }
+    .tag.gold { border-color: rgba(231, 196, 106, .38); color: #fff0bd; }
+    .tag.violet { border-color: rgba(179, 157, 255, .38); color: #e0d7ff; }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(20, 24, 32, .86);
+    }
+    .table th, .table td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      padding: 13px 14px;
+    }
+    .table th { color: var(--gold); font-size: 14px; }
+    .table tr:last-child td { border-bottom: 0; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .timeline:last-child { border-bottom: 0; }
+    .time { color: var(--gold); font-weight: 900; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 7px 0; }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr .95fr;
+      gap: 14px;
+    }
+    .agent-name { font-size: 26px; font-weight: 900; }
+    .agent-name.polylong { color: var(--green); }
+    .agent-name.asheron { color: var(--red); }
+    .agent-name.aurelion { color: var(--blue); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 26px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 820px) {
+      .grid.two, .grid.three, .matrix { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: 1fr; }
+      .slide { min-height: auto; padding: 54px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide">
+      <div class="kicker">Runtime Briefing · 10 minutes</div>
+      <h1>三隻 Hermes Agent 現況盤點</h1>
+      <p class="lead">Polylong、Asheron、Aurelion 已經不是同一種部署型態，也不該被同一份舊 repo 或舊路徑誤導。</p>
+      <p class="muted">盤點時間：<span class="stamp">2026-06-07</span>。資料來源：z-c systemd / skills list / repo status，以及 Mac mini Aurelion live profile。</p>
+      <div class="footer"><span>cyclone-tw/slides · #3</span><span>不含 secret、token、env value</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Executive View</div>
+      <h2>一句話結論</h2>
+      <div class="grid three" style="margin-top: 28px;">
+        <article class="card">
+          <div class="agent-name polylong">Polylong</div>
+          <p>社群與記憶連續性 agent。</p>
+          <p class="muted">最適合處理 Discord 社群脈絡、週報、自我成長紀錄、歡迎/onboarding 與可控 runtime 維護。</p>
+        </article>
+        <article class="card">
+          <div class="agent-name asheron">Asheron</div>
+          <p>洞窟管理與操作型 agent。</p>
+          <p class="muted">能做 Discord 管理、cron 排程、GitHub/運維工作，也保留角色對話與創作工具。</p>
+        </article>
+        <article class="card">
+          <div class="agent-name aurelion">Aurelion</div>
+          <p>Mac mini 本地創作與知識工作流 agent。</p>
+          <p class="muted">聚焦圖片/GIF/去背、資訊收集、Notion/Google、GitHub 與本機工具整合。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Runtime Map</div>
+      <h2>三者部署位置不同</h2>
+      <table class="table" style="margin-top: 24px;">
+        <thead>
+          <tr><th>Agent</th><th>Host / Service</th><th>Live Runtime</th><th>Replayable Source</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Polylong</strong></td>
+            <td><code>z-c</code><br><code>hermes-polylong.service</code></td>
+            <td><code>/opt/data</code><br><code>/opt/polylong-runtime</code></td>
+            <td><code>/root/cyclone-hermes/polylong/source</code></td>
+          </tr>
+          <tr>
+            <td><strong>Asheron</strong></td>
+            <td><code>z-c</code><br><code>hermes-asheron.service</code></td>
+            <td><code>/root/.hermes-asheron</code></td>
+            <td><code>/root/cyclone-hermes/asheron/source</code></td>
+          </tr>
+          <tr>
+            <td><strong>Aurelion</strong></td>
+            <td><code>Mac mini</code><br>manual <code>hermes gateway restart</code></td>
+            <td><code>~/.hermes/profiles/aurelion</code></td>
+            <td><code>~/cyclone-hermes/repos/cyclone-aurelion-hermes</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted" style="margin-top: 18px;">注意：Aurelion 的 launchd job 目前 loaded 但 not running；實際運作中的是手動 restart process。</p>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Polylong</div>
+      <h2>社群連續性與自我成長紀錄</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>定位</h3>
+          <p>Polylong 是 Cyclone Discord 世界裡最偏「社群脈絡」的 agent。</p>
+          <p class="muted">它要記得人、事件、洞窟文化、歡迎流程、週報與自己的工作原則。</p>
+        </div>
+        <div class="card">
+          <h3>工具與技能</h3>
+          <span class="tag green">120 enabled skills</span>
+          <span class="tag">Discord/devops</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">Notion / Google</span>
+          <span class="tag">Research</span>
+          <span class="tag">Creative/media</span>
+          <span class="tag">Character memory</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-top: 18px;">工作邊界：可改 live mutable state，例如 memories、cron jobs、skills、scripts、consensus knowledge；不應直接改 Hermes core、secrets、部署設定。</p>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Asheron</div>
+      <h2>洞窟管理、Discord 操作與排程</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>定位</h3>
+          <p>Asheron 是 z-c native systemd 上的操作型 Hermes agent。</p>
+          <p class="muted">它不是 Docker/K3s workload。它的 source、profile、patch scripts 和 systemd 需要清楚分開看。</p>
+        </div>
+        <div class="card">
+          <h3>工具與技能</h3>
+          <span class="tag red">100 enabled skills</span>
+          <span class="tag">Discord admin</span>
+          <span class="tag">Cron creation</span>
+          <span class="tag">GitHub workflows</span>
+          <span class="tag">Creative GIF/sticker</span>
+          <span class="tag">Memory tiering</span>
+          <span class="tag">Hermes runtime customize</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-top: 18px;">已知限制：近期 media delivery 會因安全路徑拒絕本機檔案；video_generate 需要 HTTPS URL 或 base64 data URL。</p>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Aurelion</div>
+      <h2>本地創作與知識工作流</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>定位</h3>
+          <p>Aurelion 是 Mac mini 上最靠近 Cyclone 個人工作流的 agent。</p>
+          <p class="muted">它整合本機 profile、GitHub repo、Notion/Google、Discord 頻道規則與 media pipeline。</p>
+        </div>
+        <div class="card">
+          <h3>近期能力</h3>
+          <span class="tag blue">GPT 5.5 / openai-codex</span>
+          <span class="tag">mp4-to-gif</span>
+          <span class="tag">smart background removal</span>
+          <span class="tag">Grok image workflows</span>
+          <span class="tag">ComfyUI skill</span>
+          <span class="tag">Info collect</span>
+          <span class="tag">GitHub operations</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-top: 18px;">Discord 互動已針對多人頻道設定 mention-only：未 @Aurelion 不插話。</p>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Operating Model</div>
+      <h2>不要再用一套路徑理解所有 agent</h2>
+      <div class="matrix" style="margin-top: 24px;">
+        <div class="card">
+          <h3>Polylong</h3>
+          <p><code>/opt/data</code> 是 live state。</p>
+          <p><code>/opt/polylong-runtime</code> 是 runtime overlay。</p>
+          <p class="muted">偏社群與記憶，所以資料邊界比 code 邊界更重要。</p>
+        </div>
+        <div class="card">
+          <h3>Asheron</h3>
+          <p><code>/root/.hermes-asheron</code> 是 profile。</p>
+          <p><code>/usr/local/lib/hermes-agent</code> 是實際 Hermes install。</p>
+          <p class="muted">patch/scripts 會影響工具行為，不能只看 SOUL。</p>
+        </div>
+        <div class="card">
+          <h3>Aurelion</h3>
+          <p><code>~/.hermes/profiles/aurelion</code> 是 live profile。</p>
+          <p><code>cyclone-aurelion-hermes</code> 是可追蹤 repo。</p>
+          <p class="muted">runtime 先跑，repo 要回補，避免 drift。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Risk Register</div>
+      <h2>目前最需要注意的風險</h2>
+      <div class="timeline">
+        <div class="time">文件 drift</div>
+        <div>舊 README 還保留 Zeabur/z1 歷史。已新增 2026-06-07 runtime audit 區塊，但之後仍要定期更新。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Asheron media</div>
+        <div>本機檔案路徑可能被 Discord gateway 安全檢查擋下；video generation 需要先轉成可接受的 URL/base64。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Aurelion process</div>
+        <div>目前不是 launchd 常駐，而是手動 restart process。若要穩定長期運行，需要整理 launchd 狀態。</div>
+      </div>
+      <div class="timeline">
+        <div class="time">Secret hygiene</div>
+        <div>任何簡報、README、issue 都只寫路徑與能力，不寫 token、env value 或 OAuth 狀態內容。</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Recommended Next Steps</div>
+      <h2>接下來的整理順序</h2>
+      <div class="grid two" style="margin-top: 24px;">
+        <div class="card">
+          <h3>短期</h3>
+          <ul>
+            <li>把 Polylong / Asheron README 的 runtime audit 視為目前入口。</li>
+            <li>確認 Asheron media path 與 video input workflow。</li>
+            <li>確認 Aurelion 是否要恢復 launchd 常駐。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>中期</h3>
+          <ul>
+            <li>為三隻 agent 建立固定「runtime map」格式。</li>
+            <li>把 runtime-only patch 全部回補到正確 repo。</li>
+            <li>每次搬遷或改工具後更新 README 與簡報。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Close</div>
+      <h2>現在的核心原則</h2>
+      <p class="lead">先問「這隻 agent 真正在哪裡跑、讀哪個 profile、哪個 repo 才是 source of truth」，再談功能或修改。</p>
+      <div class="card" style="margin-top: 28px;">
+        <p><strong>Polylong</strong>：社群與記憶連續性。</p>
+        <p><strong>Asheron</strong>：洞窟管理與可執行操作。</p>
+        <p><strong>Aurelion</strong>：Mac mini 本地創作與知識工作流。</p>
+      </div>
+      <div class="footer"><span>Prepared 2026-06-07</span><span>HTML deck · about 10 minutes</span></div>
+    </section>
+  </main>
+</body>
+</html>
