@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自我改進 AI Agent 論文導讀｜2026-06-13</title>
+  <meta name="description" content="University of Waterloo 論文《Unifying Foundation Models with Decision Making》的繁體中文摘要、章節導讀與完整中文導讀版。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230d1110'/%3E%3Cpath d='M14 42h36M14 32h36M14 22h36' stroke='%235dd39e' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #0d1110;
+      --surface: #151a19;
+      --surface-2: #1e2524;
+      --surface-3: #f5f0e7;
+      --ink: #f5f2ea;
+      --ink-dark: #16201e;
+      --muted: #aeb9b4;
+      --muted-dark: #55635f;
+      --line: rgba(245, 242, 234, .16);
+      --line-dark: rgba(22, 32, 30, .16);
+      --green: #5dd39e;
+      --blue: #7db7ff;
+      --amber: #e8b95f;
+      --coral: #ff8f73;
+      --paper: #fffaf0;
+      --radius: 8px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+      --mono: "SFMono-Regular", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        var(--bg);
+      background-size: 52px 52px, 52px 52px, auto;
+      font-family: var(--sans);
+      line-height: 1.72;
+    }
+
+    a { color: var(--blue); text-underline-offset: 4px; }
+    strong { color: #fff; }
+    code {
+      font-family: var(--mono);
+      font-size: .92em;
+      color: #d7eeff;
+      background: rgba(125, 183, 255, .09);
+      border: 1px solid rgba(125, 183, 255, .18);
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+
+    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      align-content: center;
+      gap: 28px;
+      padding: 72px 0 42px;
+      border-bottom: 1px solid var(--line);
+    }
+    .kicker {
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.16; letter-spacing: 0; }
+    h1 { font-size: clamp(44px, 7vw, 90px); max-width: 1050px; }
+    h2 { font-size: clamp(30px, 4.7vw, 58px); max-width: 960px; }
+    h3 { font-size: 22px; margin-bottom: 10px; }
+    p { margin: 0 0 14px; }
+    ul, ol { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 7px 0; }
+    .lead { color: #e4ebe5; font-size: clamp(20px, 2.2vw, 30px); max-width: 980px; }
+    .muted { color: var(--muted); }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .045);
+      color: #e7eee9;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .pill.green { border-color: rgba(93, 211, 158, .38); color: #c9ffe4; }
+    .pill.blue { border-color: rgba(125, 183, 255, .38); color: #d6eaff; }
+    .pill.amber { border-color: rgba(232, 185, 95, .42); color: #ffe9b8; }
+    .pill.coral { border-color: rgba(255, 143, 115, .42); color: #ffd7cc; }
+
+    .section {
+      padding: 68px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .section.light {
+      color: var(--ink-dark);
+      background: var(--paper);
+      border-bottom: 0;
+    }
+    .section.light strong { color: #111a18; }
+    .section.light a { color: #245c9f; }
+    .section.light .kicker { color: #166f4b; }
+    .section.light .muted { color: var(--muted-dark); }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: linear-gradient(180deg, var(--surface), rgba(17, 22, 21, .96));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .light .card {
+      background: #fffdf6;
+      border-color: var(--line-dark);
+    }
+    .metric {
+      color: var(--amber);
+      font-size: 40px;
+      font-weight: 950;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .callout {
+      border-left: 5px solid var(--green);
+      background: rgba(93, 211, 158, .08);
+      padding: 18px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .light .callout { background: #eef8ee; }
+    .split {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .toc {
+      position: sticky;
+      top: 18px;
+      background: rgba(21, 26, 25, .9);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .toc a {
+      display: block;
+      color: #e6eee8;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      padding: 10px 0;
+    }
+    .toc a:last-child { border-bottom: 0; }
+
+    .tabs {
+      margin-top: 30px;
+      background: var(--surface-3);
+      color: var(--ink-dark);
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+    .tab-list {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      border-bottom: 1px solid rgba(0,0,0,.12);
+      background: #ebe4d7;
+    }
+    .tab-button {
+      appearance: none;
+      border: 0;
+      border-right: 1px solid rgba(0,0,0,.1);
+      background: transparent;
+      color: #35413e;
+      min-height: 52px;
+      padding: 0 18px;
+      font: inherit;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tab-button[aria-selected="true"] {
+      color: #0d1714;
+      background: #fffaf0;
+      box-shadow: inset 0 -4px 0 var(--green);
+    }
+    .tab-panel { display: none; padding: 28px; }
+    .tab-panel.active { display: block; }
+    .tab-panel h3 { color: #17211f; }
+    .tab-panel p, .tab-panel li { color: #263330; }
+    .tab-panel .muted { color: #5c6864; }
+
+    .chapter {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 18px;
+      padding: 22px 0;
+      border-bottom: 1px solid rgba(0,0,0,.12);
+    }
+    .chapter:last-child { border-bottom: 0; }
+    .chapter-num {
+      color: #166f4b;
+      font-weight: 950;
+      font-size: 20px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.14);
+      border-radius: var(--radius);
+      background: #fffdf7;
+    }
+    .table th, .table td {
+      text-align: left;
+      vertical-align: top;
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(0,0,0,.12);
+    }
+    .table th { color: #166f4b; font-size: 14px; }
+    .table tr:last-child td { border-bottom: 0; }
+
+    .source {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 24px 0 42px;
+    }
+
+    @media (max-width: 860px) {
+      .grid.two, .grid.three, .split, .source { grid-template-columns: 1fr; }
+      .chapter { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 54px; }
+      .section { padding: 52px 0; }
+      .toc { position: static; }
+      .tab-list { flex-wrap: wrap; overflow-x: visible; }
+      .tab-button { flex: 1 1 50%; border-bottom: 1px solid rgba(0,0,0,.1); }
+      .tab-panel { padding: 22px 18px; }
+      .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap hero">
+    <div class="kicker">Thesis Guide · 2026-06-13</div>
+    <h1>讓 Foundation Models 走向會行動、會評估、會自我改進的 Agent</h1>
+    <p class="lead">Abhranil Chandra 的 Waterloo 碩士論文導讀：把大型基礎模型的知識與決策系統的閉環學習合在一起，往「不只靠人工標註與明確 reward」的自主 AI agent 前進。</p>
+    <div class="meta">
+      <span class="pill green">Foundation Models</span>
+      <span class="pill blue">Decision Making</span>
+      <span class="pill amber">Self-Improvement</span>
+      <span class="pill coral">Scalable Oversight</span>
+    </div>
+    <p class="muted">原論文：<em>Unifying Foundation Models with Decision Making: A Path Towards Autonomous Self-Improving Agents beyond Rewards and Human Supervision</em>。作者：Abhranil Chandra，University of Waterloo，2025。</p>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="wrap split">
+        <nav class="toc" aria-label="頁面導覽">
+          <strong>快速跳轉</strong>
+          <a href="#summary">一句話摘要</a>
+          <a href="#three-works">三個核心工作</a>
+          <a href="#tabs">Tab 導讀區</a>
+          <a href="#reading">閱讀路線</a>
+          <a href="#sources">來源與限制</a>
+        </nav>
+        <div id="summary">
+          <div class="kicker">Core Thesis</div>
+          <h2>論文的主張很直接：模型要變成 agent，不能只靠靜態資料，也不能只靠手刻 reward。</h2>
+          <div class="callout" style="margin-top: 24px;">
+            <p><strong>白話版：</strong>Foundation Models 很會從大量資料學世界知識，但它們通常是「看過很多」而不是「真的會試、會改、會在環境裡學」。Reinforcement Learning 和 decision making 則擅長閉環行動與回饋學習，但常常需要明確 reward、模擬器、很多互動資料。這篇論文想把兩邊接起來。</p>
+          </div>
+          <p class="muted" style="margin-top: 18px;">這不是一篇只談概念的 agent 宣言。它把主張拆成三個可實驗的技術方向：影片世界模型與具身規劃、從不完美推理資料學 reasoning、以及用多模型評審機制做可擴展評估。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="three-works" class="section">
+      <div class="wrap">
+        <div class="kicker">Three Pillars</div>
+        <h2>三個核心工作，其實是在回答同一個問題：feedback 可以從哪裡來？</h2>
+        <div class="grid three" style="margin-top: 28px;">
+          <article class="card">
+            <div class="metric">01</div>
+            <h3>VideoAgent</h3>
+            <p>把 goal-conditioned video generation 當作世界模型與行動計畫。模型先想像任務影片，再用 VLM feedback、反覆 refinement、online execution 讓計畫更合理。</p>
+            <p class="muted">Feedback 來源：物理世界、VLM 評估、執行結果。</p>
+          </article>
+          <article class="card">
+            <div class="metric">02</div>
+            <h3>Reg-ReBoot</h3>
+            <p>挑戰「reasoning 一定要乾淨標準答案」的假設。它研究 LLM 是否能從未驗證、甚至最後答案錯的 CoT traces 裡，萃取穩定的推理模式。</p>
+            <p class="muted">Feedback 來源：不完美資料中的統計結構。</p>
+          </article>
+          <article class="card">
+            <div class="metric">03</div>
+            <h3>ReFeR</h3>
+            <p>用多個 pretrained LLM/VLM 扮演 peers 與 area chair，像學術 peer review 一樣產生評分、理由與改進建議，降低人工評估瓶頸。</p>
+            <p class="muted">Feedback 來源：模型社群的審查與綜合判斷。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="tabs" class="section light">
+      <div class="wrap">
+        <div class="kicker">Readable Notes</div>
+        <h2>中文導讀區</h2>
+        <p class="muted">下方 tab 提供摘要、章節導讀、完整中文導讀版與概念詞典。這是導讀與改寫，不是原論文逐字全文翻譯。</p>
+
+        <div class="tabs">
+          <div class="tab-list" role="tablist" aria-label="論文導讀 tabs">
+            <button class="tab-button" id="tab-overview" role="tab" aria-controls="panel-overview" aria-selected="true">總覽摘要</button>
+            <button class="tab-button" id="tab-chapters" role="tab" aria-controls="panel-chapters" aria-selected="false">章節導讀</button>
+            <button class="tab-button" id="tab-full" role="tab" aria-controls="panel-full" aria-selected="false">完整中文導讀版</button>
+            <button class="tab-button" id="tab-concepts" role="tab" aria-controls="panel-concepts" aria-selected="false">概念詞典</button>
+          </div>
+
+          <section class="tab-panel active" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+            <h3>總覽摘要</h3>
+            <p>這篇論文的核心，是把兩條 AI 發展路線重新接起來。第一條是 Foundation Models：靠大量靜態資料訓練，擁有廣泛知識、語言能力、影像理解與生成能力。第二條是 decision making / RL：透過行動、環境回饋、試錯、規劃與閉環學習，讓系統能朝目標改善行為。</p>
+            <p>作者認為，Foundation Models 雖然強，但很多時候缺少 grounding、agency 與自我改進機制；RL 雖然能學行動策略，但太依賴 reward 設計、模擬器與互動資料。真正可擴展的 agent，需要能用多種 feedback 學習：世界的物理結果、不完美資料裡的穩定結構、以及其他模型給出的評估與建議。</p>
+            <div class="grid three" style="margin-top: 18px;">
+              <article class="card">
+                <h3>如果你做 robotics</h3>
+                <p>先讀 Chapter 2。VideoAgent 展示影片生成模型如何變成具身任務的「想像與修正」機制。</p>
+              </article>
+              <article class="card">
+                <h3>如果你做 LLM reasoning</h3>
+                <p>先讀 Chapter 3。Reg-ReBoot 關心的是：不完美 CoT 能不能仍然教會模型推理。</p>
+              </article>
+              <article class="card">
+                <h3>如果你做 AI evaluation</h3>
+                <p>先讀 Chapter 4。ReFeR 把評估設計成多 agent 審查流程，接近 scalable oversight 的問題。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-chapters" role="tabpanel" aria-labelledby="tab-chapters">
+            <h3>章節導讀</h3>
+            <div class="chapter">
+              <div class="chapter-num">Chapter 1</div>
+              <div>
+                <h3>導論：為什麼要統一 Foundation Models 與 Decision Making</h3>
+                <p>這章先界定問題：FM 有知識與表徵能力，但缺少環境閉環；RL 有行動與改善機制，但資料效率與 reward 設計限制很大。作者把整本論文的共同線索定義為「用更廣義的 feedback 建立自我改進 agent」。</p>
+              </div>
+            </div>
+            <div class="chapter">
+              <div class="chapter-num">Chapter 2</div>
+              <div>
+                <h3>VideoAgent：用影片世界模型做具身規劃</h3>
+                <p>這是最具體的 embodied AI 工作。VideoAgent 先根據初始影像與語言目標生成影片計畫，再用 self-conditioning consistency 和 VLM feedback 修正幻覺與不合理物理。它也能透過環境執行回饋，把成功軌跡拿回來改善模型。</p>
+              </div>
+            </div>
+            <div class="chapter">
+              <div class="chapter-num">Chapter 3</div>
+              <div>
+                <h3>Reg-ReBoot：從不完美 Chain-of-Thought 學 reasoning</h3>
+                <p>這章挑戰乾淨資料崇拜。作者主張，若錯誤 CoT 的錯法足夠分散，而真正有用的推理步驟比較一致，next-token training 可能會放大穩定推理 primitive、平均掉雜訊。這讓 reasoning training 不一定完全依賴昂貴人工驗證或 rule verifier。</p>
+              </div>
+            </div>
+            <div class="chapter">
+              <div class="chapter-num">Chapter 4</div>
+              <div>
+                <h3>ReFeR：用多模型審查做可擴展評估</h3>
+                <p>這章處理 generative model 的評估瓶頸。ReFeR 把多個模型組成 peer review hierarchy，由 peers 給理由與分數，再由 area chair 綜合判斷。它可以評估文字、影像，也能延伸到 reasoning 任務。</p>
+              </div>
+            </div>
+            <div class="chapter">
+              <div class="chapter-num">Chapter 5</div>
+              <div>
+                <h3>結論：把學習、搜尋、評估接成閉環</h3>
+                <p>最後回到總主張：未來的 agent 需要同時能想像、行動、評估、修正。作者提出的自然延伸，是把 VideoAgent 類的世界模型與 ReFeR 類的自評估系統接起來，讓 agent 能連續產生資料、檢查計畫、改善自己。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-full" role="tabpanel" aria-labelledby="tab-full">
+            <h3>完整中文導讀版</h3>
+            <p class="muted">這一段是整篇論文的完整中文導讀與重寫摘要，方便快速理解原文脈絡；不是逐字翻譯，也不取代原 PDF。</p>
+
+            <h3>1. 這篇論文想解決什麼問題？</h3>
+            <p>近年的 AI 很大一部分進步來自 Foundation Models。它們透過大規模資料學到語言、影像、常識與抽象模式，因此能回答問題、寫程式、產生圖片、理解多模態內容。但這類模型大多是在靜態資料上訓練：資料已經存在，模型負責預測與生成。這讓它們很強，卻不一定真正理解行動造成的結果，也不一定能透過環境回饋持續改善。</p>
+            <p>另一條路線是 reinforcement learning 和 sequential decision making。這條路線關心的是：agent 在環境中採取行動、觀察結果、根據回饋更新策略。這比靜態預測更接近「會做事」的智慧。不過 RL 的痛點也很清楚：它需要大量互動、可靠 reward、可用模擬器，且常在特定任務上有效，跨任務泛化不一定好。</p>
+            <p>作者的總論點是：未來要走向自主、自我改進的 agent，不能只押其中一邊。Foundation Models 提供廣泛知識與生成能力；decision making 提供閉環學習、目標導向與行動能力。關鍵問題是，如何讓模型不只模仿資料，而是能用各種 feedback 修正自己。</p>
+
+            <h3>2. Chapter 2：VideoAgent 的意義</h3>
+            <p>VideoAgent 處理的是 embodied planning，也就是讓 AI 在具身環境中完成任務，例如機器人操作物體。傳統做法常需要 action label 或明確 reward，但這些資料很貴。VideoAgent 的想法是：如果模型能生成「任務應該如何發生」的影片，它就能先在想像中規劃，再把影片轉成行動。</p>
+            <p>問題是，影片生成模型容易 hallucinate。它可能生成看起來合理但物理上不成立的畫面，例如物體消失、手臂穿模、目標沒有真的完成。VideoAgent 因此引入 refinement：模型不是只生成一次，而是反覆修正影片計畫。修正過程使用 self-conditioning consistency，並透過 Vision-Language Model 判斷計畫是否符合任務與物理常識。</p>
+            <p>更重要的是，VideoAgent 不只 offline 生成影片。當影片計畫被拿去執行後，系統可以收集環境裡的結果，把成功經驗再餵回模型。這讓它接近一個自我改進 loop：想像、執行、觀察、再改善。論文在 Meta-World、iTHOR 與真實機器人影片資料上展示，這種 feedback-guided refinement 可以降低 hallucination，並提升任務成功率。</p>
+
+            <h3>3. Chapter 3：Reg-ReBoot 的意義</h3>
+            <p>Reg-ReBoot 轉向 LLM reasoning。一般提升 reasoning 的方法，常依賴高品質資料：人工驗證的解題過程、正確答案、rule-based verifier，或 RL 訓練流程。這些方法有效，但成本高，也限制了可擴展性。</p>
+            <p>作者提出一個反直覺問題：如果 Chain-of-Thought 資料沒有被驗證，甚至有些最後答案是錯的，模型仍然能學到 reasoning 嗎？Reg-ReBoot 的答案偏向肯定。它的核心假設是：錯誤資料裡可能同時存在兩種成分，一種是分散、個別、隨機的錯誤；另一種是反覆出現、穩定、有用的推理 primitive。當模型用大量資料做 next-token training 時，穩定模式會被學起來，分散錯誤則可能被平均掉。</p>
+            <p>這個觀點把「不完美資料」從垃圾資料改看成廉價但有訊號的訓練來源。它不代表資料品質不重要，而是提醒我們：reasoning 的可擴展訓練，不一定只能靠昂貴的 gold solution。對想做 agent self-improvement 的人來說，這很關鍵，因為 agent 在真實世界裡產生的中間推理與嘗試，通常不會天然乾淨。</p>
+
+            <h3>4. Chapter 4：ReFeR 的意義</h3>
+            <p>ReFeR 處理的是 evaluation 與 oversight。生成模型越強，越需要可靠評估；但人工評估昂貴、慢、不易規模化，傳統自動指標又常和人類偏好不一致。ReFeR 的做法是把評估流程設計成一個多 agent peer review system。</p>
+            <p>在 ReFeR 裡，多個 pretrained LLM 或 VLM 先扮演 peers，分別分析輸出品質、提出理由與評分；接著由 area chair 模型整合 peers 的意見，做最後判斷。這個 hierarchy 類似學術審查：不是只問單一模型「好不好」，而是讓多個模型提供視角，再做綜合。</p>
+            <p>論文把 ReFeR 用在文字生成、影像品質、reasoning tasks 等場景，並提出 ReFeR-Pro 與 ReFeR-Lite 兩種版本。Pro 偏重更高性能與更多推理計算，Lite 偏重成本與 compute efficiency。作者的關鍵主張是：模型不只可以生成內容，也可以提供結構化 feedback；這些 feedback 又能被拿來 distill 或 fine-tune 後續模型，形成改進材料。</p>
+
+            <h3>5. 最後的統一觀點</h3>
+            <p>VideoAgent、Reg-ReBoot、ReFeR 看起來分別在 robotics、LLM reasoning、evaluation，但它們共享同一個架構問題：agent 如何在沒有完美標註、沒有明確 reward、沒有無限人工監督的情況下改善自己？VideoAgent 用物理世界與 VLM feedback，Reg-ReBoot 用不完美推理資料裡的統計結構，ReFeR 用模型社群的審查與綜合判斷。</p>
+            <p>這篇論文最值得帶走的，不是某個單點方法，而是一個工程方向：自我改進 agent 需要 feedback plumbing。也就是說，系統要能產生候選行動或答案，取得某種評估訊號，將訊號轉成可學習資料，並把改善後的能力再放回下一輪行動。</p>
+
+            <h3>6. 對 AI workflow / agent system 的啟發</h3>
+            <p>如果把這篇論文放回實務 AI workflow，它提醒我們不要只問「模型夠不夠大」。更實際的問題是：系統有沒有閉環？有沒有紀錄失敗？有沒有把 review 變成訓練資料或 prompt 改進？有沒有把多個模型或工具的評估結果組織成可靠決策？</p>
+            <p>對 agent 工程來說，這篇論文可視為三個模組的研究版藍圖：world model 負責想像與規劃，reasoning bootstrap 負責從不完美軌跡學習，evaluation society 負責 scalable oversight。真正困難的地方，是把這些模組接成穩定、安全、可驗證的長期自我改進系統。</p>
+          </section>
+
+          <section class="tab-panel" id="panel-concepts" role="tabpanel" aria-labelledby="tab-concepts">
+            <h3>關鍵概念詞典</h3>
+            <table class="table">
+              <thead>
+                <tr><th>概念</th><th>白話解釋</th><th>在論文裡的角色</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Foundation Model</strong></td>
+                  <td>用大規模資料預訓練出的通用模型，例如 LLM、VLM、影片生成模型。</td>
+                  <td>提供廣泛知識、生成能力與先驗。</td>
+                </tr>
+                <tr>
+                  <td><strong>Decision Making</strong></td>
+                  <td>讓系統在狀態、行動、回饋之間做連續決策。</td>
+                  <td>補上目標導向、行動與閉環學習。</td>
+                </tr>
+                <tr>
+                  <td><strong>World Model</strong></td>
+                  <td>模型內部用來預測「如果這樣做，世界接下來會怎樣」的機制。</td>
+                  <td>VideoAgent 用生成影片當作可視化的世界模型。</td>
+                </tr>
+                <tr>
+                  <td><strong>Test-Time Compute</strong></td>
+                  <td>不是只靠訓練時學到的東西，而是在回答或行動當下多花計算做搜尋、評估、修正。</td>
+                  <td>VideoAgent 與 ReFeR 都把更多推理時間轉成更好的輸出。</td>
+                </tr>
+                <tr>
+                  <td><strong>Chain-of-Thought</strong></td>
+                  <td>模型解題時寫出的中間推理步驟。</td>
+                  <td>Reg-ReBoot 研究不完美 CoT 是否仍能提供 reasoning 訊號。</td>
+                </tr>
+                <tr>
+                  <td><strong>Scalable Oversight</strong></td>
+                  <td>當人類無法逐一檢查所有輸出時，用可擴展方法維持評估與監督品質。</td>
+                  <td>ReFeR 用多模型審查降低人工評估瓶頸。</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="reading" class="section">
+      <div class="wrap">
+        <div class="kicker">Reading Path</div>
+        <h2>怎麼讀最有效率</h2>
+        <div class="grid three" style="margin-top: 28px;">
+          <article class="card">
+            <h3>10 分鐘</h3>
+            <p>讀本頁的總覽摘要、三個核心工作，以及來源限制。目標是知道這篇論文的 thesis statement。</p>
+          </article>
+          <article class="card">
+            <h3>30 分鐘</h3>
+            <p>讀 Chapter 1 的問題設定，再讀本頁的章節導讀。目標是理解三個工作如何服務同一條主線。</p>
+          </article>
+          <article class="card">
+            <h3>90 分鐘以上</h3>
+            <p>依興趣選 Chapter 2、3、4 深讀。做 agent 系統先讀 Chapter 4；做 embodied AI 先讀 Chapter 2；做 reasoning data 先讀 Chapter 3。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sources" class="section light">
+      <div class="wrap">
+        <div class="kicker">Sources</div>
+        <h2>來源與版權說明</h2>
+        <div class="source">
+          <article class="card">
+            <h3>原始頁面</h3>
+            <p><a href="https://uwspace.uwaterloo.ca/items/e6cc2151-d4f1-41fb-8bc9-99f810ea7fad">UW Space item page</a></p>
+            <p class="muted">包含論文 metadata、摘要、作者與下載資訊。</p>
+          </article>
+          <article class="card">
+            <h3>PDF</h3>
+            <p><a href="https://dspacemainprd01.lib.uwaterloo.ca/server/api/core/bitstreams/535f49c7-165e-4ed4-854e-1e6d7da645db/content">原始 PDF 下載連結</a></p>
+            <p class="muted">完整論文共 184 頁。需要逐章細讀時，請以原 PDF 為準。</p>
+          </article>
+        </div>
+        <div class="callout" style="margin-top: 24px;">
+          <p><strong>重要限制：</strong>本頁是中文摘要、章節導讀與重寫整理，不是整本論文的逐字翻譯，也不取代原論文。若要引用研究內容，請回到原文 PDF 與作者提供的正式版本。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <span>cyclone-tw/slides · self-improving agents thesis guide</span>
+    <span>Prepared for Cyclone · 2026-06-13</span>
+  </footer>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll(".tab-button"));
+    const panels = Array.from(document.querySelectorAll(".tab-panel"));
+
+    function activateTab(button) {
+      buttons.forEach((item) => item.setAttribute("aria-selected", String(item === button)));
+      panels.forEach((panel) => panel.classList.toggle("active", panel.id === button.getAttribute("aria-controls")));
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => activateTab(button));
+      button.addEventListener("keydown", (event) => {
+        const index = buttons.indexOf(button);
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          const next = buttons[(index + 1) % buttons.length];
+          next.focus();
+          activateTab(next);
+        }
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          const previous = buttons[(index - 1 + buttons.length) % buttons.length];
+          previous.focus();
+          activateTab(previous);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
