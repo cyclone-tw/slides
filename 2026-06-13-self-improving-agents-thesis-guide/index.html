@@ -5,271 +5,445 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>自我改進 AI Agent 論文導讀｜2026-06-13</title>
   <meta name="description" content="University of Waterloo 論文《Unifying Foundation Models with Decision Making》的繁體中文摘要、章節導讀與完整中文導讀版。">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230d1110'/%3E%3Cpath d='M14 42h36M14 32h36M14 22h36' stroke='%235dd39e' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230b1120'/%3E%3Cpath d='M14 42h36M14 32h36M14 22h36' stroke='%2326de81' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
   <style>
+    /* OD web-prototype tokens × mission-control (dark) + warm-editorial (light) */
     :root {
-      --bg: #0d1110;
-      --surface: #151a19;
-      --surface-2: #1e2524;
-      --surface-3: #f5f0e7;
-      --ink: #f5f2ea;
-      --ink-dark: #16201e;
-      --muted: #aeb9b4;
-      --muted-dark: #55635f;
-      --line: rgba(245, 242, 234, .16);
-      --line-dark: rgba(22, 32, 30, .16);
-      --green: #5dd39e;
-      --blue: #7db7ff;
-      --amber: #e8b95f;
-      --coral: #ff8f73;
-      --paper: #fffaf0;
-      --radius: 8px;
-      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
-      --mono: "SFMono-Regular", Consolas, monospace;
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-raised: #1a2535;
+      --fg: #e8f0fe;
+      --muted: #8ba3c7;
+      --muted-dim: #4a6080;
+      --border: #1e3a5f;
+      --border-subtle: #162035;
+      --accent: #26de81;
+      --accent-2: #00d4ff;
+      --accent-3: #ffb800;
+      --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+      --accent-2-soft: color-mix(in oklch, var(--accent-2) 14%, transparent);
+      --accent-3-soft: color-mix(in oklch, var(--accent-3) 14%, transparent);
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+
+      --bg-light: #faf7f2;
+      --surface-light: #ffffff;
+      --fg-light: #1c1a17;
+      --muted-light: #8a817a;
+      --border-light: #e8e5df;
+      --accent-light: #2f5b4f;
+      --accent-light-soft: color-mix(in oklch, var(--accent-light) 12%, transparent);
+
+      --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Noto Serif TC', 'Songti TC', serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+      --fs-h1: clamp(40px, 6vw, 76px);
+      --fs-h2: clamp(28px, 3.6vw, 48px);
+      --fs-h3: clamp(17px, 1.8vw, 22px);
+      --fs-lead: clamp(18px, 1.9vw, 26px);
+      --fs-body: 16px;
+      --fs-meta: 12px;
+
+      --gap-sm: 12px;
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: clamp(72px, 10vw, 112px);
+      --container: 1120px;
+      --gutter: clamp(20px, 4vw, 40px);
+      --radius: 10px;
+      --radius-lg: 16px;
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
-      color: var(--ink);
+      color: var(--fg);
       background:
-        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in oklch, var(--border) 40%, transparent) 1px, transparent 1px),
+        linear-gradient(color-mix(in oklch, var(--border) 30%, transparent) 1px, transparent 1px),
         var(--bg);
-      background-size: 52px 52px, 52px 52px, auto;
-      font-family: var(--sans);
-      line-height: 1.72;
+      background-size: 48px 48px, 48px 48px, auto;
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
     }
-
-    a { color: var(--blue); text-underline-offset: 4px; }
-    strong { color: #fff; }
+    p { text-wrap: pretty; margin: 0 0 14px; }
+    h1, h2, h3, h4 { text-wrap: balance; margin: 0; }
+    a { color: var(--accent-2); text-underline-offset: 4px; }
+    strong { color: var(--fg); font-weight: 650; }
     code {
-      font-family: var(--mono);
-      font-size: .92em;
-      color: #d7eeff;
-      background: rgba(125, 183, 255, .09);
-      border: 1px solid rgba(125, 183, 255, .18);
+      font-family: var(--font-mono);
+      font-size: .9em;
+      color: var(--accent-2);
+      background: var(--accent-2-soft);
+      border: 1px solid color-mix(in oklch, var(--accent-2) 28%, transparent);
       border-radius: 6px;
       padding: 2px 6px;
     }
 
-    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
-    .hero {
-      min-height: 92vh;
-      display: grid;
-      align-content: center;
-      gap: 28px;
-      padding: 72px 0 42px;
-      border-bottom: 1px solid var(--line);
+    .wrap {
+      width: min(var(--container), calc(100% - var(--gutter) * 2));
+      margin: 0 auto;
     }
-    .kicker {
-      color: var(--green);
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: .14em;
+
+    /* ─── type scale ─────────────────────────────────────────────── */
+    h1 {
+      font-family: var(--font-display);
+      font-size: var(--fs-h1);
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      max-width: 18ch;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-h2);
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      max-width: 22ch;
+    }
+    h3 {
+      font-size: var(--fs-h3);
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.005em;
+      margin-bottom: 10px;
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 var(--gap-md);
     }
-    h1, h2, h3 { margin: 0; line-height: 1.16; letter-spacing: 0; }
-    h1 { font-size: clamp(44px, 7vw, 90px); max-width: 1050px; }
-    h2 { font-size: clamp(30px, 4.7vw, 58px); max-width: 960px; }
-    h3 { font-size: 22px; margin-bottom: 10px; }
-    p { margin: 0 0 14px; }
-    ul, ol { margin: 10px 0 0; padding-left: 20px; }
-    li { margin: 7px 0; }
-    .lead { color: #e4ebe5; font-size: clamp(20px, 2.2vw, 30px); max-width: 980px; }
+    .lead {
+      font-size: var(--fs-lead);
+      line-height: 1.55;
+      color: color-mix(in oklch, var(--fg) 88%, var(--muted));
+      max-width: 56ch;
+      margin: var(--gap-md) 0 0;
+    }
     .muted { color: var(--muted); }
-    .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .meta-note {
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta);
+      color: var(--muted-dim);
+      max-width: 72ch;
+      line-height: 1.65;
+    }
+
+    /* ─── hero ─────────────────────────────────────────────────── */
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: var(--gap-lg);
+      padding: var(--gap-2xl) 0 var(--gap-xl);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap-xl);
+    }
+    .hero-copy { max-width: 72ch; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: var(--gap-sm); }
     .pill {
       display: inline-flex;
       align-items: center;
       min-height: 30px;
-      padding: 4px 10px;
-      border: 1px solid var(--line);
+      padding: 4px 12px;
+      border: 1px solid var(--border);
       border-radius: 999px;
-      background: rgba(255, 255, 255, .045);
-      color: #e7eee9;
-      font-size: 13px;
-      font-weight: 800;
+      background: var(--fg-soft);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
-    .pill.green { border-color: rgba(93, 211, 158, .38); color: #c9ffe4; }
-    .pill.blue { border-color: rgba(125, 183, 255, .38); color: #d6eaff; }
-    .pill.amber { border-color: rgba(232, 185, 95, .42); color: #ffe9b8; }
-    .pill.coral { border-color: rgba(255, 143, 115, .42); color: #ffd7cc; }
+    .pill.accent-1 { border-color: color-mix(in oklch, var(--accent) 45%, transparent); color: var(--accent); background: var(--accent-soft); }
+    .pill.accent-2 { border-color: color-mix(in oklch, var(--accent-2) 45%, transparent); color: var(--accent-2); background: var(--accent-2-soft); }
+    .pill.accent-3 { border-color: color-mix(in oklch, var(--accent-3) 45%, transparent); color: var(--accent-3); background: var(--accent-3-soft); }
 
+    /* ─── sections ─────────────────────────────────────────────── */
     .section {
-      padding: 68px 0;
-      border-bottom: 1px solid var(--line);
+      padding: var(--gap-2xl) 0;
+      border-bottom: 1px solid var(--border);
     }
     .section.light {
-      color: var(--ink-dark);
-      background: var(--paper);
-      border-bottom: 0;
+      color: var(--fg-light);
+      background: var(--bg-light);
+      border-bottom-color: var(--border-light);
     }
-    .section.light strong { color: #111a18; }
-    .section.light a { color: #245c9f; }
-    .section.light .kicker { color: #166f4b; }
-    .section.light .muted { color: var(--muted-dark); }
+    .section.light strong { color: var(--fg-light); }
+    .section.light a { color: var(--accent-light); }
+    .section.light .eyebrow { color: var(--accent-light); }
+    .section.light .muted { color: var(--muted-light); }
+    .section.light .meta-note { color: var(--muted-light); }
 
-    .grid { display: grid; gap: 18px; }
+    .section-head {
+      margin-bottom: var(--gap-xl);
+      max-width: 52ch;
+    }
+    .section-head.wide { max-width: none; }
+    .section-head .lead { margin-top: var(--gap-sm); }
+
+    /* ─── layout grids ─────────────────────────────────────────── */
+    .grid { display: grid; gap: var(--gap-lg); }
     .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .card {
-      background: linear-gradient(180deg, var(--surface), rgba(17, 22, 21, .96));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 22px;
-    }
-    .light .card {
-      background: #fffdf6;
-      border-color: var(--line-dark);
-    }
-    .metric {
-      color: var(--amber);
-      font-size: 40px;
-      font-weight: 950;
-      line-height: 1;
-      margin-bottom: 10px;
-    }
-    .callout {
-      border-left: 5px solid var(--green);
-      background: rgba(93, 211, 158, .08);
-      padding: 18px 20px;
-      border-radius: 0 var(--radius) var(--radius) 0;
-    }
-    .light .callout { background: #eef8ee; }
     .split {
       display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 28px;
+      grid-template-columns: 240px 1fr;
+      gap: var(--gap-xl);
       align-items: start;
     }
+
+    /* ─── cards & pillars ───────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+    .card-rule {
+      background: transparent;
+      border: 0;
+      border-top: 3px solid var(--accent);
+      border-radius: 0;
+      padding: 24px 0 0;
+    }
+    .card-rule.accent-2 { border-top-color: var(--accent-2); }
+    .card-rule.accent-3 { border-top-color: var(--accent-3); }
+    .light .card {
+      background: var(--surface-light);
+      border-color: var(--border-light);
+    }
+    .metric {
+      font-family: var(--font-mono);
+      font-size: clamp(36px, 4vw, 48px);
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      margin-bottom: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+    .card-rule.accent-2 .metric { color: var(--accent-2); }
+    .card-rule.accent-3 .metric { color: var(--accent-3); }
+
+    .callout {
+      margin-top: var(--gap-lg);
+      padding: 24px 28px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      max-width: 64ch;
+    }
+    .callout p { font-size: 17px; line-height: 1.65; margin: 0; }
+    .light .callout {
+      background: var(--accent-light-soft);
+      border-left-color: var(--accent-light);
+    }
+
+    /* ─── TOC ──────────────────────────────────────────────────── */
     .toc {
       position: sticky;
-      top: 18px;
-      background: rgba(21, 26, 25, .9);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 18px;
+      top: 20px;
+      background: color-mix(in oklch, var(--surface) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .toc strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
     }
     .toc a {
       display: block;
-      color: #e6eee8;
+      color: var(--fg);
       text-decoration: none;
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      font-size: 14px;
+      border-bottom: 1px solid var(--border-subtle);
       padding: 10px 0;
+      transition: color 0.15s ease;
     }
+    .toc a:hover { color: var(--accent); }
     .toc a:last-child { border-bottom: 0; }
 
+    /* ─── tabs ─────────────────────────────────────────────────── */
     .tabs {
-      margin-top: 30px;
-      background: var(--surface-3);
-      color: var(--ink-dark);
-      border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.12);
+      margin-top: var(--gap-xl);
+      background: var(--surface-light);
+      color: var(--fg-light);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
       overflow: hidden;
+      box-shadow: 0 24px 48px color-mix(in oklch, var(--fg-light) 6%, transparent);
     }
     .tab-list {
       display: flex;
       gap: 0;
       overflow-x: auto;
-      border-bottom: 1px solid rgba(0,0,0,.12);
-      background: #ebe4d7;
+      border-bottom: 1px solid var(--border-light);
+      background: color-mix(in oklch, var(--bg-light) 70%, var(--border-light));
     }
     .tab-button {
       appearance: none;
       border: 0;
-      border-right: 1px solid rgba(0,0,0,.1);
+      border-right: 1px solid var(--border-light);
       background: transparent;
-      color: #35413e;
+      color: var(--muted-light);
       min-height: 52px;
-      padding: 0 18px;
-      font: inherit;
-      font-weight: 900;
+      padding: 0 20px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       white-space: nowrap;
       cursor: pointer;
+      transition: color 0.15s ease, background 0.15s ease;
     }
+    .tab-button:hover { color: var(--fg-light); }
     .tab-button[aria-selected="true"] {
-      color: #0d1714;
-      background: #fffaf0;
-      box-shadow: inset 0 -4px 0 var(--green);
+      color: var(--fg-light);
+      background: var(--surface-light);
+      box-shadow: inset 0 -3px 0 var(--accent-light);
     }
-    .tab-panel { display: none; padding: 28px; }
+    .tab-panel { display: none; padding: clamp(24px, 4vw, 36px); }
     .tab-panel.active { display: block; }
-    .tab-panel h3 { color: #17211f; }
-    .tab-panel p, .tab-panel li { color: #263330; }
-    .tab-panel .muted { color: #5c6864; }
+    .tab-panel > h3:first-child {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 2.4vw, 28px);
+      color: var(--fg-light);
+      margin-bottom: var(--gap-md);
+      padding-bottom: var(--gap-sm);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .tab-panel p, .tab-panel li { color: color-mix(in oklch, var(--fg-light) 82%, var(--muted-light)); }
+    .tab-panel .muted { color: var(--muted-light); }
 
+    /* ─── chapters ─────────────────────────────────────────────── */
     .chapter {
       display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 18px;
-      padding: 22px 0;
-      border-bottom: 1px solid rgba(0,0,0,.12);
+      grid-template-columns: 100px 1fr;
+      gap: var(--gap-lg);
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-light);
     }
     .chapter:last-child { border-bottom: 0; }
     .chapter-num {
-      color: #166f4b;
-      font-weight: 950;
-      font-size: 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      padding-top: 4px;
     }
+
+    /* ─── table ────────────────────────────────────────────────── */
     .table {
       width: 100%;
       border-collapse: collapse;
       overflow: hidden;
-      border: 1px solid rgba(0,0,0,.14);
+      border: 1px solid var(--border-light);
       border-radius: var(--radius);
-      background: #fffdf7;
+      background: var(--surface-light);
+      font-size: 15px;
     }
     .table th, .table td {
       text-align: left;
       vertical-align: top;
-      padding: 13px 14px;
-      border-bottom: 1px solid rgba(0,0,0,.12);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
     }
-    .table th { color: #166f4b; font-size: 14px; }
+    .table th {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      background: color-mix(in oklch, var(--bg-light) 60%, var(--surface-light));
+    }
     .table tr:last-child td { border-bottom: 0; }
+    .table tbody tr:hover { background: var(--accent-light-soft); }
 
-    .source {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 24px;
+    /* ─── reading path ─────────────────────────────────────────── */
+    .time-badge {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--accent-3);
+      margin-bottom: 8px;
     }
+
+    /* ─── sources ──────────────────────────────────────────────── */
+    .source { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-lg); margin-top: var(--gap-lg); }
+
     .footer {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
-      color: var(--muted);
-      font-size: 13px;
-      padding: 24px 0 42px;
+      gap: var(--gap-md);
+      color: var(--muted-dim);
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta);
+      padding: var(--gap-lg) 0 var(--gap-xl);
+      border-top: 1px solid var(--border);
     }
 
     @media (max-width: 860px) {
       .grid.two, .grid.three, .split, .source { grid-template-columns: 1fr; }
-      .chapter { grid-template-columns: 1fr; }
-      .hero { min-height: auto; padding-top: 54px; }
-      .section { padding: 52px 0; }
+      .chapter { grid-template-columns: 1fr; gap: var(--gap-sm); }
+      .hero { min-height: auto; padding-top: var(--gap-xl); }
+      .section { padding: var(--gap-xl) 0; }
       .toc { position: static; }
+      h1, h2 { max-width: none; }
       .tab-list { flex-wrap: wrap; overflow-x: visible; }
-      .tab-button { flex: 1 1 50%; border-bottom: 1px solid rgba(0,0,0,.1); }
-      .tab-panel { padding: 22px 18px; }
+      .tab-button { flex: 1 1 45%; border-bottom: 1px solid var(--border-light); }
       .footer { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <header class="wrap hero">
-    <div class="kicker">Thesis Guide · 2026-06-13</div>
-    <h1>讓 Foundation Models 走向會行動、會評估、會自我改進的 Agent</h1>
-    <p class="lead">Abhranil Chandra 的 Waterloo 碩士論文導讀：把大型基礎模型的知識與決策系統的閉環學習合在一起，往「不只靠人工標註與明確 reward」的自主 AI agent 前進。</p>
-    <div class="meta">
-      <span class="pill green">Foundation Models</span>
-      <span class="pill blue">Decision Making</span>
-      <span class="pill amber">Self-Improvement</span>
-      <span class="pill coral">Scalable Oversight</span>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Thesis Guide · 2026-06-13</p>
+        <h1>讓 Foundation Models 走向會行動、會評估、會自我改進的 Agent</h1>
+        <p class="lead">Abhranil Chandra 的 Waterloo 碩士論文導讀：把大型基礎模型的知識與決策系統的閉環學習合在一起，往「不只靠人工標註與明確 reward」的自主 AI agent 前進。</p>
+        <div class="pill-row">
+          <span class="pill accent-1">Foundation Models</span>
+          <span class="pill accent-2">Decision Making</span>
+          <span class="pill accent-3">Self-Improvement</span>
+          <span class="pill">Scalable Oversight</span>
+        </div>
+        <p class="meta-note" style="margin-top: var(--gap-md);">原論文：<em>Unifying Foundation Models with Decision Making: A Path Towards Autonomous Self-Improving Agents beyond Rewards and Human Supervision</em>。作者：Abhranil Chandra，University of Waterloo，2025。</p>
+      </div>
     </div>
-    <p class="muted">原論文：<em>Unifying Foundation Models with Decision Making: A Path Towards Autonomous Self-Improving Agents beyond Rewards and Human Supervision</em>。作者：Abhranil Chandra，University of Waterloo，2025。</p>
   </header>
 
   <main>
@@ -284,38 +458,42 @@
           <a href="#sources">來源與限制</a>
         </nav>
         <div id="summary">
-          <div class="kicker">Core Thesis</div>
-          <h2>論文的主張很直接：模型要變成 agent，不能只靠靜態資料，也不能只靠手刻 reward。</h2>
-          <div class="callout" style="margin-top: 24px;">
+          <div class="section-head">
+            <p class="eyebrow">Core Thesis</p>
+            <h2>論文的主張很直接：模型要變成 agent，不能只靠靜態資料，也不能只靠手刻 reward。</h2>
+          </div>
+          <div class="callout">
             <p><strong>白話版：</strong>Foundation Models 很會從大量資料學世界知識，但它們通常是「看過很多」而不是「真的會試、會改、會在環境裡學」。Reinforcement Learning 和 decision making 則擅長閉環行動與回饋學習，但常常需要明確 reward、模擬器、很多互動資料。這篇論文想把兩邊接起來。</p>
           </div>
-          <p class="muted" style="margin-top: 18px;">這不是一篇只談概念的 agent 宣言。它把主張拆成三個可實驗的技術方向：影片世界模型與具身規劃、從不完美推理資料學 reasoning、以及用多模型評審機制做可擴展評估。</p>
+          <p class="muted" style="margin-top: var(--gap-lg); max-width: 60ch;">這不是一篇只談概念的 agent 宣言。它把主張拆成三個可實驗的技術方向：影片世界模型與具身規劃、從不完美推理資料學 reasoning、以及用多模型評審機制做可擴展評估。</p>
         </div>
       </div>
     </section>
 
     <section id="three-works" class="section">
       <div class="wrap">
-        <div class="kicker">Three Pillars</div>
-        <h2>三個核心工作，其實是在回答同一個問題：feedback 可以從哪裡來？</h2>
-        <div class="grid three" style="margin-top: 28px;">
-          <article class="card">
+        <div class="section-head wide">
+          <p class="eyebrow">Three Pillars</p>
+          <h2>三個核心工作，其實是在回答同一個問題：feedback 可以從哪裡來？</h2>
+        </div>
+        <div class="grid three">
+          <article class="card card-rule">
             <div class="metric">01</div>
             <h3>VideoAgent</h3>
             <p>把 goal-conditioned video generation 當作世界模型與行動計畫。模型先想像任務影片，再用 VLM feedback、反覆 refinement、online execution 讓計畫更合理。</p>
-            <p class="muted">Feedback 來源：物理世界、VLM 評估、執行結果。</p>
+            <p class="muted" style="margin-top: 12px; font-size: 14px;">Feedback 來源：物理世界、VLM 評估、執行結果。</p>
           </article>
-          <article class="card">
+          <article class="card card-rule accent-2">
             <div class="metric">02</div>
             <h3>Reg-ReBoot</h3>
             <p>挑戰「reasoning 一定要乾淨標準答案」的假設。它研究 LLM 是否能從未驗證、甚至最後答案錯的 CoT traces 裡，萃取穩定的推理模式。</p>
-            <p class="muted">Feedback 來源：不完美資料中的統計結構。</p>
+            <p class="muted" style="margin-top: 12px; font-size: 14px;">Feedback 來源：不完美資料中的統計結構。</p>
           </article>
-          <article class="card">
+          <article class="card card-rule accent-3">
             <div class="metric">03</div>
             <h3>ReFeR</h3>
             <p>用多個 pretrained LLM/VLM 扮演 peers 與 area chair，像學術 peer review 一樣產生評分、理由與改進建議，降低人工評估瓶頸。</p>
-            <p class="muted">Feedback 來源：模型社群的審查與綜合判斷。</p>
+            <p class="muted" style="margin-top: 12px; font-size: 14px;">Feedback 來源：模型社群的審查與綜合判斷。</p>
           </article>
         </div>
       </div>
@@ -323,9 +501,11 @@
 
     <section id="tabs" class="section light">
       <div class="wrap">
-        <div class="kicker">Readable Notes</div>
-        <h2>中文導讀區</h2>
-        <p class="muted">下方 tab 提供摘要、章節導讀、完整中文導讀版與概念詞典。這是導讀與改寫，不是原論文逐字全文翻譯。</p>
+        <div class="section-head wide">
+          <p class="eyebrow">Readable Notes</p>
+          <h2>中文導讀區</h2>
+          <p class="lead">下方 tab 提供摘要、章節導讀、完整中文導讀版與概念詞典。這是導讀與改寫，不是原論文逐字全文翻譯。</p>
+        </div>
 
         <div class="tabs">
           <div class="tab-list" role="tablist" aria-label="論文導讀 tabs">
@@ -339,7 +519,7 @@
             <h3>總覽摘要</h3>
             <p>這篇論文的核心，是把兩條 AI 發展路線重新接起來。第一條是 Foundation Models：靠大量靜態資料訓練，擁有廣泛知識、語言能力、影像理解與生成能力。第二條是 decision making / RL：透過行動、環境回饋、試錯、規劃與閉環學習，讓系統能朝目標改善行為。</p>
             <p>作者認為，Foundation Models 雖然強，但很多時候缺少 grounding、agency 與自我改進機制；RL 雖然能學行動策略，但太依賴 reward 設計、模擬器與互動資料。真正可擴展的 agent，需要能用多種 feedback 學習：世界的物理結果、不完美資料裡的穩定結構、以及其他模型給出的評估與建議。</p>
-            <div class="grid three" style="margin-top: 18px;">
+            <div class="grid three" style="margin-top: var(--gap-lg);">
               <article class="card">
                 <h3>如果你做 robotics</h3>
                 <p>先讀 Chapter 2。VideoAgent 展示影片生成模型如何變成具身任務的「想像與修正」機制。</p>
@@ -358,35 +538,35 @@
           <section class="tab-panel" id="panel-chapters" role="tabpanel" aria-labelledby="tab-chapters">
             <h3>章節導讀</h3>
             <div class="chapter">
-              <div class="chapter-num">Chapter 1</div>
+              <div class="chapter-num">Ch. 1</div>
               <div>
                 <h3>導論：為什麼要統一 Foundation Models 與 Decision Making</h3>
                 <p>這章先界定問題：FM 有知識與表徵能力，但缺少環境閉環；RL 有行動與改善機制，但資料效率與 reward 設計限制很大。作者把整本論文的共同線索定義為「用更廣義的 feedback 建立自我改進 agent」。</p>
               </div>
             </div>
             <div class="chapter">
-              <div class="chapter-num">Chapter 2</div>
+              <div class="chapter-num">Ch. 2</div>
               <div>
                 <h3>VideoAgent：用影片世界模型做具身規劃</h3>
                 <p>這是最具體的 embodied AI 工作。VideoAgent 先根據初始影像與語言目標生成影片計畫，再用 self-conditioning consistency 和 VLM feedback 修正幻覺與不合理物理。它也能透過環境執行回饋，把成功軌跡拿回來改善模型。</p>
               </div>
             </div>
             <div class="chapter">
-              <div class="chapter-num">Chapter 3</div>
+              <div class="chapter-num">Ch. 3</div>
               <div>
                 <h3>Reg-ReBoot：從不完美 Chain-of-Thought 學 reasoning</h3>
                 <p>這章挑戰乾淨資料崇拜。作者主張，若錯誤 CoT 的錯法足夠分散，而真正有用的推理步驟比較一致，next-token training 可能會放大穩定推理 primitive、平均掉雜訊。這讓 reasoning training 不一定完全依賴昂貴人工驗證或 rule verifier。</p>
               </div>
             </div>
             <div class="chapter">
-              <div class="chapter-num">Chapter 4</div>
+              <div class="chapter-num">Ch. 4</div>
               <div>
                 <h3>ReFeR：用多模型審查做可擴展評估</h3>
                 <p>這章處理 generative model 的評估瓶頸。ReFeR 把多個模型組成 peer review hierarchy，由 peers 給理由與分數，再由 area chair 綜合判斷。它可以評估文字、影像，也能延伸到 reasoning 任務。</p>
               </div>
             </div>
             <div class="chapter">
-              <div class="chapter-num">Chapter 5</div>
+              <div class="chapter-num">Ch. 5</div>
               <div>
                 <h3>結論：把學習、搜尋、評估接成閉環</h3>
                 <p>最後回到總主張：未來的 agent 需要同時能想像、行動、評估、修正。作者提出的自然延伸，是把 VideoAgent 類的世界模型與 ReFeR 類的自評估系統接起來，讓 agent 能連續產生資料、檢查計畫、改善自己。</p>
@@ -473,20 +653,25 @@
 
     <section id="reading" class="section">
       <div class="wrap">
-        <div class="kicker">Reading Path</div>
-        <h2>怎麼讀最有效率</h2>
-        <div class="grid three" style="margin-top: 28px;">
+        <div class="section-head wide">
+          <p class="eyebrow">Reading Path</p>
+          <h2>怎麼讀最有效率</h2>
+        </div>
+        <div class="grid three">
           <article class="card">
-            <h3>10 分鐘</h3>
+            <div class="time-badge">10 min</div>
+            <h3>快速掌握 thesis</h3>
             <p>讀本頁的總覽摘要、三個核心工作，以及來源限制。目標是知道這篇論文的 thesis statement。</p>
           </article>
           <article class="card">
-            <h3>30 分鐘</h3>
+            <div class="time-badge">30 min</div>
+            <h3>理解主線脈絡</h3>
             <p>讀 Chapter 1 的問題設定，再讀本頁的章節導讀。目標是理解三個工作如何服務同一條主線。</p>
           </article>
           <article class="card">
-            <h3>90 分鐘以上</h3>
-            <p>依興趣選 Chapter 2、3、4 深讀。做 agent 系統先讀 Chapter 4；做 embodied AI 先讀 Chapter 2；做 reasoning data 先讀 Chapter 3。</p>
+            <div class="time-badge">90+ min</div>
+            <h3>依興趣深讀</h3>
+            <p>選 Chapter 2、3、4 深讀。做 agent 系統先讀 Chapter 4；做 embodied AI 先讀 Chapter 2；做 reasoning data 先讀 Chapter 3。</p>
           </article>
         </div>
       </div>
@@ -494,8 +679,10 @@
 
     <section id="sources" class="section light">
       <div class="wrap">
-        <div class="kicker">Sources</div>
-        <h2>來源與版權說明</h2>
+        <div class="section-head wide">
+          <p class="eyebrow">Sources</p>
+          <h2>來源與版權說明</h2>
+        </div>
         <div class="source">
           <article class="card">
             <h3>原始頁面</h3>
@@ -508,7 +695,7 @@
             <p class="muted">完整論文共 184 頁。需要逐章細讀時，請以原 PDF 為準。</p>
           </article>
         </div>
-        <div class="callout" style="margin-top: 24px;">
+        <div class="callout" style="margin-top: var(--gap-lg);">
           <p><strong>重要限制：</strong>本頁是中文摘要、章節導讀與重寫整理，不是整本論文的逐字翻譯，也不取代原論文。若要引用研究內容，請回到原文 PDF 與作者提供的正式版本。</p>
         </div>
       </div>
