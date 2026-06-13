@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cyclone slides public index.">
+  <title>Cyclone Slides</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050608;
+      --panel: #10151b;
+      --panel-2: #151d24;
+      --line: #26323d;
+      --ink: #f4f7f5;
+      --muted: #93a19b;
+      --accent: #70e4b3;
+      --warning: #f0bd65;
+      --max: 1240px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(5,6,8,.12), rgba(5,6,8,.96) 520px),
+        radial-gradient(circle at 14% 10%, rgba(112,228,179,.20), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(240,189,101,.13), transparent 26%),
+        #050608;
+      color: var(--ink);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+    header {
+      padding: 60px 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 58px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-weight: 760;
+    }
+    .mark {
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(112,228,179,.55);
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(112,228,179,.24), rgba(240,189,101,.16));
+      box-shadow: 0 0 40px rgba(112,228,179,.18);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(54px, 9vw, 128px);
+      line-height: .86;
+      letter-spacing: 0;
+      max-width: 920px;
+    }
+    .lead {
+      margin: 22px 0 0;
+      max-width: 760px;
+      color: #d8e2dd;
+      font-size: clamp(17px, 2vw, 22px);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 34px;
+      max-width: 680px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(16,21,27,.72);
+      padding: 12px 14px;
+    }
+    .stat b { display: block; font-size: 28px; line-height: 1; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(5,6,8,.86);
+      backdrop-filter: blur(16px);
+    }
+    .tools {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      padding: 12px 0;
+    }
+    input, select, button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+    }
+    input { padding: 0 13px; }
+    select, button { padding: 0 12px; }
+    button { cursor: pointer; }
+    main { padding: 26px 0 76px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      position: relative;
+      overflow: hidden;
+      min-height: 390px;
+      display: grid;
+      grid-template-rows: 190px 1fr;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--a) 72%, var(--line));
+      background: var(--panel-2);
+    }
+    .visual {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 76% 18%, color-mix(in srgb, var(--a) 52%, transparent), transparent 28%),
+        linear-gradient(135deg, color-mix(in srgb, var(--card-bg) 88%, #10151b), #07090c 72%);
+    }
+    .screen {
+      position: absolute;
+      left: 18px;
+      right: 72px;
+      bottom: 24px;
+      height: 98px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      padding: 14px;
+    }
+    .screen span {
+      display: block;
+      height: 9px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--a) 58%, white);
+    }
+    .screen span:nth-child(2) { width: 68%; background: color-mix(in srgb, var(--b) 62%, white); }
+    .screen span:nth-child(3) { width: 42%; background: rgba(255,255,255,.62); }
+    .orbit {
+      position: absolute;
+      right: 18px;
+      top: 28px;
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--a), var(--b));
+      box-shadow: 0 18px 70px color-mix(in srgb, var(--a) 30%, transparent);
+    }
+    .content { padding: 16px; }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 760;
+    }
+    .card h2 {
+      margin: 12px 0 10px;
+      font-size: 23px;
+      line-height: 1.08;
+    }
+    .card p {
+      margin: 0;
+      color: #c4d0ca;
+      font-size: 14px;
+    }
+    .card code {
+      display: inline-block;
+      margin-top: 15px;
+      max-width: 100%;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+    .empty {
+      display: none;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 28px;
+      color: var(--muted);
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      padding: 18px 0 32px;
+      font-size: 12px;
+    }
+    @media (max-width: 920px) {
+      .grid, .stats { grid-template-columns: 1fr; }
+      .tools { grid-template-columns: 1fr; }
+      .topline { align-items: flex-start; flex-direction: column; margin-bottom: 36px; }
+      .card { min-height: 340px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="topline">
+        <div class="brand"><span class="mark"></span><span>Cyclone Slides</span></div>
+        <div id="sync-state">Static fallback ready</div>
+      </div>
+      <h1>Slides Index</h1>
+      <p class="lead">公開簡報入口。新增子資料夾並推到 GitHub 後，這個頁面會嘗試即時從 repo 根目錄抓取最新清單。</p>
+      <div class="stats">
+        <div class="stat"><b id="count">11</b><span>published folders</span></div>
+        <div class="stat"><b id="category-count">5</b><span>collections</span></div>
+        <div class="stat"><b>GH</b><span>auto discovery</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="wrap tools">
+      <input id="q" placeholder="搜尋標題、資料夾、類型…">
+      <select id="category">
+        <option value="">全部類型</option>
+      </select>
+      <button id="refresh">重新讀取</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div id="grid" class="grid">
+<a class="card" href="./2026-06-13-self-improving-agents-thesis-guide/" data-category="Research" data-search="foundation models x decision making 中文導讀 2026-06-13-self-improving-agents-thesis-guide 這篇論文的核心不是「再把模型做大」，而是把 foundation models 的知識與 decision making / rl 的互動學習合併，讓代理能規劃、接受回饋、修正自己，並降低對明確 reward 與人工監督的依賴。 research" style="--a:#d8c2ff;--b:#70e4b3;--card-bg:#121018;--h:356">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>Research</span><span>2026-06-13</span></div>
+    <h2>Foundation Models x Decision Making 中文導讀</h2>
+    <p>這篇論文的核心不是「再把模型做大」，而是把 foundation models 的知識與 decision making / RL 的互動學習合併，讓代理能規劃、接受回饋、修正自己，並降低對明確 reward 與人工監督的依賴。</p>
+    <code>2026-06-13-self-improving-agents-thesis-guide</code>
+  </div>
+</a>
+<a class="card" href="./2026-06-07-hermes-agent-runtime-briefing/" data-category="System" data-search="hermes agents runtime briefing｜2026-06-07 2026-06-07-hermes-agent-runtime-briefing polylong、asheron、aurelion 三隻 hermes agent 的實際 runtime、定位與工具盤點。 system" style="--a:#66c7ff;--b:#f06d6d;--card-bg:#07131d;--h:218">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>System</span><span>2026-06-07</span></div>
+    <h2>Hermes Agents Runtime Briefing｜2026-06-07</h2>
+    <p>Polylong、Asheron、Aurelion 三隻 Hermes Agent 的實際 runtime、定位與工具盤點。</p>
+    <code>2026-06-07-hermes-agent-runtime-briefing</code>
+  </div>
+</a>
+<a class="card" href="./2026-05-29-ai-workflow-hacker-chat/" data-category="AI Workflow" data-search="2026-05-29 打造 ai 工作流｜詳細會議記錄 2026-05-29-ai-workflow-hacker-chat 2026-05-29 打造 ai 工作流黑客聊聊詳細會議記錄，整理珊迪、tiffany、志傑與 cyclone 的分享。 ai workflow" style="--a:#c7f36a;--b:#6aa8ff;--card-bg:#0f1408;--h:291">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>AI Workflow</span><span>2026-05-29</span></div>
+    <h2>2026-05-29 打造 AI 工作流｜詳細會議記錄</h2>
+    <p>2026-05-29 打造 AI 工作流黑客聊聊詳細會議記錄，整理珊迪、Tiffany、志傑與 Cyclone 的分享。</p>
+    <code>2026-05-29-ai-workflow-hacker-chat</code>
+  </div>
+</a>
+<a class="card" href="./2026-05-02-colearning-magic-cards-dlc/" data-category="Workshop" data-search="5/2 共學團會議｜成果發表 × 魔法卡 × dlc 2026-05-02-colearning-magic-cards-dlc 今晚 21:00｜才藝室｜把 22 天共學收斂成下一階段行動 workshop" style="--a:#ffb86b;--b:#91d18b;--card-bg:#1a1008;--h:194">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>Workshop</span><span>2026-05-02</span></div>
+    <h2>5/2 共學團會議｜成果發表 × 魔法卡 × DLC</h2>
+    <p>今晚 21:00｜才藝室｜把 22 天共學收斂成下一階段行動</p>
+    <code>2026-05-02-colearning-magic-cards-dlc</code>
+  </div>
+</a>
+<a class="card" href="./ai-coding-portfolio-2026-05/" data-category="AI Workflow" data-search="cyclone ai coding portfolio 2026/04-05 - visual deck ai-coding-portfolio-2026-05 2026/04/01-2026/05/29：從個人 dashboard、共學網站、discord agent，到 openab code review bot。這份簡報整理的不只是「ai 幫我寫了什麼」，而是「我如何用 ai 管理真實產品與 agent runtime」。 ai workflow" style="--a:#c7f36a;--b:#6aa8ff;--card-bg:#0f1408;--h:143">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>AI Workflow</span><span>2026-05</span></div>
+    <h2>Cyclone AI Coding Portfolio 2026/04-05 - Visual Deck</h2>
+    <p>2026/04/01-2026/05/29：從個人 Dashboard、共學網站、Discord agent，到 OpenAB code review bot。這份簡報整理的不只是「AI 幫我寫了什麼」，而是「我如何用 AI 管理真實產品與 agent runtime」。</p>
+    <code>ai-coding-portfolio-2026-05</code>
+  </div>
+</a>
+<a class="card" href="./cycloneos-2026-05-control-plane-briefing/" data-category="System" data-search="cycloneos 七日改造報告 cycloneos-2026-05-control-plane-briefing 簡單說：以後不是每個工具各自做各自的事，而是由 dashboard 統一看進度、留紀錄、做審核，再把真正的工作交給 openab、雲端服務，或 mac mini 上的 openclaw 去執行。 system" style="--a:#66c7ff;--b:#f06d6d;--card-bg:#07131d;--h:38">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>System</span><span>2026-05</span></div>
+    <h2>CycloneOS 七日改造報告</h2>
+    <p>簡單說：以後不是每個工具各自做各自的事，而是由 Dashboard 統一看進度、留紀錄、做審核，再把真正的工作交給 OpenAB、雲端服務，或 Mac mini 上的 OpenClaw 去執行。</p>
+    <code>cycloneos-2026-05-control-plane-briefing</code>
+  </div>
+</a>
+<a class="card" href="./cycloneos-2026-05-weekly-progress/" data-category="System" data-search="cycloneos weekly progress briefing | 2026-05-10 - 2026-05-16 cycloneos-2026-05-weekly-progress 本頁整理 2026-05-10 至 2026-05-16 的 cycloneos 改造：cloud control plane、openab / openclaw 邊界、pipeline-based skills、資料來源整合、approval gate，以及後續 issue roadmap。設計為 15 分鐘會議說明頁，可直接用瀏覽器滾動展示。 system" style="--a:#66c7ff;--b:#f06d6d;--card-bg:#07131d;--h:120">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>System</span><span>2026-05</span></div>
+    <h2>CycloneOS Weekly Progress Briefing | 2026-05-10 - 2026-05-16</h2>
+    <p>本頁整理 2026-05-10 至 2026-05-16 的 CycloneOS 改造：Cloud control plane、OpenAB / OpenClaw 邊界、Pipeline-based Skills、資料來源整合、approval gate，以及後續 issue roadmap。設計為 15 分鐘會議說明頁，可直接用瀏覽器滾動展示。</p>
+    <code>cycloneos-2026-05-weekly-progress</code>
+  </div>
+</a>
+<a class="card" href="./26-q2-ai-workflow-w0-meeting/" data-category="AI Workflow" data-search="26&#39;q2 打造 ai 工作流共學團 — w1 啟動會議 26-q2-ai-workflow-w0-meeting w1 啟動會議 — 2026/04/13 ai workflow" style="--a:#c7f36a;--b:#6aa8ff;--card-bg:#0f1408;--h:337">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>AI Workflow</span><span>2026 Q2</span></div>
+    <h2>26&#39;Q2 打造 AI 工作流共學團 — W1 啟動會議</h2>
+    <p>W1 啟動會議 — 2026/04/13</p>
+    <code>26-q2-ai-workflow-w0-meeting</code>
+  </div>
+</a>
+<a class="card" href="./desert-survival-ranking/" data-category="Workshop" data-search="沙漠求生排序 desert-survival-ranking 請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序；活動結束後可顯示專家答案並自動計分。 workshop" style="--a:#ffb86b;--b:#91d18b;--card-bg:#1a1008;--h:215">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>Workshop</span><span>Live</span></div>
+    <h2>沙漠求生排序</h2>
+    <p>請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序；活動結束後可顯示專家答案並自動計分。</p>
+    <code>desert-survival-ranking</code>
+  </div>
+</a>
+<a class="card" href="./coffee-brewing/" data-category="Workshop" data-search="咖啡科普與手沖實作 coffee-brewing 傳承「粿」趣、「啡」向未來 workshop" style="--a:#ffb86b;--b:#91d18b;--card-bg:#1a1008;--h:331">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>Workshop</span><span>Live</span></div>
+    <h2>咖啡科普與手沖實作</h2>
+    <p>傳承「粿」趣、「啡」向未來</p>
+    <code>coffee-brewing</code>
+  </div>
+</a>
+<a class="card" href="./open-design-template/" data-category="Template" data-search="open design 視覺樣版目錄 open-design-template 收錄 436 個 open design plugin / template / design-system。這版會從 design.md 與 metadata 抽取實際色票，縮圖配色會盡量貼近文字描述；讀不到規格時才用關鍵字 fallback。 template" style="--a:#70e4b3;--b:#f0bd65;--card-bg:#0b0f0d;--h:218">
+  <div class="visual">
+    <div class="screen"><span></span><span></span><span></span></div>
+    <div class="orbit"></div>
+  </div>
+  <div class="content">
+    <div class="meta"><span>Template</span><span>Live</span></div>
+    <h2>Open Design 視覺樣版目錄</h2>
+    <p>收錄 436 個 Open Design plugin / template / design-system。這版會從 DESIGN.md 與 metadata 抽取實際色票，縮圖配色會盡量貼近文字描述；讀不到規格時才用關鍵字 fallback。</p>
+    <code>open-design-template</code>
+  </div>
+</a>
+    </div>
+    <div id="empty" class="empty">找不到符合條件的簡報。</div>
+  </main>
+
+  <footer>
+    <div class="wrap">Generated at 2026-06-13T16:02:55.856Z. Runtime discovery reads GitHub public contents when available.</div>
+  </footer>
+
+  <script>
+    const FALLBACK_SLIDES = [{"folder":"2026-06-13-self-improving-agents-thesis-guide","title":"Foundation Models x Decision Making 中文導讀","description":"這篇論文的核心不是「再把模型做大」，而是把 foundation models 的知識與 decision making / RL 的互動學習合併，讓代理能規劃、接受回饋、修正自己，並降低對明確 reward 與人工監督的依賴。","category":"Research","date":"2026-06-13","url":"https://cyclone-tw.github.io/slides/2026-06-13-self-improving-agents-thesis-guide/","accent":{"a":"#d8c2ff","b":"#70e4b3","bg":"#121018","hue":356}},{"folder":"2026-06-07-hermes-agent-runtime-briefing","title":"Hermes Agents Runtime Briefing｜2026-06-07","description":"Polylong、Asheron、Aurelion 三隻 Hermes Agent 的實際 runtime、定位與工具盤點。","category":"System","date":"2026-06-07","url":"https://cyclone-tw.github.io/slides/2026-06-07-hermes-agent-runtime-briefing/","accent":{"a":"#66c7ff","b":"#f06d6d","bg":"#07131d","hue":218}},{"folder":"2026-05-29-ai-workflow-hacker-chat","title":"2026-05-29 打造 AI 工作流｜詳細會議記錄","description":"2026-05-29 打造 AI 工作流黑客聊聊詳細會議記錄，整理珊迪、Tiffany、志傑與 Cyclone 的分享。","category":"AI Workflow","date":"2026-05-29","url":"https://cyclone-tw.github.io/slides/2026-05-29-ai-workflow-hacker-chat/","accent":{"a":"#c7f36a","b":"#6aa8ff","bg":"#0f1408","hue":291}},{"folder":"2026-05-02-colearning-magic-cards-dlc","title":"5/2 共學團會議｜成果發表 × 魔法卡 × DLC","description":"今晚 21:00｜才藝室｜把 22 天共學收斂成下一階段行動","category":"Workshop","date":"2026-05-02","url":"https://cyclone-tw.github.io/slides/2026-05-02-colearning-magic-cards-dlc/","accent":{"a":"#ffb86b","b":"#91d18b","bg":"#1a1008","hue":194}},{"folder":"ai-coding-portfolio-2026-05","title":"Cyclone AI Coding Portfolio 2026/04-05 - Visual Deck","description":"2026/04/01-2026/05/29：從個人 Dashboard、共學網站、Discord agent，到 OpenAB code review bot。這份簡報整理的不只是「AI 幫我寫了什麼」，而是「我如何用 AI 管理真實產品與 agent runtime」。","category":"AI Workflow","date":"2026-05","url":"https://cyclone-tw.github.io/slides/ai-coding-portfolio-2026-05/","accent":{"a":"#c7f36a","b":"#6aa8ff","bg":"#0f1408","hue":143}},{"folder":"cycloneos-2026-05-control-plane-briefing","title":"CycloneOS 七日改造報告","description":"簡單說：以後不是每個工具各自做各自的事，而是由 Dashboard 統一看進度、留紀錄、做審核，再把真正的工作交給 OpenAB、雲端服務，或 Mac mini 上的 OpenClaw 去執行。","category":"System","date":"2026-05","url":"https://cyclone-tw.github.io/slides/cycloneos-2026-05-control-plane-briefing/","accent":{"a":"#66c7ff","b":"#f06d6d","bg":"#07131d","hue":38}},{"folder":"cycloneos-2026-05-weekly-progress","title":"CycloneOS Weekly Progress Briefing | 2026-05-10 - 2026-05-16","description":"本頁整理 2026-05-10 至 2026-05-16 的 CycloneOS 改造：Cloud control plane、OpenAB / OpenClaw 邊界、Pipeline-based Skills、資料來源整合、approval gate，以及後續 issue roadmap。設計為 15 分鐘會議說明頁，可直接用瀏覽器滾動展示。","category":"System","date":"2026-05","url":"https://cyclone-tw.github.io/slides/cycloneos-2026-05-weekly-progress/","accent":{"a":"#66c7ff","b":"#f06d6d","bg":"#07131d","hue":120}},{"folder":"26-q2-ai-workflow-w0-meeting","title":"26'Q2 打造 AI 工作流共學團 — W1 啟動會議","description":"W1 啟動會議 — 2026/04/13","category":"AI Workflow","date":"2026 Q2","url":"https://cyclone-tw.github.io/slides/26-q2-ai-workflow-w0-meeting/","accent":{"a":"#c7f36a","b":"#6aa8ff","bg":"#0f1408","hue":337}},{"folder":"desert-survival-ranking","title":"沙漠求生排序","description":"請將 15 件物品依照獲救與求生的重要性排序。拖曳項目，或使用每列右側的上下按鈕調整順序；活動結束後可顯示專家答案並自動計分。","category":"Workshop","date":"","url":"https://cyclone-tw.github.io/slides/desert-survival-ranking/","accent":{"a":"#ffb86b","b":"#91d18b","bg":"#1a1008","hue":215}},{"folder":"coffee-brewing","title":"咖啡科普與手沖實作","description":"傳承「粿」趣、「啡」向未來","category":"Workshop","date":"","url":"https://cyclone-tw.github.io/slides/coffee-brewing/","accent":{"a":"#ffb86b","b":"#91d18b","bg":"#1a1008","hue":331}},{"folder":"open-design-template","title":"Open Design 視覺樣版目錄","description":"收錄 436 個 Open Design plugin / template / design-system。這版會從 DESIGN.md 與 metadata 抽取實際色票，縮圖配色會盡量貼近文字描述；讀不到規格時才用關鍵字 fallback。","category":"Template","date":"","url":"https://cyclone-tw.github.io/slides/open-design-template/","accent":{"a":"#70e4b3","b":"#f0bd65","bg":"#0b0f0d","hue":218}}];
+    const OWNER = "cyclone-tw";
+    const REPO = "slides";
+    const BRANCH = "main";
+    let slides = FALLBACK_SLIDES;
+
+    const grid = document.querySelector("#grid");
+    const empty = document.querySelector("#empty");
+    const q = document.querySelector("#q");
+    const category = document.querySelector("#category");
+    const syncState = document.querySelector("#sync-state");
+    const count = document.querySelector("#count");
+    const categoryCount = document.querySelector("#category-count");
+
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function titleFromHtml(html, folder) {
+      const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
+        || html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1]
+        || folder.replaceAll("-", " ");
+      return title.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function dateFromFolder(folder) {
+      const full = folder.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (full) return `${full[1]}-${full[2]}-${full[3]}`;
+      const compact = folder.match(/^(\d{2})-q(\d)/i);
+      if (compact) return `20${compact[1]} Q${compact[2]}`;
+      const yearMonth = folder.match(/(20\d{2})-(\d{2})/);
+      if (yearMonth) return `${yearMonth[1]}-${yearMonth[2]}`;
+      return "";
+    }
+
+    function categoryFor(folder, title) {
+      const haystack = `${folder} ${title}`.toLowerCase();
+      if (haystack.includes("open-design")) return "Template";
+      if (haystack.includes("cycloneos") || haystack.includes("hermes")) return "System";
+      if (haystack.includes("workflow") || haystack.includes("ai-coding")) return "AI Workflow";
+      if (haystack.includes("coffee") || haystack.includes("desert") || haystack.includes("colearning")) return "Workshop";
+      if (haystack.includes("thesis") || haystack.includes("foundation")) return "Research";
+      return "Slides";
+    }
+
+    function accentFor(category, folder) {
+      const palette = {
+        Template: ["#70e4b3", "#f0bd65", "#0b0f0d"],
+        System: ["#66c7ff", "#f06d6d", "#07131d"],
+        "AI Workflow": ["#c7f36a", "#6aa8ff", "#0f1408"],
+        Workshop: ["#ffb86b", "#91d18b", "#1a1008"],
+        Research: ["#d8c2ff", "#70e4b3", "#121018"],
+        Slides: ["#f5f5f0", "#8fb5ff", "#111111"],
+      };
+      const [a, b, bg] = palette[category] || palette.Slides;
+      const hue = [...folder].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 360;
+      return { a, b, bg, hue };
+    }
+
+    function render() {
+      const search = q.value.trim().toLowerCase();
+      const selected = category.value;
+      const filtered = slides.filter((slide) => {
+        const haystack = `${slide.title} ${slide.folder} ${slide.description || ""} ${slide.category}`.toLowerCase();
+        return (!search || haystack.includes(search)) && (!selected || slide.category === selected);
+      });
+      grid.innerHTML = filtered.map(cardHtml).join("");
+      empty.style.display = filtered.length ? "none" : "block";
+      count.textContent = String(slides.length);
+      categoryCount.textContent = String(new Set(slides.map((slide) => slide.category)).size);
+      syncCategories();
+    }
+
+    function cardHtml(slide) {
+      const accent = slide.accent || accentFor(slide.category, slide.folder);
+      return `<a class="card" href="./${escapeHtml(slide.folder)}/" data-category="${escapeHtml(slide.category)}" style="--a:${accent.a};--b:${accent.b};--card-bg:${accent.bg};--h:${accent.hue}">
+        <div class="visual"><div class="screen"><span></span><span></span><span></span></div><div class="orbit"></div></div>
+        <div class="content">
+          <div class="meta"><span>${escapeHtml(slide.category)}</span><span>${escapeHtml(slide.date || "Live")}</span></div>
+          <h2>${escapeHtml(slide.title)}</h2>
+          <p>${escapeHtml(slide.description || slide.folder)}</p>
+          <code>${escapeHtml(slide.folder)}</code>
+        </div>
+      </a>`;
+    }
+
+    function syncCategories() {
+      const current = category.value;
+      const options = [...new Set(slides.map((slide) => slide.category))].sort();
+      category.innerHTML = '<option value="">全部類型</option>' + options.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+      category.value = options.includes(current) ? current : "";
+    }
+
+    async function discoverSlides() {
+      syncState.textContent = "Reading GitHub repo…";
+      const listUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents?ref=${BRANCH}`;
+      const entries = await fetch(listUrl, { headers: { Accept: "application/vnd.github+json" } }).then((res) => {
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+        return res.json();
+      });
+      const dirs = entries
+        .filter((entry) => entry.type === "dir")
+        .filter((entry) => !entry.name.startsWith("."))
+        .filter((entry) => !["scripts", "node_modules"].includes(entry.name));
+
+      const discovered = await Promise.all(dirs.map(async (entry) => {
+        const rawUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encodeURIComponent(entry.name)}/index.html`;
+        const res = await fetch(rawUrl);
+        if (!res.ok) return null;
+        const html = await res.text();
+        const title = titleFromHtml(html, entry.name);
+        const description = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i)?.[1] || "";
+        const itemCategory = categoryFor(entry.name, title);
+        return {
+          folder: entry.name,
+          title,
+          description,
+          category: itemCategory,
+          date: dateFromFolder(entry.name),
+          url: `${location.origin}${location.pathname.replace(/\/[^/]*$/, "/")}${entry.name}/`,
+          accent: accentFor(itemCategory, entry.name),
+        };
+      }));
+
+      slides = discovered
+        .filter(Boolean)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)) || a.title.localeCompare(b.title, "zh-Hant"));
+      syncState.textContent = `Live from GitHub: ${slides.length} folders`;
+      render();
+    }
+
+    q.addEventListener("input", render);
+    category.addEventListener("change", render);
+    document.querySelector("#refresh").addEventListener("click", () => discoverSlides().catch((error) => {
+      syncState.textContent = `Using fallback: ${error.message}`;
+      slides = FALLBACK_SLIDES;
+      render();
+    }));
+
+    syncCategories();
+    render();
+    discoverSlides().catch((error) => {
+      syncState.textContent = `Using fallback: ${error.message}`;
+      slides = FALLBACK_SLIDES;
+      render();
+    });
+  </script>
+</body>
+</html>
