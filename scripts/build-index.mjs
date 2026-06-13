@@ -113,7 +113,6 @@ function collectSlides() {
 }
 
 function renderIndex(slides) {
-  const generatedAt = new Date().toISOString();
   const fallbackJson = JSON.stringify(slides);
   const cards = slides
     .map(
@@ -392,7 +391,7 @@ ${cards}
   </main>
 
   <footer>
-    <div class="wrap">Generated at ${escapeHtml(generatedAt)}. Runtime discovery reads GitHub public contents when available.</div>
+    <div class="wrap">Generated from repository folders. Runtime discovery reads GitHub public contents when available.</div>
   </footer>
 
   <script>
