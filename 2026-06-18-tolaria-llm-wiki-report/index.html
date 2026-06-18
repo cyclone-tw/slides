@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Tolaria 與 LLM Wiki 生態研究，以及 Cyclone-Wiki agent-first 落地藍圖。" />
+  <title>Tolaria × LLM Wiki 研究報告</title>
+  <style>
+    /* ===========================================================
+       Deck framework — DO NOT EDIT the rules in this <style> block.
+       Edit only inside the second <style> block below (per-deck
+       styles) and inside <section class="slide"> bodies.
+
+       Contract this framework provides:
+         - 1920×1080 fixed canvas, scaled to fit the viewport
+         - Only .slide.active is visible at a time
+         - Prev/next + counter rendered outside the scaled stage
+         - Keyboard (← → space PgUp PgDn Home End), click, and stored
+           position survive iframe focus quirks
+         - "Save as PDF" produces a multi-page vertical PDF, one slide
+           per page, by toggling every slide visible under @media print
+       =========================================================== */
+    :root {
+      /* SLOT: theme tokens — the only top-level CSS the agent edits.
+         Add or override --bg / --fg / --accent / etc. here. */
+      --bg: #080b10;
+      --bg-2: #0f1419;
+      --fg: #f3f6f4;
+      --muted: #9ba8a4;
+      --accent: #5eead4;
+      --violet: #a78bfa;
+      --surface: #111820;
+      --surface-2: #17202a;
+      --border: rgba(243, 246, 244, 0.14);
+      --shell: #020407;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--shell);
+      color: var(--fg);
+      font: 18px/1.5 -apple-system, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .deck-shell {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+    .deck-stage {
+      width: 1920px;
+      height: 1080px;
+      background: var(--bg);
+      position: relative;
+      transform-origin: top left;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    /* Visibility toggle hardened with :not(.active) + !important so cascade
+       order can't break it. The previous `.slide { display:none }` rule
+       lost the cascade whenever a per-slide variant class (e.g.
+       `.s-cold { display:grid }`) was declared after it on the same
+       element — every slide silently became visible at once. The
+       `!important` is a belt-and-suspenders against agent code that adds
+       `!important` on variant classes too. */
+    .slide:not(.active) { display: none !important; }
+    /* The active default uses :where() so it has zero specificity. Per-slide
+       variant classes like `.s-cold { display:grid }` or
+       `.s-magazine { display:block }` can override the default flex layout
+       just by declaring `display` — no need for the variant to be more
+       specific. The hide rule above still wins for inactive slides. */
+    :where(.slide.active) { display: flex; flex-direction: column; }
+
+    /* Chrome — counter + prev/next live outside the scaled stage so they
+       don't shrink with it. Do not relocate them inside .deck-stage. */
+    .deck-counter {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(10, 14, 26, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.18em;
+      z-index: 1000;
+    }
+    .deck-counter button {
+      width: 36px; height: 36px;
+      background: transparent;
+      color: #fff;
+      border: 0;
+      border-radius: 50%;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s;
+    }
+    .deck-counter button:hover { background: rgba(255, 255, 255, 0.12); }
+    .deck-counter button[disabled] { opacity: 0.3; cursor: default; }
+    .deck-counter .deck-count {
+      padding: 0 14px;
+      letter-spacing: 0.22em;
+    }
+    .deck-counter .deck-count .total { color: rgba(255, 255, 255, 0.5); }
+    .deck-hint {
+      position: fixed;
+      bottom: 26px;
+      right: 28px;
+      color: rgba(255, 255, 255, 0.4);
+      font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    /* Print / PDF stitching — every slide stacks top-to-bottom, one per
+       page. The viewer's "Share → PDF" relies on this; do not remove. */
+    @media print {
+      @page { size: 1920px 1080px; margin: 0; }
+      html, body {
+        width: 1920px !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+      .deck-shell {
+        position: static !important;
+        display: block !important;
+        inset: auto !important;
+      }
+      .deck-stage {
+        width: 1920px !important;
+        height: auto !important;
+        transform: none !important;
+        box-shadow: none !important;
+        position: static !important;
+      }
+      .slide {
+        display: flex !important;
+        position: relative !important;
+        inset: auto !important;
+        width: 1920px !important;
+        height: 1080px !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      .deck-counter, .deck-hint { display: none !important; }
+    }
+  </style>
+  <style>
+    /* SLOT: per-deck styles — typography, layout helpers, slide variants.
+       Add classes used by the slide content below, e.g. .title, .big-stat,
+       .grid-3. Do not redefine .deck-shell / .deck-stage / .slide /
+       .deck-counter / .deck-hint or anything inside @media print. */
+    :root {
+      --font-display: "Inter Tight", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-body: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", "Cascadia Code", ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    .s-cover,
+    .s-part,
+    .s-body,
+    .s-table,
+    .s-diagram,
+    .s-close {
+      display: block;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(94, 234, 212, 0.14), transparent 28%),
+        radial-gradient(circle at 84% 20%, rgba(167, 139, 250, 0.13), transparent 30%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      font-family: var(--font-body);
+    }
+
+    .graph-bg::before,
+    .graph-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .graph-bg::before {
+      background-image:
+        linear-gradient(rgba(155, 168, 164, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(155, 168, 164, 0.08) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(circle at 50% 48%, black 0%, rgba(0, 0, 0, 0.62) 54%, transparent 82%);
+    }
+    .graph-bg::after {
+      background:
+        radial-gradient(circle at 23% 32%, var(--accent) 0 3px, transparent 4px),
+        radial-gradient(circle at 37% 46%, var(--violet) 0 4px, transparent 5px),
+        radial-gradient(circle at 54% 30%, var(--accent) 0 3px, transparent 4px),
+        radial-gradient(circle at 72% 56%, var(--violet) 0 4px, transparent 5px),
+        radial-gradient(circle at 82% 35%, var(--accent) 0 3px, transparent 4px),
+        linear-gradient(22deg, transparent 19%, rgba(94, 234, 212, 0.17) 19.2%, transparent 19.5%),
+        linear-gradient(142deg, transparent 34%, rgba(167, 139, 250, 0.14) 34.2%, transparent 34.5%),
+        linear-gradient(104deg, transparent 58%, rgba(94, 234, 212, 0.12) 58.2%, transparent 58.5%);
+      opacity: 0.78;
+    }
+
+    .slide-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 88px 112px 76px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .topline,
+    .footer,
+    .kicker,
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    .topline,
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(243, 246, 244, 0.58);
+      font-size: 18px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .footer {
+      padding-top: 28px;
+      border-top: 1px solid rgba(243, 246, 244, 0.12);
+    }
+
+    .content {
+      min-height: 760px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .content.top {
+      justify-content: flex-start;
+      padding-top: 42px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 28px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--fg);
+    }
+
+    .hero-title {
+      max-width: 1280px;
+      font-size: 108px;
+      line-height: 0.98;
+    }
+
+    .section-title {
+      max-width: 1320px;
+      font-size: 80px;
+      line-height: 1.04;
+      margin-bottom: 34px;
+    }
+
+    .s-table .section-title {
+      font-size: 72px;
+      line-height: 1.06;
+    }
+
+    .part-title {
+      font-size: 118px;
+      line-height: 0.96;
+      max-width: 1320px;
+    }
+
+    .lead {
+      max-width: 1160px;
+      color: var(--muted);
+      font-size: 32px;
+      line-height: 1.42;
+    }
+
+    .accent { color: var(--accent); }
+    .violet { color: var(--violet); }
+    .muted { color: var(--muted); }
+    .code {
+      font-family: var(--font-mono);
+      color: #dbeafe;
+      background: rgba(94, 234, 212, 0.08);
+      border: 1px solid rgba(94, 234, 212, 0.18);
+      border-radius: 6px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 42px;
+    }
+
+    .pill {
+      border: 1px solid rgba(94, 234, 212, 0.28);
+      background: rgba(94, 234, 212, 0.07);
+      color: var(--fg);
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: 20px/1 var(--font-mono);
+    }
+
+    .bullet-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 40px;
+      max-width: 1320px;
+    }
+
+    .bullet {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 22px;
+      align-items: start;
+      color: rgba(243, 246, 244, 0.9);
+      font-size: 31px;
+      line-height: 1.32;
+    }
+
+    .bullet::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 16px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 22px rgba(94, 234, 212, 0.55);
+    }
+
+    .bullet.v::before {
+      background: var(--violet);
+      box-shadow: 0 0 22px rgba(167, 139, 250, 0.45);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 42px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 38px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .panel {
+      min-height: 166px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
+      padding: 26px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent 42%, var(--violet));
+      opacity: 0.75;
+    }
+
+    .panel h3 {
+      font-size: 32px;
+      margin-bottom: 14px;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1.36;
+    }
+
+    .panel ul {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .table {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(8, 11, 16, 0.45);
+    }
+
+    .row {
+      display: grid;
+      border-bottom: 1px solid rgba(243, 246, 244, 0.1);
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .cell {
+      padding: 18px 20px;
+      border-right: 1px solid rgba(243, 246, 244, 0.1);
+      color: rgba(243, 246, 244, 0.88);
+      font-size: 23px;
+      line-height: 1.3;
+    }
+
+    .cell:last-child { border-right: 0; }
+
+    .head .cell {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: rgba(94, 234, 212, 0.07);
+    }
+
+    .mode-table .row { grid-template-columns: 0.9fr 1.15fr 0.95fr 1fr 1fr; }
+    .tool-table .row { grid-template-columns: 0.9fr 1.35fr 1.45fr; }
+    .govern-table .row { grid-template-columns: 0.58fr 1.18fr 1.25fr 1.35fr; }
+    .compare-table .row { grid-template-columns: 0.92fr 1.05fr 1.05fr 1.05fr; }
+    .division-table .row { grid-template-columns: 0.85fr 1.15fr 1.15fr 1.15fr; }
+
+    .diagram {
+      display: grid;
+      gap: 18px;
+      margin-top: 40px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 18px;
+      margin-top: 42px;
+    }
+
+    .flow-step {
+      min-height: 160px;
+      border: 1px solid rgba(94, 234, 212, 0.22);
+      border-radius: 8px;
+      background: rgba(17, 24, 32, 0.78);
+      padding: 24px;
+    }
+
+    .flow-step .num {
+      font: 18px/1 var(--font-mono);
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .flow-step strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1.08;
+      margin-bottom: 12px;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.32;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr 0.12fr 1fr 0.12fr 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-top: 34px;
+    }
+
+    .arch-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(12, 18, 25, 0.76);
+      padding: 28px;
+      min-height: 370px;
+    }
+
+    .arch-box h3 {
+      color: var(--accent);
+      font-size: 34px;
+      margin-bottom: 20px;
+    }
+
+    .arch-box ul {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 25px;
+      line-height: 1.26;
+    }
+
+    .arrow {
+      color: var(--violet);
+      font: 54px/1 var(--font-mono);
+      text-align: center;
+    }
+
+    .lens-strip {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 42px;
+      max-width: 1260px;
+    }
+
+    .lens {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 24px;
+      align-items: center;
+      border: 1px solid rgba(243, 246, 244, 0.12);
+      border-radius: 8px;
+      padding: 22px 26px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .lens strong {
+      font-size: 30px;
+      color: var(--fg);
+    }
+
+    .lens span {
+      color: var(--muted);
+      font-size: 26px;
+      line-height: 1.28;
+    }
+
+    .big-quote {
+      max-width: 1300px;
+      font-size: 62px;
+      line-height: 1.12;
+      color: var(--fg);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 42px;
+      align-items: start;
+      margin-top: 34px;
+    }
+
+    .mini-list {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-list li {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: rgba(243, 246, 244, 0.045);
+      border: 1px solid rgba(243, 246, 244, 0.1);
+      color: rgba(243, 246, 244, 0.86);
+      font-size: 22px;
+      line-height: 1.24;
+    }
+
+    .tool-table .cell {
+      padding: 11px 18px;
+      font-size: 20px;
+      line-height: 1.24;
+    }
+
+    .tool-table .head .cell {
+      font-size: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+      margin-top: 36px;
+    }
+
+    .stack-item {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 24px;
+      border: 1px solid rgba(243, 246, 244, 0.12);
+      border-radius: 8px;
+      padding: 22px 24px;
+      background: rgba(10, 15, 20, 0.74);
+    }
+
+    .stack-item strong {
+      color: var(--accent);
+      font: 24px/1.1 var(--font-mono);
+    }
+
+    .stack-item span {
+      color: rgba(243, 246, 244, 0.86);
+      font-size: 26px;
+      line-height: 1.28;
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px;
+      margin-top: 42px;
+    }
+
+    .road-card {
+      min-height: 420px;
+      border: 1px solid rgba(243, 246, 244, 0.13);
+      border-radius: 8px;
+      background: rgba(17, 24, 32, 0.78);
+      padding: 34px;
+    }
+
+    .road-card h3 {
+      font-size: 42px;
+      margin-bottom: 24px;
+    }
+
+    .road-card ol {
+      display: grid;
+      gap: 16px;
+      padding-left: 28px;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1.3;
+    }
+
+    .final-three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 48px;
+    }
+
+    .final-card {
+      min-height: 310px;
+      border: 1px solid rgba(94, 234, 212, 0.25);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(94, 234, 212, 0.08), rgba(167, 139, 250, 0.04));
+      padding: 30px;
+    }
+
+    .final-card .num {
+      font: 22px/1 var(--font-mono);
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .final-card h3 {
+      font-size: 38px;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+
+    .final-card p {
+      color: var(--muted);
+      font-size: 25px;
+      line-height: 1.34;
+    }
+
+    .thin-rule {
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), rgba(167, 139, 250, 0.8), transparent);
+      margin: 36px 0;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .active .reveal,
+      .active .panel,
+      .active .row,
+      .active .flow-step,
+      .active .lens,
+      .active .stack-item,
+      .active .final-card,
+      .active .road-card {
+        animation: reveal 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      }
+      .active .panel:nth-child(2),
+      .active .row:nth-child(2),
+      .active .flow-step:nth-child(2),
+      .active .lens:nth-child(2),
+      .active .stack-item:nth-child(2),
+      .active .final-card:nth-child(2) { animation-delay: 45ms; }
+      .active .panel:nth-child(3),
+      .active .row:nth-child(3),
+      .active .flow-step:nth-child(3),
+      .active .lens:nth-child(3),
+      .active .stack-item:nth-child(3),
+      .active .final-card:nth-child(3) { animation-delay: 90ms; }
+      .active .panel:nth-child(4),
+      .active .row:nth-child(4),
+      .active .flow-step:nth-child(4),
+      .active .lens:nth-child(4),
+      .active .stack-item:nth-child(4) { animation-delay: 135ms; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck-shell">
+    <div class="deck-stage" id="deck-stage">
+
+      <section class="slide active s-cover graph-bg" data-screen-label="01 封面">
+        <div class="slide-inner">
+          <div class="topline"><span>Tolaria × LLM Wiki</span><span>Research Deck</span></div>
+          <main class="content">
+            <div class="kicker reveal">2026-06 · AI-first Knowledge Base</div>
+            <h1 class="hero-title reveal">Tolaria × LLM Wiki<br><span class="accent">研究報告</span></h1>
+            <p class="lead reveal" style="margin-top: 34px;">AI-first 知識庫評估與 Cyclone-Wiki 藍圖：人類可讀、agent 可維護、Git 可審計。</p>
+            <div class="pill-row reveal">
+              <span class="pill">Part A · 生態與 Tolaria</span>
+              <span class="pill">Part B · Cyclone 落地</span>
+              <span class="pill">Single-source Wiki</span>
+            </div>
+          </main>
+          <div class="footer"><span>CycloneOS Knowledge Layer</span><span>01 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="02 問題定義">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Problem Definition</span></div>
+          <main class="content top">
+            <div class="kicker">02 · 問題定義</div>
+            <h2 class="section-title">AI-first LLM Wiki 不只是「多一個筆記工具」</h2>
+            <div class="grid-3">
+              <div class="panel"><h3>人類可讀</h3><p>Markdown、清楚 metadata、穩定命名，讓 Cyclone 不靠工具也能閱讀與修正。</p></div>
+              <div class="panel"><h3>Agent 可維護</h3><p>入口規則、routing、schema、lint 都寫成 agent 能執行的合約。</p></div>
+              <div class="panel"><h3>Git 可審計</h3><p>每一次新增、升格、修正都有 diff；知識庫不是黑盒 SaaS 狀態。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">傳統 PKM 重點是人的整理；LLM Wiki 重點是人與 agent 共同維護。</div>
+              <div class="bullet v">雲端 wiki 重點是協作 UI；LLM Wiki 重點是檔案、權限、路由與可追溯脈絡。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Tolaria × LLM Wiki</span><span>02 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-table" data-screen-label="03 生態地圖">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Ecosystem Map</span></div>
+          <main class="content top">
+            <div class="kicker">03 · 生態地圖</div>
+            <h2 class="section-title">五種模式，其實在回答五個不同問題</h2>
+            <div class="table mode-table">
+              <div class="row head"><div class="cell">模式</div><div class="cell">核心假設</div><div class="cell">資料權</div><div class="cell">AI 互動</div><div class="cell">主要風險</div></div>
+              <div class="row"><div class="cell">Karpathy 型資料夾</div><div class="cell">plain files 足以成為長期記憶</div><div class="cell">本機檔案</div><div class="cell">CLI / repo context</div><div class="cell">缺治理與搜尋層</div></div>
+              <div class="row"><div class="cell">Tolaria</div><div class="cell">Desktop Markdown 可以是 agent workspace</div><div class="cell">files-first / Git</div><div class="cell">AGENTS.md + adapters</div><div class="cell">產品成熟度仍需驗證</div></div>
+              <div class="row"><div class="cell">Obsidian</div><div class="cell">人類 PKM graph 是主體</div><div class="cell">本機 vault</div><div class="cell">plugin / external agent</div><div class="cell">agent 合約不原生</div></div>
+              <div class="row"><div class="cell">Notion</div><div class="cell">協作資料庫與文件中心</div><div class="cell">雲端平台</div><div class="cell">API / connector</div><div class="cell">offline 與 Git audit 弱</div></div>
+              <div class="row"><div class="cell">Vector RAG</div><div class="cell">檢索比人工分類更重要</div><div class="cell">依部署而定</div><div class="cell">semantic retrieval</div><div class="cell">來源與治理容易失真</div></div>
+            </div>
+          </main>
+          <div class="footer"><span>生態不是排名，是取捨</span><span>03 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="04 Tolaria 定位">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Tolaria Positioning</span></div>
+          <main class="content top">
+            <div class="kicker">04 · Tolaria 定位</div>
+            <h2 class="section-title">Tolaria 的核心不是 UI，而是 Desktop Markdown 的工作邊界</h2>
+            <div class="flow">
+              <div class="flow-step"><div class="num">01</div><strong>Desktop Markdown</strong><span>資料在桌面，不先變成雲端資料庫。</span></div>
+              <div class="flow-step"><div class="num">02</div><strong>files-first</strong><span>檔案路徑、frontmatter、wikilink 是原始真相。</span></div>
+              <div class="flow-step"><div class="num">03</div><strong>git-first</strong><span>修改能被 review、diff、rollback，而非只剩操作紀錄。</span></div>
+              <div class="flow-step"><div class="num">04</div><strong>offline-first</strong><span>離線可讀寫；同步是加值，不是存取前提。</span></div>
+              <div class="flow-step"><div class="num">05</div><strong>agent-ready</strong><span>把 agent 的入口、工具與禁區寫進 repo。</span></div>
+            </div>
+            <p class="lead" style="margin-top: 38px;">定位結論：Tolaria 比較像「給 LLM 的 Markdown IDE」，不是 Notion 或 Obsidian 的單純替代品。</p>
+          </main>
+          <div class="footer"><span>Desktop Markdown · Git · Agent Workspace</span><span>04 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="05 設計原則上">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Design Principles I</span></div>
+          <main class="content top">
+            <div class="kicker">05 · 設計原則 上</div>
+            <h2 class="section-title">上半場：把「筆記」升級成可被 agent 操作的知識物件</h2>
+            <div class="lens-strip">
+              <div class="lens"><strong>Types as lenses</strong><span>note type 不是分類癖；它是閱讀、搜尋、驗證與升格時的鏡片。</span></div>
+              <div class="lens"><strong>AI-first graph</strong><span>graph 不只是給人看連線，而是讓 agent 能判斷鄰近脈絡與缺口。</span></div>
+              <div class="lens"><strong><span class="code">AGENTS.md</span></strong><span>每個 repo / vault 的入口合約：可做什麼、不能碰什麼、如何驗證。</span></div>
+              <div class="lens"><strong>Disk-first</strong><span>先讓檔案系統成立，再讓 UI、MCP、QMD、search index 吃同一份真相。</span></div>
+            </div>
+          </main>
+          <div class="footer"><span>原則不是口號，是約束 agent 的操作面</span><span>05 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="06 設計原則下">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Design Principles II</span></div>
+          <main class="content top">
+            <div class="kicker">06 · 設計原則 下</div>
+            <h2 class="section-title">下半場：讓工具可以替換，讓知識不被工具綁架</h2>
+            <div class="grid-4">
+              <div class="panel"><h3>Tool-agnostic</h3><p>Codex、Claude、Gemini、Hermes 應讀同一套規則，而不是各寫一套 prompt。</p></div>
+              <div class="panel"><h3>Convention over config</h3><p>路徑、metadata、命名、升格流程固定，降低每次開工的協商成本。</p></div>
+              <div class="panel"><h3>Neighborhood</h3><p>agent 不只找單篇，而是找鄰近筆記、反向連結與同型內容。</p></div>
+              <div class="panel"><h3>Multi-vault</h3><p>長期知識、教育私密、legacy 來源分層，不把敏感內容混進公開 core。</p></div>
+            </div>
+            <div class="thin-rule"></div>
+            <p class="big-quote">好的 LLM Wiki 不追求「看起來聰明」，而是讓每次修改都有邊界、有來源、有下一步。</p>
+          </main>
+          <div class="footer"><span>工具可替換，合約不可缺席</span><span>06 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="07 技術架構">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Architecture</span></div>
+          <main class="content top">
+            <div class="kicker">07 · 技術架構</div>
+            <h2 class="section-title">Tauri + React + Rust：UI 快速，核心保守</h2>
+            <div class="architecture">
+              <div class="arch-box"><h3>React UI</h3><ul><li>Markdown explorer</li><li>graph / inbox / pulse</li><li>BlockNote、CodeMirror 編輯面</li><li>可插 Mermaid、tldraw、math viewer</li></ul></div>
+              <div class="arrow">→</div>
+              <div class="arch-box"><h3>Tauri Boundary</h3><ul><li>桌面 app shell</li><li>command bridge</li><li>檔案權限邊界</li><li>跨平台 packaging</li></ul></div>
+              <div class="arrow">→</div>
+              <div class="arch-box"><h3>Rust Core</h3><ul><li>filesystem watcher</li><li>Markdown parser / index</li><li>Git adapter</li><li>MCP server / tool router</li></ul></div>
+            </div>
+            <p class="lead" style="margin-top: 34px;">架構判斷：UI 可以快速演進，但檔案、索引、Git、權限要留在更可控的 core layer。</p>
+          </main>
+          <div class="footer"><span>Tauri shell · React surface · Rust core</span><span>07 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="08 資料模型">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Data Model</span></div>
+          <main class="content top">
+            <div class="kicker">08 · 資料模型</div>
+            <h2 class="section-title">Markdown 是容器；frontmatter 與 wikilink 才是操作界面</h2>
+            <div class="two-col">
+              <div>
+                <p class="lead">每篇 note 同時要服務三種讀者：人、agent、Git reviewer。資料模型要讓三者看到同一件事。</p>
+                <div class="bullet-list">
+                  <div class="bullet"><span class="code">frontmatter</span> 存 type、status、source、privacy、promotion metadata。</div>
+                  <div class="bullet v"><span class="code">[[wikilink]]</span> 建圖，backlink 幫 agent 補足鄰近脈絡。</div>
+                </div>
+              </div>
+              <div class="stack">
+                <div class="stack-item"><strong>Source</strong><span>原始捕捉：session log、coding retrospective、digest、reference 摘要。</span></div>
+                <div class="stack-item"><strong>Synthesis</strong><span>整理後可重用的知識：主題總結、跨來源觀察、模式。</span></div>
+                <div class="stack-item"><strong>Procedure</strong><span>可重複執行的步驟：命令、驗證、失敗處理。</span></div>
+                <div class="stack-item"><strong>Decision</strong><span>需要長期遵守的架構與治理決策。</span></div>
+              </div>
+            </div>
+          </main>
+          <div class="footer"><span>Markdown + frontmatter + wikilink graph</span><span>08 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="09 編輯體驗">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Editing Experience</span></div>
+          <main class="content top">
+            <div class="kicker">09 · 編輯體驗</div>
+            <h2 class="section-title">好的編輯器不是把 Markdown 藏起來，而是讓不同內容選對模式</h2>
+            <div class="grid-3">
+              <div class="panel"><h3>BlockNote</h3><p>適合一般段落、callout、清單與快速 rearrange；讓非工程內容編輯更接近文件。</p></div>
+              <div class="panel"><h3>CodeMirror</h3><p>適合 frontmatter、code path、Mermaid、MCP tool spec；保留精準文字控制。</p></div>
+              <div class="panel"><h3>Rich Blocks</h3><p>Mermaid、tldraw、math 可以在 viewer 層渲染，但原始資料仍回到 Markdown。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">切換 editor mode 時，不能破壞 frontmatter 或 wikilink。</div>
+              <div class="bullet v">任何 rich view 都應該能退回 plain text，避免工具失效時知識也失效。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Block editing for humans · text fidelity for agents</span><span>09 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="10 Git工作流">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Git Workflow</span></div>
+          <main class="content top">
+            <div class="kicker">10 · Git 工作流</div>
+            <h2 class="section-title">Sidebar / Inbox / Pulse / AutoGit：把知識變更變成可管理事件</h2>
+            <div class="flow">
+              <div class="flow-step"><div class="num">Sidebar</div><strong>看見 repo 狀態</strong><span>未追蹤、新增、修改、衝突與目前 branch。</span></div>
+              <div class="flow-step"><div class="num">Inbox</div><strong>先收，不急著升格</strong><span>所有 agent capture 先進可審核區。</span></div>
+              <div class="flow-step"><div class="num">Pulse</div><strong>顯示近期變動</strong><span>讓人快速看懂今天知識庫發生什麼事。</span></div>
+              <div class="flow-step"><div class="num">AutoGit</div><strong>低風險同步</strong><span>只對明確範圍自動 commit/push。</span></div>
+              <div class="flow-step"><div class="num">Review</div><strong>高風險保留人工</strong><span>schema、routing、privacy、runtime 變更需審查。</span></div>
+            </div>
+          </main>
+          <div class="footer"><span>Git 是治理層，不只是備份</span><span>10 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body graph-bg" data-screen-label="11 AI Workspace">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>AI Workspace</span></div>
+          <main class="content top">
+            <div class="kicker">11 · AI Workspace</div>
+            <h2 class="section-title">CLI agent adapters + <span class="code">AGENTS.md</span>：把「知道怎麼做」寫進 repo</h2>
+            <div class="grid-4">
+              <div class="panel"><h3>Codex</h3><p>適合 repo 內開發、diff、驗證與可追溯修改。</p></div>
+              <div class="panel"><h3>Claude</h3><p>適合長文整理、文件重構、規劃與設計討論。</p></div>
+              <div class="panel"><h3>Gemini</h3><p>適合多模態參照、文件比對與大 context 分析。</p></div>
+              <div class="panel"><h3>Hermes</h3><p>適合 runtime routing、主機分布與自動化管線。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">adapter 只負責把 agent 接進 workspace；真正的行為規則放在 <span class="code">AGENTS.md</span>。</div>
+              <div class="bullet v">同一個 vault 應該能被多個 agent 安全讀寫，而不是為每個 agent 複製一份知識。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Adapters are replaceable · contracts are durable</span><span>11 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-table" data-screen-label="12 MCP 8工具表">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>MCP Tool Surface</span></div>
+          <main class="content top">
+            <div class="kicker">12 · MCP 8 工具表</div>
+            <h2 class="section-title">MCP tool 要小而可審計；每個工具都要有依賴條件</h2>
+            <div class="table tool-table">
+              <div class="row head"><div class="cell">Tool</div><div class="cell">用途</div><div class="cell">依賴條件</div></div>
+              <div class="row"><div class="cell"><span class="code">search_notes</span></div><div class="cell">以關鍵字 / full-text 搜尋 note</div><div class="cell">可更新的 Markdown index；排除 private path</div></div>
+              <div class="row"><div class="cell"><span class="code">read_note</span></div><div class="cell">讀取指定 note body 與 metadata</div><div class="cell">path resolver、privacy policy、frontmatter parser</div></div>
+              <div class="row"><div class="cell"><span class="code">list_notes</span></div><div class="cell">列出 vault 或資料夾內 note</div><div class="cell">filesystem watcher、ignore rules、type filter</div></div>
+              <div class="row"><div class="cell"><span class="code">create_note</span></div><div class="cell">建立 inbox 或 formal note</div><div class="cell">template、metadata schema、write permission</div></div>
+              <div class="row"><div class="cell"><span class="code">update_note</span></div><div class="cell">更新內容或 frontmatter</div><div class="cell">diff preview、lint、human-owned block policy</div></div>
+              <div class="row"><div class="cell"><span class="code">move_note</span></div><div class="cell">升格、搬移、重新命名</div><div class="cell">link rewrite、promotion metadata、Git status clean check</div></div>
+              <div class="row"><div class="cell"><span class="code">get_backlinks</span></div><div class="cell">查 wikilink graph 與鄰近脈絡</div><div class="cell">graph index、alias resolver、broken-link report</div></div>
+              <div class="row"><div class="cell"><span class="code">git_status</span></div><div class="cell">回報 diff、branch、未提交變更</div><div class="cell">Git repo、safe directory、commit policy</div></div>
+            </div>
+          </main>
+          <div class="footer"><span>MCP surface should be small, typed, and permissioned</span><span>12 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-table" data-screen-label="13 比較與建置法">
+        <div class="slide-inner">
+          <div class="topline"><span>Part A</span><span>Comparison & Build Method</span></div>
+          <main class="content top">
+            <div class="kicker">13 · 比較與建置法</div>
+            <h2 class="section-title">結論：Cyclone 不必等 Tolaria 成熟，先把可攜合約建好</h2>
+            <div class="two-col">
+              <div class="table compare-table">
+                <div class="row head"><div class="cell">面向</div><div class="cell">Tolaria</div><div class="cell">Obsidian</div><div class="cell">Notion</div></div>
+                <div class="row"><div class="cell">檔案主權</div><div class="cell">強</div><div class="cell">強</div><div class="cell">弱</div></div>
+                <div class="row"><div class="cell">Git 審計</div><div class="cell">核心方向</div><div class="cell">需外掛 / 手動</div><div class="cell">非原生</div></div>
+                <div class="row"><div class="cell">Agent 合約</div><div class="cell">設計焦點</div><div class="cell">需自行補</div><div class="cell">依 API 限制</div></div>
+                <div class="row"><div class="cell">成熟度</div><div class="cell">需評估</div><div class="cell">成熟</div><div class="cell">成熟</div></div>
+              </div>
+              <ol class="mini-list">
+                <li>定義 vault 層級與 private boundary</li>
+                <li>建立 <span class="code">AGENTS.md</span> 入口合約</li>
+                <li>固定 note type 與 metadata schema</li>
+                <li>先做 inbox capture，再做 formal promotion</li>
+                <li>補上 QMD semantic search</li>
+                <li>接 MCP read/search/write 最小工具面</li>
+                <li>導入 wiki-lint 與 privacy-scan</li>
+                <li>用 Git diff 做 review 與回滾</li>
+                <li>再評估 Tolaria 是否成為桌面 UI</li>
+              </ol>
+            </div>
+          </main>
+          <div class="footer"><span>建置法：先合約，後工具</span><span>13 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-part graph-bg" data-screen-label="14 Part B 扉頁">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Cyclone Implementation Blueprint</span></div>
+          <main class="content">
+            <div class="kicker reveal">14 · Cyclone 落地藍圖</div>
+            <h2 class="part-title reveal">從「研究 Tolaria」<br>轉成「建 Cyclone-Wiki」</h2>
+            <div class="pill-row reveal">
+              <span class="pill">agent-first</span>
+              <span class="pill">inbox-first</span>
+              <span class="pill">privacy-aware</span>
+              <span class="pill">Git-audited</span>
+            </div>
+          </main>
+          <div class="footer"><span>Cyclone-Wiki should not depend on one app</span><span>14 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="15 Cyclone決策">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Decision</span></div>
+          <main class="content top">
+            <div class="kicker">15 · Cyclone 決策</div>
+            <h2 class="section-title">決策：agent-first；Tolaria optional</h2>
+            <div class="grid-3">
+              <div class="panel"><h3>現在就做</h3><p>把 Cyclone-Wiki core vault、inbox routing、metadata schema、lint gate 建起來。</p></div>
+              <div class="panel"><h3>可以試用</h3><p>Tolaria 若能穩定讀寫 Markdown/Git，就作為桌面 UI 與 graph explorer。</p></div>
+              <div class="panel"><h3>不能依賴</h3><p>長期知識層不可綁死任何單一 app；agent、CLI、Git 才是底層合約。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">優先投資 source-of-truth：路徑、metadata、privacy、promotion、Git。</div>
+              <div class="bullet v">UI 是加速器，不是治理層；治理層要能在沒有 UI 時運作。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Decision: build the wiki contract first</span><span>15 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="16 Vault三層">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Vault Layers</span></div>
+          <main class="content top">
+            <div class="kicker">16 · Vault 三層</div>
+            <h2 class="section-title">Core / Education Private / Legacy Obsidian：不要把所有知識混成一鍋</h2>
+            <div class="stack">
+              <div class="stack-item"><strong>Core</strong><span><span class="code">cyclone-wiki-core</span>：長期、可重用、可讓 agent 讀寫的正式知識層。</span></div>
+              <div class="stack-item"><strong>Education Private</strong><span>特教工作、學生、家庭、敏感個案，只能在更嚴格的 private boundary 中處理。</span></div>
+              <div class="stack-item"><strong>Legacy Obsidian</strong><span>舊 vault 作為 read-only source workspace；不再當新的長期知識真相。</span></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">Core 只收可升格、可審計、可重用內容。</div>
+              <div class="bullet v">Private 與 legacy 內容可被引用或摘要，但不能無條件搬進 core。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Multi-vault governance</span><span>16 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="17 AGENTS.md">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>AGENTS.md Contract</span></div>
+          <main class="content top">
+            <div class="kicker">17 · AGENTS.md</div>
+            <h2 class="section-title"><span class="code">AGENTS.md</span> 是入口合約，不是備忘錄</h2>
+            <div class="grid-4">
+              <div class="panel"><h3>讀什麼</h3><p>入口索引、Soul、capabilities、privacy、search policy。</p></div>
+              <div class="panel"><h3>寫哪裡</h3><p>一般 agent 只能先寫 <span class="code">_inbox/</span>，不能直接改 formal note。</p></div>
+              <div class="panel"><h3>怎麼驗證</h3><p>metadata schema、link check、privacy-scan、Git diff。</p></div>
+              <div class="panel"><h3>不能做什麼</h3><p>不能洩漏 secret、不能覆寫人類內容、不能跨 boundary 搬敏感資料。</p></div>
+            </div>
+            <p class="lead" style="margin-top: 42px;">inbox-first 的目的不是拖慢工作，而是讓 agent 的輸出先有隔離區，再由治理流程決定是否升格。</p>
+          </main>
+          <div class="footer"><span>入口合約要短、明確、可執行</span><span>17 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-table" data-screen-label="18 Level 0-3">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Governance Levels</span></div>
+          <main class="content top">
+            <div class="kicker">18 · Level 0–3</div>
+            <h2 class="section-title">治理分級：不是每句話都值得進 wiki</h2>
+            <div class="table govern-table">
+              <div class="row head"><div class="cell">Level</div><div class="cell">何時使用</div><div class="cell">允許動作</div><div class="cell">驗收條件</div></div>
+              <div class="row"><div class="cell">0</div><div class="cell">一般問答、短期脈絡</div><div class="cell">不寫入 wiki</div><div class="cell">回答完成即可，不產生長期文件。</div></div>
+              <div class="row"><div class="cell">1</div><div class="cell">coding session、digest、agent capture</div><div class="cell">寫入 <span class="code">_inbox/</span></div><div class="cell">有 metadata、TL;DR、來源、驗證狀態。</div></div>
+              <div class="row"><div class="cell">2</div><div class="cell">正式整理、合併、升格</div><div class="cell">建立 Synthesis / Procedure / Decision</div><div class="cell">需 issue/review，保留 source note 與 promotion metadata。</div></div>
+              <div class="row"><div class="cell">3</div><div class="cell">runtime、agent behavior、automation</div><div class="cell">改規則、hook、deploy、routing</div><div class="cell">一定要 issue、驗證與必要的 runtime evidence。</div></div>
+            </div>
+          </main>
+          <div class="footer"><span>Governance prevents knowledge debt</span><span>18 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="19 Inbox流程">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Inbox Flow</span></div>
+          <main class="content top">
+            <div class="kicker">19 · Inbox 流程</div>
+            <h2 class="section-title">捕捉 → 審核 → 升格：把 agent 輸出變成可靠知識</h2>
+            <div class="flow">
+              <div class="flow-step"><div class="num">Capture</div><strong>先寫 source note</strong><span>保留原始上下文、目標、完成內容、驗證。</span></div>
+              <div class="flow-step"><div class="num">Lint</div><strong>基本格式檢查</strong><span>frontmatter、title、status、tags、必要章節。</span></div>
+              <div class="flow-step"><div class="num">Review</div><strong>人工或 agent 審核</strong><span>判斷是否可重用、是否涉及 privacy。</span></div>
+              <div class="flow-step"><div class="num">Promote</div><strong>升格 formal note</strong><span>整理成 Synthesis、Procedure、Decision 或 Project。</span></div>
+              <div class="flow-step"><div class="num">Audit</div><strong>Git diff 留痕</strong><span>source note 保留，formal note 標記來源。</span></div>
+            </div>
+          </main>
+          <div class="footer"><span>Inbox is a quarantine, not a trash bin</span><span>19 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body graph-bg" data-screen-label="20 QMD搜尋">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>QMD Search</span></div>
+          <main class="content top">
+            <div class="kicker">20 · QMD 搜尋</div>
+            <h2 class="section-title">QMD 是 semantic search 外掛，不是新的 source-of-truth</h2>
+            <div class="grid-3">
+              <div class="panel"><h3>Index</h3><p>吃 Markdown、frontmatter、wikilink graph，建立可重建的 semantic index。</p></div>
+              <div class="panel"><h3>Retrieve</h3><p>回傳 note path、摘要、關聯片段與信心線索，不回傳不可追溯答案。</p></div>
+              <div class="panel"><h3>Respect Boundary</h3><p>搜尋必須遵守 privacy policy；private vault 不應被 core 查詢偷渡。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">QMD 解決「找得到」；AGENTS.md 解決「找到後能不能動」。</div>
+              <div class="bullet v">semantic search 不能取代 Git diff、source note 或 promotion review。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Semantic retrieval with provenance</span><span>20 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-table" data-screen-label="21 工具分工">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Tool Division</span></div>
+          <main class="content top">
+            <div class="kicker">21 · 工具分工</div>
+            <h2 class="section-title">Agent vs Tolaria vs QMD：三者不要互相冒充</h2>
+            <div class="table division-table">
+              <div class="row head"><div class="cell">工具</div><div class="cell">最適合做</div><div class="cell">不應該做</div><div class="cell">Cyclone 採用方式</div></div>
+              <div class="row"><div class="cell">Agent</div><div class="cell">整理、升格、重構、補 metadata、跑檢查</div><div class="cell">未審核就改 formal note 或 private vault</div><div class="cell">透過 <span class="code">AGENTS.md</span> 與 MCP 受控操作</div></div>
+              <div class="row"><div class="cell">Tolaria</div><div class="cell">桌面瀏覽、Markdown 編輯、graph / inbox UI</div><div class="cell">成為唯一資料格式或唯一進入點</div><div class="cell">optional desktop shell，成熟後接入 core vault</div></div>
+              <div class="row"><div class="cell">QMD</div><div class="cell">semantic search、相似內容、跨 note retrieval</div><div class="cell">直接判斷治理、覆寫 metadata、搬移文件</div><div class="cell">外掛索引層；資料可重建、可關閉</div></div>
+            </div>
+            <p class="lead" style="margin-top: 38px;">分工原則：agent 負責行動，Tolaria 負責可視化與編輯，QMD 負責找資料；source-of-truth 永遠是 Git 管理的 Markdown。</p>
+          </main>
+          <div class="footer"><span>One truth, multiple interfaces</span><span>21 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-diagram" data-screen-label="22 Hermes路由">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Hermes Routing</span></div>
+          <main class="content top">
+            <div class="kicker">22 · Hermes 路由</div>
+            <h2 class="section-title">Hermes 應做 inbox 路由與主機分布，而不是替代 wiki governance</h2>
+            <div class="architecture">
+              <div class="arch-box"><h3>MacBook</h3><ul><li>Codex / Claude 互動 session</li><li>快速 capture 到 <span class="code">_inbox/</span></li><li>local review 與 Git diff</li><li>移動工作優先</li></ul></div>
+              <div class="arrow">⇄</div>
+              <div class="arch-box"><h3>Hermes Router</h3><ul><li>判斷 capture 類型</li><li>選擇 inbox path</li><li>標記 source_agent / host</li><li>避免 secret 被路由出去</li></ul></div>
+              <div class="arrow">⇄</div>
+              <div class="arch-box"><h3>Mac Mini</h3><ul><li>CycloneOS 長跑服務</li><li>scheduled digest</li><li>QMD / index refresh</li><li>低風險 sync automation</li></ul></div>
+            </div>
+          </main>
+          <div class="footer"><span>Hermes routes work; AGENTS.md governs work</span><span>22 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="23 品質閘門">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Quality Gates</span></div>
+          <main class="content top">
+            <div class="kicker">23 · 品質閘門</div>
+            <h2 class="section-title"><span class="code">wiki-lint</span> + <span class="code">privacy-scan</span>：先擋錯，再談自動化</h2>
+            <div class="grid-4">
+              <div class="panel"><h3>Metadata</h3><p>必填 title、type、status、created、updated、tags、source_agent。</p></div>
+              <div class="panel"><h3>Links</h3><p>檢查 broken wikilink、孤兒 note、重複 title、錯誤 path。</p></div>
+              <div class="panel"><h3>Privacy</h3><p>偵測學生、個案、token、secret、private path 外流跡象。</p></div>
+              <div class="panel"><h3>Promotion</h3><p>升格 formal note 時確認 source、review、decision rationale。</p></div>
+            </div>
+            <div class="bullet-list">
+              <div class="bullet">Level 1 可以快速 capture，但仍需通過基本 schema。</div>
+              <div class="bullet v">Level 2/3 必須保留 issue、review 或 runtime evidence，不能只靠 agent 自我宣稱。</div>
+            </div>
+          </main>
+          <div class="footer"><span>Automation without gates creates knowledge debt faster</span><span>23 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-body" data-screen-label="24 路線圖">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Roadmap</span></div>
+          <main class="content top">
+            <div class="kicker">24 · 路線圖</div>
+            <h2 class="section-title">先建立穩定知識管線，再追求漂亮桌面 UI</h2>
+            <div class="roadmap">
+              <div class="road-card"><h3><span class="accent">短期</span> · 2–4 週</h3><ol><li>固定 core vault 目錄與 type schema。</li><li>完成 <span class="code">AGENTS.md</span> 入口與 inbox-first 規則。</li><li>建立 coding retrospective / digest 模板。</li><li>跑 wiki-lint、privacy-scan、broken-link check。</li><li>把 QMD 搜尋接成 read-only 輔助。</li></ol></div>
+              <div class="road-card"><h3><span class="violet">中期</span> · 1–2 季</h3><ol><li>導入 promotion workflow 與 review dashboard。</li><li>做 MCP read/search/write 最小工具面。</li><li>讓 Hermes 負責 routing 與 scheduled digest。</li><li>評估 Tolaria 作為 desktop graph/editor。</li><li>把高價值 inbox notes 升格成正式 wiki。</li></ol></div>
+            </div>
+          </main>
+          <div class="footer"><span>Roadmap is contract-first, UI-second</span><span>24 / 25</span></div>
+        </div>
+      </section>
+
+      <section class="slide s-close graph-bg" data-screen-label="25 結語">
+        <div class="slide-inner">
+          <div class="topline"><span>Part B</span><span>Closing</span></div>
+          <main class="content top">
+            <div class="kicker">25 · 結語</div>
+            <h2 class="section-title">三條建議：讓 Cyclone-Wiki 先成為可靠系統，再成為漂亮產品</h2>
+            <div class="final-three">
+              <div class="final-card"><div class="num">01</div><h3>先定 source-of-truth</h3><p>Markdown + Git + metadata schema 是底層；UI、QMD、MCP 都只是讀寫這份真相。</p></div>
+              <div class="final-card"><div class="num">02</div><h3>先 inbox，再升格</h3><p>不要讓 agent 直接污染正式知識；capture 快，promotion 慢，這是治理節奏。</p></div>
+              <div class="final-card"><div class="num">03</div><h3>Tolaria optional</h3><p>若成熟就接入；若不成熟，Cyclone-Wiki 仍能靠 agent、Git、QMD 與 Hermes 運作。</p></div>
+            </div>
+            <p class="big-quote" style="margin-top: 52px;">Q&A：下一步不是問「要不要用 Tolaria」，而是問「Cyclone-Wiki 的合約是否已經清楚到任何 agent 都能安全執行」。</p>
+          </main>
+          <div class="footer"><span>Tolaria × LLM Wiki · Cyclone-Wiki Blueprint</span><span>25 / 25</span></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Framework chrome — DO NOT EDIT below this line. -->
+  <nav class="deck-counter" role="navigation" aria-label="Deck navigation">
+    <button type="button" id="deck-prev" aria-label="Previous slide">‹</button>
+    <span class="deck-count"><span id="deck-cur">01</span> <span class="total">/ <span id="deck-total">01</span></span></span>
+    <button type="button" id="deck-next" aria-label="Next slide">›</button>
+  </nav>
+  <div class="deck-hint">← / → · space</div>
+
+  <script>
+    (function () {
+      var stage = document.getElementById('deck-stage');
+      var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+      var prev = document.getElementById('deck-prev');
+      var next = document.getElementById('deck-next');
+      var cur = document.getElementById('deck-cur');
+      var total = document.getElementById('deck-total');
+      var STORE = 'deck:idx:' + (location.pathname || '/');
+      var idx = 0;
+
+      // ---- scale-to-fit ---------------------------------------------------
+      // The stage is 1920×1080 and sits at .deck-shell's (0, 0) in normal
+      // block flow — the shell is intentionally NOT a grid/flex container,
+      // so the stage's natural top-left is (0, 0). We scale via transform
+      // with transform-origin:top-left, then translate by the remainder to
+      // center the scaled box in the viewport. This survives nested
+      // transforms (e.g. when the OD viewer wraps the iframe in its own
+      // scale wrapper at zoom != 100%).
+      function fit() {
+        var sw = window.innerWidth;
+        var sh = window.innerHeight;
+        var pad = 32;
+        var s = Math.min((sw - pad) / 1920, (sh - pad) / 1080);
+        if (!isFinite(s) || s <= 0) s = 1;
+        var tx = (sw - 1920 * s) / 2;
+        var ty = (sh - 1080 * s) / 2;
+        stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
+      }
+
+      // ---- navigation -----------------------------------------------------
+      function pad2(n) { return (n < 10 ? '0' : '') + n; }
+      function paint() {
+        slides.forEach(function (el, i) { el.classList.toggle('active', i === idx); });
+        if (cur) cur.textContent = pad2(idx + 1);
+        if (total) total.textContent = pad2(slides.length);
+        if (prev) prev.toggleAttribute('disabled', idx <= 0);
+        if (next) next.toggleAttribute('disabled', idx >= slides.length - 1);
+      }
+      function go(i) {
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+        paint();
+        try { localStorage.setItem(STORE, String(idx)); } catch (_) {}
+      }
+      function onKey(e) {
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(idx + 1); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(idx - 1); }
+        else if (e.key === 'Home') { e.preventDefault(); go(0); }
+        else if (e.key === 'End') { e.preventDefault(); go(slides.length - 1); }
+      }
+      // Capture phase + listen on both targets — inside the OD iframe,
+      // focus may be on window OR document; a single non-capture listener
+      // silently misses presses.
+      window.addEventListener('keydown', onKey, true);
+      document.addEventListener('keydown', onKey, true);
+      if (prev) prev.addEventListener('click', function () { go(idx - 1); });
+      if (next) next.addEventListener('click', function () { go(idx + 1); });
+
+      // Auto-focus body so arrow keys work without an initial click.
+      document.body.setAttribute('tabindex', '-1');
+      document.body.style.outline = 'none';
+      function focusDeck() { try { window.focus(); document.body.focus({ preventScroll: true }); } catch (_) {} }
+      document.addEventListener('mousedown', focusDeck);
+      window.addEventListener('load', focusDeck);
+
+      // Restore last position.
+      try {
+        var saved = parseInt(localStorage.getItem(STORE) || '0', 10);
+        if (!isNaN(saved) && saved >= 0 && saved < slides.length) idx = saved;
+      } catch (_) {}
+
+      window.addEventListener('resize', fit);
+      fit();
+      paint();
+      focusDeck();
+    })();
+  </script>
+</body>
+</html>
