@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="10 分鐘說明 cyclone-wiki-core 目前功能、Agent 使用邊界、設定與後續規劃的 HTML briefing。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232f7272'/%3E%3Cpath d='M14 18h25c6 0 11 5 11 11v17H25c-6 0-11-5-11-11V18Z' fill='%23fffaf0'/%3E%3Cpath d='M23 29h18M23 38h13' stroke='%23b45136' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <title>Cyclone-Wiki Core</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --ink: #f4f8ff;
+      --muted: #a6b4c8;
+      --accent: #67e8f9;
+      --secondary: #f7b955;
+      --surface: #111827;
+      --surface-2: #172033;
+      --border: rgba(148, 163, 184, 0.26);
+      --source-bg: #05070d;
+      --source-ink: #eef6ff;
+      --nav-bg: #67e8f9;
+      --nav-ink: #07111f;
+    }
+    * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--ink) 5%, transparent) 1px, transparent 1px),
+        linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, black, transparent 78%);
+    }
+    a { color: inherit; }
+    .deck-shell { min-height: 100vh; }
+    .cover, .page, .sources {
+      min-height: 100vh;
+      padding: 72px clamp(24px, 5vw, 72px);
+      border-bottom: 1px solid var(--border);
+      overflow: visible;
+    }
+    .cover {
+      min-height: 88vh;
+      display: grid;
+      align-content: end;
+      gap: 24px;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent 42%),
+        linear-gradient(315deg, color-mix(in srgb, var(--secondary) 14%, transparent), transparent 48%),
+        var(--bg);
+    }
+    .cover h1 {
+      max-width: 980px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+    .cover p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 22px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .page {
+      display: grid;
+      grid-template-columns: minmax(280px, .9fr) minmax(320px, 1.1fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
+      width: 100%;
+    }
+    .layout-text, .layout-claim, .layout-evidence {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 1120px;
+      margin-inline: auto;
+    }
+    .layout-image-full, .layout-full-bleed {
+      position: relative;
+      min-height: 100vh;
+      padding: 0;
+      overflow: hidden;
+      grid-template-columns: 1fr;
+    }
+    .layout-image-full .page-copy, .layout-full-bleed .page-copy {
+      position: relative;
+      z-index: 2;
+      width: min(620px, calc(100% - 48px));
+      margin: 64px 0 64px clamp(24px, 6vw, 80px);
+      padding: 24px;
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
+      border-left: 5px solid var(--accent);
+    }
+    .layout-image-full .visual, .layout-full-bleed .visual {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .layout-image-full .visual img, .layout-full-bleed .visual img {
+      width: 100%;
+      height: 100%;
+    }
+    .page-copy { max-width: 760px; }
+    :where(h1, h2, h3, p, td, th, span, a, strong, figcaption) {
+      overflow-wrap: anywhere;
+    }
+    .kicker {
+      margin: 0 0 16px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .claim {
+      margin: 22px 0 0;
+      font-size: 24px;
+      line-height: 1.35;
+    }
+    .body, .proof {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .visual {
+      margin: 0;
+      min-width: 0;
+    }
+    .visual img {
+      display: block;
+      width: 100%;
+      max-height: 72vh;
+      border-radius: 8px;
+      object-position: center;
+      background: var(--surface);
+    }
+    .visual-cover img { object-fit: cover; }
+    .visual-contain img { object-fit: contain; }
+    figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .evidence-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .evidence-item {
+      padding: 18px;
+      background: var(--surface);
+      border-top: 4px solid var(--secondary);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+    .evidence-item strong, .evidence-item span {
+      display: block;
+    }
+    .evidence-item span {
+      margin-top: 8px;
+      color: var(--muted);
+    }
+    .table-wrap {
+      margin-top: 28px;
+      overflow-x: auto;
+      max-width: 100%;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+    table {
+      width: 100%;
+      min-width: min(680px, 100%);
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+      text-align: left;
+      vertical-align: top;
+    }
+    .page-sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .source-chip {
+      display: inline-flex;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      text-decoration: none;
+      background: color-mix(in srgb, var(--surface) 80%, transparent);
+    }
+    .sources {
+      background: var(--source-bg);
+      color: var(--source-ink);
+    }
+    .sources h2 { font-size: 42px; }
+    .source-list {
+      display: grid;
+      gap: 16px;
+      max-width: 980px;
+      margin-top: 28px;
+    }
+    .source-card {
+      padding: 18px 0;
+      border-top: 1px solid color-mix(in srgb, var(--source-ink) 22%, transparent);
+    }
+    .source-card h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+    .source-card p {
+      margin: 4px 0;
+      color: color-mix(in srgb, var(--source-ink) 72%, transparent);
+      font-size: 14px;
+    }
+    .source-card a { word-break: break-word; }
+    .slide-nav {
+      display: flex;
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 10;
+      gap: 8px;
+    }
+    .slide-nav button {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      background: var(--nav-bg);
+      color: var(--nav-ink);
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .slide-nav button:focus-visible,
+    .source-chip:focus-visible {
+      outline: 3px solid var(--secondary);
+      outline-offset: 3px;
+    }
+    @media (max-width: 760px) {
+      .cover, .page, .sources { padding: 48px 22px; }
+      .page { grid-template-columns: 1fr; }
+      .cover h1 { font-size: 46px; }
+      h2 { font-size: 34px; }
+      .claim { font-size: 20px; }
+      .layout-image-full .page-copy, .layout-full-bleed .page-copy {
+        width: calc(100% - 32px);
+        margin: 40px 16px;
+      }
+      table { min-width: 100%; }
+      th, td { padding: 11px 12px; }
+      .slide-nav {
+        right: 18px;
+        bottom: 18px;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body data-theme-preset="dark-tech" data-layout-preset="source-briefing">
+  <main class="deck-shell">
+    <section class="cover">
+      <div class="meta">
+        <span>10-minute HTML briefing</span>
+        <span>2026-06-21</span>
+        <span>Cyclone / Codex</span>
+      </div>
+      <h1>Cyclone-Wiki Core</h1>
+      <p>給人和 AI Agent 共用的長期工作記憶。這份 10 分鐘簡報用白話說明它目前的功能、設定、可使用的 Agent，以及後續規劃。</p>
+    </section>
+    <section class="page layout-evidence" id="page-1">
+    <div class="page-copy">
+      <p class="kicker">01 / 為什麼存在</p>
+      <h2>它是 AI 的長期工作記憶</h2>
+      <p class="claim">Cyclone-Wiki Core 不是一般筆記本，而是給人和 AI Agent 共用的長期知識庫。</p>
+      <p class="body">Agent 指的是會讀資料、執行任務的 AI 工作角色。repo 指的是有版本紀錄的專案資料夾。這個 repo 保存操作知識、流程、決策、專案脈絡與輸出 metadata，讓下一個 Agent 不必從零開始。</p>
+      <div class="evidence-stack"><div class="evidence-item"><strong>像圖書館</strong><span>重要知識有固定位置，不只留在一次對話裡。</span></div><div class="evidence-item"><strong>像交接站</strong><span>不同 Agent 接手時，可以先讀同一份規則和背景。</span></div><div class="evidence-item"><strong>像工作記憶</strong><span>保留可重複使用的事實、流程、決策與警戒線。</span></div></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s1">[S1]</a><a class="source-chip" href="#source-s2">[S2]</a><a class="source-chip" href="#source-s14">[S14]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-claim" id="page-2">
+    <div class="page-copy">
+      <p class="kicker">02 / 解決的問題</p>
+      <h2>讓知識不要散落在各處</h2>
+      <p class="claim">如果知識只留在聊天紀錄、不同機器、Google Drive、GitHub issue 或 runtime 裡，下一次工作就會重複摸索。</p>
+      <p class="body">Cyclone-Wiki Core 把能長期使用的內容收進同一個可搜尋、可驗證的地方。runtime 是實際跑服務的環境；它的狀態可以被記成摘要，但私密原始資料不進 core repo。</p>
+      <div class="table-wrap"><table>
+      <thead><tr><th>以前容易發生</th><th>現在的做法</th></tr></thead>
+      <tbody><tr><td>重要決策卡在某次對話</td><td>Decision note 保存為什麼這樣做</td></tr><tr><td>流程藏在某台機器</td><td>Procedure note 保存怎麼做</td></tr><tr><td>Agent 不知道先讀哪裡</td><td>AGENTS、Soul、startup brief 是入口</td></tr><tr><td>搜尋靠記憶和運氣</td><td>QMD 和 rg 幫忙找本機 Markdown</td></tr></tbody>
+    </table></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s2">[S2]</a><a class="source-chip" href="#source-s3">[S3]</a><a class="source-chip" href="#source-s6">[S6]</a><a class="source-chip" href="#source-s8">[S8]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-evidence" id="page-3">
+    <div class="page-copy">
+      <p class="kicker">03 / 目前能做什麼</p>
+      <h2>用簡單格式，撐起可驗證的系統</h2>
+      <p class="claim">目前核心能力是 Markdown、Git、QMD 和 validation scripts。</p>
+      <p class="body">Markdown 是好讀的純文字筆記格式。Git 是追蹤修改紀錄的系統。QMD 是本機搜尋層，像幫 wiki 做索引的搜尋工具。validation scripts 是檢查腳本，負責在送出前檢查格式和隱私風險。</p>
+      <div class="evidence-stack"><div class="evidence-item"><strong>Markdown</strong><span>人看得懂，Agent 也容易讀。</span></div><div class="evidence-item"><strong>Git</strong><span>知道誰改了什麼，也能回頭檢查。</span></div><div class="evidence-item"><strong>QMD</strong><span>讓 Agent 在動手前先查舊知識。</span></div><div class="evidence-item"><strong>Validation scripts</strong><span>wiki-lint 和 privacy-scan 先擋掉明顯問題。</span></div></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s1">[S1]</a><a class="source-chip" href="#source-s2">[S2]</a><a class="source-chip" href="#source-s8">[S8]</a><a class="source-chip" href="#source-s18">[S18]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-claim" id="page-4">
+    <div class="page-copy">
+      <p class="kicker">04 / 知識怎麼進來</p>
+      <h2>先進 inbox，再升格成正式知識</h2>
+      <p class="claim">Cyclone-Wiki 採 inbox-first：先把原始或半整理內容放進 _inbox，確認後才升格。</p>
+      <p class="body">_inbox 像收件匣，保存 source note，也就是來源材料。正式 note 像書架上的分類書，包含 Procedure、Decision、Project、Synthesis 等穩定知識。</p>
+      <div class="table-wrap"><table>
+      <thead><tr><th>階段</th><th>白話說明</th><th>常見結果</th></tr></thead>
+      <tbody><tr><td>Capture</td><td>先把值得保留的素材收起來</td><td>_inbox/ Source note</td></tr><tr><td>Review</td><td>確認內容可靠、沒有越界</td><td>可引用或待整理</td></tr><tr><td>Promote</td><td>把重複有用的部分整理成正式知識</td><td>Procedure / Decision / Project / Synthesis</td></tr></tbody>
+    </table></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s2">[S2]</a><a class="source-chip" href="#source-s11">[S11]</a><a class="source-chip" href="#source-s12">[S12]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-evidence" id="page-5">
+    <div class="page-copy">
+      <p class="kicker">05 / 隱私邊界</p>
+      <h2>它是 internal，不是學生私資庫</h2>
+      <p class="claim">Core repo 可以保存營運知識和去識別化流程，但不能保存學生可識別資料、secret、token、.env 或 runtime state。</p>
+      <p class="body">secret 是不能公開的密鑰或登入憑證；.env 是常放設定和密鑰的檔案。學生私資、原始 IEP、完整 Gmail、完整私訊、session dump 都不應進入 Cyclone-Wiki Core。</p>
+      <div class="evidence-stack"><div class="evidence-item"><strong>可以放</strong><span>流程、決策、去識別化摘要、輸出 metadata、公開或 internal 專案脈絡。</span></div><div class="evidence-item"><strong>不能放</strong><span>學生姓名、家長資訊、token、cookie、.env、資料庫 dump、完整 runtime state。</span></div><div class="evidence-item"><strong>需要私密資料時</strong><span>Core 只放 routing shell 或指標，真內容留在 private vault 或原系統。</span></div></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s7">[S7]</a><a class="source-chip" href="#source-s2">[S2]</a><a class="source-chip" href="#source-s9">[S9]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-claim" id="page-6">
+    <div class="page-copy">
+      <p class="kicker">06 / 哪些 Agent 可以讀與用</p>
+      <h2>可讀不等於可任意改</h2>
+      <p class="claim">MacBook coding agents 可以管理較正式的 wiki 工作；Mac mini runtime agents 原則上可以讀整個 wiki，但日常只寫 approved _inbox routes。</p>
+      <p class="body">目前文件列出的 Agent 包含 Codex、Grok CLI、Cursor、OpenClaw、Hermes、Aurelion、Bahamut、OpenAB。Hermes、Aurelion、Bahamut、OpenClaw 主要在 Mac mini 或 runtime 任務裡使用 wiki。</p>
+      <div class="table-wrap"><table>
+      <thead><tr><th>角色</th><th>可以做什麼</th><th>主要限制</th></tr></thead>
+      <tbody><tr><td>MacBook coding agents</td><td>寫 inbox capture，也可在 wiki 管理情境整理正式 note</td><td>不能寫 student-private；非管理情境優先只寫 inbox</td></tr><tr><td>Mac mini agents</td><td>讀完整 wiki，日常寫 _inbox Source captures</td><td>不能在 routine operation 改 AGENTS、procedure、decision、project</td></tr><tr><td>Aurelion</td><td>外部知識與 Info Collect capture</td><td>要有來源，不保存全文或私資</td></tr><tr><td>Bahamut</td><td>handoff、dispatch、daily summary capture</td><td>不保存完整 transcript</td></tr><tr><td>OpenClaw</td><td>研究、daily/weekly digest、外部探索</td><td>legacy Obsidian 只當 read-only fallback</td></tr><tr><td>OpenAB</td><td>Mac mini coding retrospective；規劃成 GitHub development radar owner</td><td>OpenAB Pod repo 尚未建立，屬後續規劃</td></tr></tbody>
+    </table></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s4">[S4]</a><a class="source-chip" href="#source-s5">[S5]</a><a class="source-chip" href="#source-s9">[S9]</a><a class="source-chip" href="#source-s10">[S10]</a><a class="source-chip" href="#source-s17">[S17]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-claim" id="page-7">
+    <div class="page-copy">
+      <p class="kicker">07 / 寫入規則</p>
+      <h2>Read wide, write narrow</h2>
+      <p class="claim">Cyclone-Wiki 的 Agent 寫入原則是讀得廣、寫得窄。這可以讓 Agent 充分理解背景，又不會亂改核心規則。</p>
+      <p class="body">Level 0 到 Level 3 是治理層級：不是每件小事都要開 issue，但會影響正式知識、runtime、Agent 行為或 automation 的變更，要有更嚴格的流程。</p>
+      <div class="table-wrap"><table>
+      <thead><tr><th>Level</th><th>白話說明</th><th>是否需要更嚴格流程</th></tr></thead>
+      <tbody><tr><td>0</td><td>沒有可重用知識，就不要寫噪音</td><td>不用</td></tr><tr><td>1</td><td>普通 capture，先進 _inbox</td><td>跑 lint、privacy scan，可批次 commit</td></tr><tr><td>2</td><td>正式 wiki curation，例如 Procedure、Decision</td><td>通常要 issue 和完整驗證</td></tr><tr><td>3</td><td>runtime、Agent 行為、automation</td><td>一定要 issue、驗證、留下 evidence</td></tr></tbody>
+    </table></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s10">[S10]</a><a class="source-chip" href="#source-s11">[S11]</a><a class="source-chip" href="#source-s9">[S9]</a></div>
+    </div>
+    
+  </section>
+<section class="page layout-claim" id="page-8">
+    <div class="page-copy">
+      <p class="kicker">08 / 目前設定與後續規劃</p>
+      <h2>從共同記憶，走向可複製的工作環境</h2>
+      <p class="claim">目前已經有入口文件、搜尋政策、驗證腳本、capture wrapper；接下來的重點是 skill sync、HTML briefing workflow、agent memory radar 和 GitHub development radar。</p>
+      <p class="body">本次簡報使用的新 skill 是 html-narrative-deck，用來做有來源、可預覽、確認後才 publish 的 HTML briefing。另一個 open issue 則在規劃把 local Codex skills 同步進 cyclone-agent-config，讓新機器能快速重建 coding 環境。</p>
+      <div class="table-wrap"><table>
+      <thead><tr><th>方向</th><th>目前狀態</th><th>意義</th></tr></thead>
+      <tbody><tr><td>html-narrative-deck</td><td>local skill 已建立</td><td>讓 source-backed 簡報可以先本機預覽，再決定是否 publish</td></tr><tr><td>skill sync</td><td>cyclone-agent-config#16 open</td><td>讓新機器能同步自製 skills 和 coding setup</td></tr><tr><td>agent memory radar</td><td>cyclone-wiki-core#22 open</td><td>讓 runtime agents 在重要任務前先查 wiki</td></tr><tr><td>GitHub development radar</td><td>issue #22 規劃 OpenAB owner</td><td>每天整理 repo 卡點、風險與下一步</td></tr></tbody>
+    </table></div>
+      <div class="page-sources"><a class="source-chip" href="#source-s15">[S15]</a><a class="source-chip" href="#source-s16">[S16]</a><a class="source-chip" href="#source-s17">[S17]</a><a class="source-chip" href="#source-s18">[S18]</a></div>
+    </div>
+    
+  </section>
+    <section class="sources" id="sources">
+      <p class="kicker">References</p>
+      <h2>Sources and provenance</h2>
+      <div class="source-list">
+        <article class="source-card" id="source-s1">
+            <h3>[S1] cyclone-wiki-core README</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: README.md. Supports project definition, repo scope, and primary entry points.</p>
+          </article><article class="source-card" id="source-s2">
+            <h3>[S2] AGENTS</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: AGENTS.md. Supports agent entry rules, vault boundaries, inbox-first capture, governance, and Git/QMD workflow.</p>
+          </article><article class="source-card" id="source-s3">
+            <h3>[S3] Soul</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: Soul.md. Supports collaboration style and the current knowledge-system direction.</p>
+          </article><article class="source-card" id="source-s4">
+            <h3>[S4] Cyclone Profile</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: cyclone-profile.md. Supports MacBook/Mac mini roles and named systems.</p>
+          </article><article class="source-card" id="source-s5">
+            <h3>[S5] Agent Capabilities</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: agent-capabilities.md. Supports which agents may read/write which note types.</p>
+          </article><article class="source-card" id="source-s6">
+            <h3>[S6] Agent Startup Brief</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: agent-startup-brief.md. Supports session-start context and retrieval defaults.</p>
+          </article><article class="source-card" id="source-s7">
+            <h3>[S7] Privacy Policy</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: privacy-policy.md. Supports privacy classifications and forbidden content.</p>
+          </article><article class="source-card" id="source-s8">
+            <h3>[S8] QMD Search Policy</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: qmd-search-policy.md. Supports QMD search, update, and fallback policy.</p>
+          </article><article class="source-card" id="source-s9">
+            <h3>[S9] Runtime Agent Wiki Capture Contract</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: procedure-runtime-agent-wiki-capture-contract.md. Supports runtime capture rules and allowed agent/kind matrix.</p>
+          </article><article class="source-card" id="source-s10">
+            <h3>[S10] Mac Mini Wiki Read Write Boundary</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: procedure-macmini-wiki-read-write-boundary.md. Supports read-wide/write-narrow and Mac mini routes.</p>
+          </article><article class="source-card" id="source-s11">
+            <h3>[S11] Wiki Governance Levels</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: procedure-wiki-governance-levels.md. Supports Level 0-3 governance.</p>
+          </article><article class="source-card" id="source-s12">
+            <h3>[S12] Coding Retrospective Inbox</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: procedure-coding-retrospective.md. Supports coding session capture rules.</p>
+          </article><article class="source-card" id="source-s13">
+            <h3>[S13] Output Factory</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: output-factory.md. Supports output recipe/job/artifact concepts and publish gate.</p>
+          </article><article class="source-card" id="source-s14">
+            <h3>[S14] Decision: Cyclone-Wiki Is Agent-First And Tool-Agnostic</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local Markdown / primary / reviewed</p>
+            <p>Local path: decision-cyclone-wiki-agent-first-tool-agnostic.md. Supports Markdown/Git/QMD as source-of-truth workflow.</p>
+          </article><article class="source-card" id="source-s15">
+            <h3>[S15] html-narrative-deck Skill</h3>
+            
+            <p>Source owner: Local Codex skill</p>
+            <p>local skill / primary</p>
+            <p>Local path: /Users/cyclone/.codex/skills/html-narrative-deck/SKILL.md. Supports source-backed HTML briefing workflow and preview-before-push rule.</p>
+          </article><article class="source-card" id="source-s16">
+            <h3>[S16] cyclone-agent-config issue #16</h3>
+            <p><a href="https://github.com/cyclone-tw/cyclone-agent-config/issues/16">https://github.com/cyclone-tw/cyclone-agent-config/issues/16</a></p>
+            <p>Source owner: GitHub / cyclone-tw</p>
+            <p>GitHub issue / primary</p>
+            <p>Open issue: feat: sync local Codex skills through agent config repo.</p>
+          </article><article class="source-card" id="source-s17">
+            <h3>[S17] cyclone-wiki-core issue #22</h3>
+            <p><a href="https://github.com/cyclone-tw/cyclone-wiki-core/issues/22">https://github.com/cyclone-tw/cyclone-wiki-core/issues/22</a></p>
+            <p>Source owner: GitHub / cyclone-tw</p>
+            <p>GitHub issue / primary</p>
+            <p>Open issue: epic: runtime agent wiki memory and development radar.</p>
+          </article><article class="source-card" id="source-s18">
+            <h3>[S18] Repo scripts inventory</h3>
+            
+            <p>Source owner: Local repo: cyclone-tw/cyclone-wiki-core</p>
+            <p>local files / primary</p>
+            <p>scripts/wiki-lint.sh, scripts/privacy-scan.sh, scripts/wiki-memory-preflight.sh, scripts/write_inbox_capture.sh, scripts/macmini-wiki-capture.sh.</p>
+          </article>
+      </div>
+    </section>
+  </main>
+  <nav class="slide-nav" aria-label="Slide navigation">
+    <button type="button" data-dir="-1" aria-label="Previous slide">‹</button>
+    <button type="button" data-dir="1" aria-label="Next slide">›</button>
+  </nav>
+  <script>
+    const sections = Array.from(document.querySelectorAll(".cover, .page, .sources"));
+    function currentIndex() {
+      const y = window.scrollY + window.innerHeight * 0.35;
+      return Math.max(0, sections.findIndex((section, i) => {
+        const next = sections[i + 1];
+        return y >= section.offsetTop && (!next || y < next.offsetTop);
+      }));
+    }
+    function go(delta) {
+      const next = Math.min(sections.length - 1, Math.max(0, currentIndex() + delta));
+      sections[next].scrollIntoView({ behavior: "smooth" });
+    }
+    document.querySelectorAll(".slide-nav button").forEach((button) => {
+      button.addEventListener("click", () => go(Number(button.dataset.dir)));
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown") go(1);
+      if (event.key === "ArrowLeft" || event.key === "PageUp") go(-1);
+    });
+  </script>
+</body>
+</html>
