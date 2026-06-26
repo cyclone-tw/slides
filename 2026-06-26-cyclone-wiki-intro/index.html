@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#051C2C" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Wiki 簡報" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>Cyclone-Wiki 入門｜給所有人的 Agent 筆記本</title>
+  <style>
+    :root {
+      /* McKinsey-inspired dark professional */
+      --bg: #051C2C;
+      --bg2: #0a2540;
+      --bg-card: rgba(255, 255, 255, 0.06);
+      --bg-card-hover: rgba(255, 255, 255, 0.09);
+      --ink: #f4f7fb;
+      --muted: #b8c9db;
+      --sub: #dce8f4;
+      --accent: #4d9fd4;
+      --accent-bright: #6bb8ff;
+      --accent2: #e07a5f;
+      --warmc: #c9a84a;
+      --coldc: #2d6cb5;
+      --border: rgba(255, 255, 255, 0.14);
+      --border-strong: rgba(109, 168, 230, 0.45);
+      --card: var(--bg-card);
+      --snap: 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      font-size: clamp(18px, 1.15rem + 0.75vw, 23px);
+      -webkit-font-smoothing: antialiased;
+    }
+    #deck {
+      height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+    .nav-hint {
+      position: fixed;
+      bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+      right: max(0.75rem, env(safe-area-inset-right, 0px));
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.55);
+      color: var(--sub);
+      padding: 0.5rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      border: 1px solid var(--border);
+      pointer-events: none;
+      max-width: 14rem;
+      text-align: center;
+      line-height: 1.35;
+    }
+    .nav-hint .mobile-only { display: none; }
+    .progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+      z-index: 101; transition: width 0.2s;
+    }
+    .deck-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 102;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+      padding: 0.55rem max(1rem, env(safe-area-inset-right)) calc(0.55rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+      background: rgba(5, 28, 44, 0.94);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .deck-nav button {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-width: 2.75rem;
+    }
+    .deck-nav button:active { background: var(--bg-card-hover); }
+    .deck-nav .dots {
+      flex: 1; display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 0.4rem; max-height: 2.5rem; overflow: hidden;
+    }
+    .deck-nav .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); border: none; padding: 0; cursor: pointer;
+    }
+    .deck-nav .dot.active { background: var(--accent-bright); transform: scale(1.25); }
+    .deck-nav .counter { font-size: 0.8rem; color: var(--muted); white-space: nowrap; min-width: 3.5rem; text-align: center; }
+    section {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      min-height: 100dvh;
+      min-height: 100svh;
+      padding: max(1.5rem, env(safe-area-inset-top)) clamp(1.25rem, 3vw, 2.5rem) calc(5rem + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    section.snap-center { align-items: center; }
+    section.tall {
+      align-items: flex-start;
+      padding-top: clamp(2rem, 5vh, 3.5rem);
+    }
+    .inner {
+      width: min(1100px, 94vw);
+    }
+    .inner-wide { width: min(1200px, 96vw); }
+    h1 {
+      font-size: clamp(2.25rem, 4.5vw + 0.5rem, 3.75rem);
+      line-height: 1.12;
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+    h2 {
+      font-size: clamp(1.65rem, 2.8vw + 0.4rem, 2.35rem);
+      margin: 0 0 1.1rem;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    h2::after {
+      content: "";
+      display: block;
+      width: 3rem;
+      height: 3px;
+      background: var(--accent);
+      margin-top: 0.65rem;
+      border-radius: 2px;
+    }
+    h3 { font-size: clamp(1.05rem, 1.2vw + 0.8rem, 1.25rem); margin: 1rem 0 0.5rem; color: var(--sub); }
+    p { margin: 0.65rem 0; color: var(--ink); }
+    .lead {
+      font-size: clamp(1.1rem, 1.2vw + 0.9rem, 1.35rem);
+      color: var(--sub);
+      max-width: 46em;
+      line-height: 1.6;
+    }
+    .lead-center { text-align: center; margin-left: auto; margin-right: auto; }
+    .takeaway {
+      text-align: center;
+      font-size: clamp(1.05rem, 1.1vw + 0.85rem, 1.25rem);
+      color: var(--muted);
+      margin-top: clamp(1.5rem, 3vh, 2.5rem);
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      background: rgba(77, 159, 212, 0.18);
+      color: var(--accent-bright);
+      padding: 0.3rem 0.85rem;
+      border-radius: 4px;
+      font-size: clamp(0.75rem, 0.8vw + 0.65rem, 0.88rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(77, 159, 212, 0.35);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: clamp(1.1rem, 2vw, 1.5rem) clamp(1.2rem, 2.2vw, 1.65rem);
+      margin: 1.1rem 0;
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1rem, 2vw, 1.5rem);
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 768px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .nav-hint .desktop-only { display: none; }
+      .nav-hint .mobile-only { display: inline; }
+      .deck-nav .dots { display: none; }
+      h1 { font-size: 1.85rem; }
+      .pipeline { grid-template-columns: 1fr !important; }
+      .pipe-step::after { display: none !important; }
+      .folder-map { grid-template-columns: 1fr !important; }
+      .temp-bars { grid-template-columns: 1fr !important; min-height: 0; }
+      .temp-bar { min-height: auto !important; }
+      .read-flow { grid-template-columns: 1fr 1fr !important; }
+      .read-step::after { display: none !important; }
+      .dash-flow { grid-template-columns: 1fr !important; }
+      .dash-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
+      .compare-split { grid-template-columns: 1fr !important; }
+      .compare-arrow { justify-content: center; transform: rotate(90deg); }
+    }
+    @media (min-width: 900px) {
+      .diagram-wide-only { display: none !important; }
+    }
+    .tower-grid {
+      display: none !important;
+    }
+    /* 資料夾地圖 — 全寬大字版 */
+    .folder-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1rem, 2vw, 1.75rem);
+      margin: clamp(1.5rem, 4vh, 2.5rem) 0 1rem;
+      width: 100%;
+    }
+    .folder-col { display: flex; flex-direction: column; gap: 0.65rem; }
+    .folder-head {
+      font-size: clamp(1.1rem, 1.3vw + 0.9rem, 1.35rem);
+      font-weight: 700;
+      margin: 0 0 0.35rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-strong);
+    }
+    .folder-col.core .folder-head { color: var(--accent-bright); }
+    .folder-col.private .folder-head { color: #f0a898; }
+    .folder-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem 1rem;
+      padding: clamp(1rem, 2.2vh, 1.35rem) clamp(1.15rem, 2.2vw, 1.5rem);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: clamp(1.08rem, 1.15vw + 0.9rem, 1.3rem);
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .folder-row .fn {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.92em;
+      color: #a8d8ff;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .folder-row .fd { color: var(--sub); flex: 1; min-width: 8rem; }
+    .folder-row.folder-highlight {
+      border-color: var(--warmc);
+      background: rgba(201, 168, 74, 0.14);
+    }
+    .folder-row.folder-highlight .fn { color: #f0d080; }
+    .folder-foot {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: clamp(0.9rem, 2vh, 1.2rem) 1.25rem;
+      font-size: clamp(1rem, 1.05vw + 0.85rem, 1.15rem);
+      color: var(--sub);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    /* 記憶溫度 — 階梯 */
+    .temp-scale { margin: clamp(1.5rem, 4vh, 2.5rem) 0; width: 100%; }
+    .temp-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(0.95rem, 1vw + 0.8rem, 1.1rem);
+      margin-bottom: 1.25rem;
+    }
+    .temp-bars {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1.45fr;
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      align-items: end;
+      min-height: clamp(200px, 32vh, 320px);
+    }
+    .temp-bar {
+      border-radius: 12px 12px 8px 8px;
+      padding: clamp(1rem, 2vh, 1.5rem);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 0.35rem;
+    }
+    .temp-bar strong { font-size: clamp(1.1rem, 1.2vw + 0.9rem, 1.35rem); }
+    .temp-bar p { margin: 0; font-size: clamp(0.9rem, 0.95vw + 0.75rem, 1.05rem); opacity: 0.95; line-height: 1.4; }
+    .temp-bar.hot { background: linear-gradient(180deg, #d46550, #a84838); min-height: 35%; }
+    .temp-bar.warm { background: linear-gradient(180deg, #c9a84a, #96752e); min-height: 55%; }
+    .temp-bar.cold { background: linear-gradient(180deg, #3d7dd8, #2558a8); min-height: 100%; }
+    /* 開工閱讀順序 */
+    .read-flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin: clamp(1.5rem, 3vh, 2rem) 0 0.75rem;
+      width: 100%;
+    }
+    .read-step {
+      text-align: center;
+      padding: clamp(0.85rem, 1.8vh, 1.2rem) 0.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: clamp(0.95rem, 1vw + 0.8rem, 1.1rem);
+      font-weight: 600;
+      color: var(--ink);
+      position: relative;
+    }
+    .read-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent-bright);
+      font-size: 1.25rem;
+      z-index: 1;
+    }
+    .read-caption {
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(0.9rem, 0.95vw + 0.75rem, 1.05rem);
+    }
+    .dash-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.2fr;
+      gap: 0.65rem;
+      align-items: stretch;
+      margin: clamp(1.5rem, 4vh, 2.5rem) 0 1rem;
+      width: 100%;
+    }
+    .dash-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(1.25rem, 2.5vh, 2rem) clamp(1rem, 1.5vw, 1.25rem);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.35rem;
+      font-size: clamp(1.05rem, 1.1vw + 0.85rem, 1.25rem);
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .dash-box span { font-weight: 400; font-size: 0.88em; color: var(--muted); }
+    .dash-box.accent { background: linear-gradient(160deg, #2d6cb5, #1e4a8a); border-color: var(--accent-bright); color: #fff; }
+    .dash-box.accent span { color: rgba(255,255,255,0.85); }
+    .dash-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent-bright); font-size: 1.75rem; font-weight: 700; }
+    .compare-split {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      margin: clamp(1.5rem, 4vh, 2.5rem) 0 1rem;
+      align-items: stretch;
+      width: 100%;
+    }
+    .compare-pane {
+      border-radius: 14px;
+      padding: clamp(1.5rem, 3vh, 2.25rem) clamp(1.25rem, 2vw, 1.75rem);
+      border: 2px solid;
+      text-align: center;
+    }
+    .compare-pane h3 { margin: 0 0 0.75rem; font-size: clamp(1.2rem, 1.4vw + 0.9rem, 1.5rem); }
+    .compare-pane p { margin: 0.35rem 0; color: var(--sub); font-size: clamp(1rem, 1.05vw + 0.85rem, 1.15rem); }
+    .compare-pane .label { display: block; margin-top: 1rem; font-size: clamp(1.35rem, 1.5vw + 1rem, 1.75rem); font-weight: 700; }
+    .compare-pane.ephemeral { border-color: #e07a5f; background: rgba(224, 122, 95, 0.1); }
+    .compare-pane.ephemeral .label { color: #f0a090; }
+    .compare-pane.durable { border-color: var(--accent-bright); background: rgba(77, 159, 212, 0.1); }
+    .compare-pane.durable .label { color: var(--accent-bright); }
+    .compare-arrow { display: flex; align-items: center; font-size: 2rem; color: var(--accent-bright); font-weight: 700; }
+    .repo-band {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0 0;
+      padding: 1rem;
+      border: 1px dashed var(--border-strong);
+      border-radius: 12px;
+      text-align: center;
+      font-size: clamp(1.05rem, 1.1vw + 0.85rem, 1.2rem);
+      font-weight: 600;
+    }
+    .repo-band .core { color: var(--accent-bright); }
+    .repo-band .private { color: #f0a090; }
+    .repo-band-foot { grid-column: 1/-1; color: var(--muted); font-size: 0.92em; font-weight: 400; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+    svg.diagram text { fill: #e8edf4; }
+    svg.diagram text[fill="#fff"], svg.diagram text[fill="#ffffff"] { fill: #fff; }
+    svg.diagram text[fill="#9eb3c9"] { fill: #b8c9db; }
+  /* K 大迴圈 — 全寬流程 */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      margin: clamp(2rem, 5vh, 3.5rem) 0 clamp(1rem, 2vh, 1.5rem);
+      width: 100%;
+    }
+    .pipe-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(1.25rem, 2.5vh, 2rem) clamp(0.85rem, 1.2vw, 1.1rem);
+      text-align: center;
+      position: relative;
+      min-height: clamp(140px, 18vh, 200px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .pipe-step strong {
+      font-size: clamp(1rem, 1.1vw + 0.8rem, 1.2rem);
+      color: var(--ink);
+    }
+    .pipe-step p {
+      margin: 0;
+      font-size: clamp(0.88rem, 0.9vw + 0.7rem, 1rem);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .pipe-num {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      background: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .pipe-step:nth-child(1) .pipe-num { background: #c75a45; }
+    .pipe-step:nth-child(2) .pipe-num { background: var(--warmc); }
+    .pipe-step:nth-child(3) .pipe-num { background: var(--coldc); }
+    .pipe-optional { border-style: dashed; border-color: var(--border-strong); }
+    .pipe-optional .pipe-num { background: transparent; border: 2px solid var(--accent); color: var(--accent-bright); }
+    .pipe-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: clamp(-0.9rem, -1vw, -0.65rem);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 1.35rem;
+      font-weight: 700;
+      z-index: 1;
+    }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; border-radius: 10px; border: 1px solid var(--border); }
+    .compare-col h3 { margin-top: 0; }
+    .compare-col.core { border-top: 3px solid var(--accent); }
+    .compare-col.private { border-top: 3px solid var(--accent2); }
+    table { width: 100%; border-collapse: collapse; font-size: clamp(0.9rem, 0.95vw + 0.75rem, 1.05rem); }
+    th, td {
+      border: 1px solid var(--border);
+      padding: clamp(0.65rem, 1.2vw, 0.85rem) clamp(0.75rem, 1.3vw, 1rem);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: rgba(77, 159, 212, 0.12); font-weight: 600; color: var(--accent-bright); }
+    td { color: var(--sub); font-size: inherit; }
+    td strong { color: var(--ink); }
+    code {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.88em;
+      background: rgba(0,0,0,0.35);
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+      color: #a8d4ff;
+    }
+    pre {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: clamp(0.78rem, 0.85vw + 0.6rem, 0.9rem);
+      background: rgba(0, 0, 0, 0.45);
+      color: #d8e8f8;
+      padding: clamp(1rem, 2vw, 1.35rem);
+      border-radius: 10px;
+      overflow-x: auto;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+    }
+    .cite { font-size: 0.85rem; color: var(--muted); margin-top: 0.85rem; }
+    .cite a { color: var(--accent-bright); }
+    svg.diagram {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      min-height: clamp(180px, 28vh, 300px);
+      max-height: 38vh;
+      display: block;
+      margin: clamp(1.25rem, 3vh, 2rem) 0;
+    }
+    .hero-cover {
+      background: linear-gradient(160deg, #030f1a 0%, #051C2C 40%, #0a3055 100%);
+      border-bottom: none;
+    }
+    .hero-cover h1 { color: #fff; }
+    .hero-cover h2::after { background: var(--accent-bright); }
+    .hero-cover .lead { color: #d8e8f5; font-size: clamp(1.15rem, 1.4vw + 0.9rem, 1.45rem); }
+    .hero-cover .tag { background: rgba(107, 184, 255, 0.15); color: var(--accent-bright); border-color: rgba(107, 184, 255, 0.4); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin: 1.5rem 0; }
+    .pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: clamp(0.88rem, 0.9vw + 0.75rem, 1rem);
+      color: var(--sub);
+    }
+    .hero-cite { color: #8eb4d4 !important; }
+    .hero-cite a { color: var(--accent-bright) !important; font-weight: 600; }
+    .section-alt { background: var(--bg2); }
+    ul.plain { padding-left: 1.25rem; margin: 0.6rem 0; }
+    ul.plain li { margin: 0.45rem 0; color: var(--sub); }
+    ul.plain strong { color: var(--ink); }
+    .demo-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin: 0.85rem 0;
+      padding: 0.85rem 1rem;
+      background: var(--card);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .demo-num {
+      flex-shrink: 0;
+      width: 2.1rem;
+      height: 2.1rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .sources li { margin: 0.5rem 0; font-size: 0.95rem; color: var(--sub); }
+    a { color: var(--accent-bright); }
+    .kbd {
+      display: inline-block;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.12rem 0.45rem;
+      font-size: 0.78rem;
+      background: rgba(0,0,0,0.3);
+      color: var(--sub);
+      font-family: inherit;
+    }
+    .explain-box {
+      background: rgba(77, 159, 212, 0.08);
+      border: 1px solid rgba(77, 159, 212, 0.28);
+      border-radius: 10px;
+      padding: clamp(1rem, 2vw, 1.25rem) clamp(1.1rem, 2.2vw, 1.4rem);
+      margin: 1rem 0;
+      font-size: clamp(0.95rem, 1vw + 0.8rem, 1.08rem);
+      color: var(--sub);
+      line-height: 1.6;
+    }
+    .explain-box strong { color: var(--accent-bright); }
+    .demo-step .sub {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.92em;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .glossary dt { font-weight: 600; margin-top: 0.65rem; color: var(--ink); }
+    .glossary dt:first-child { margin-top: 0; }
+    .glossary dd { margin: 0.25rem 0 0 0; color: var(--muted); font-size: 0.95em; line-height: 1.55; }
+    .table-sub { color: #b0c4d8; font-size: 0.95em; display: block; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" style="width:0%"></div>
+  <div class="nav-hint">
+    <span class="desktop-only"><span class="kbd">↑</span> <span class="kbd">↓</span> 換段 · 滾輪看長文</span>
+    <span class="mobile-only">底部按鈕換段 · 上下滑看長文</span>
+  </div>
+
+  <main id="deck">
+  <!-- 1 COVER -->
+  <section class="hero-cover snap-center" data-section="1">
+    <div class="inner">
+      <span class="tag">約 20 分鐘 · 概念 + 現場 Demo</span>
+      <h1>Cyclone-Wiki<br>AI 助理的「不會消失的筆記本」</h1>
+      <p class="lead">聊天關掉就忘了；值得留下的事，寫進大家都能查、能追溯的共用筆記。</p>
+      <div class="pill-row">
+        <span class="pill">非工程師友善</span>
+        <span class="pill">Core + Private</span>
+        <span class="pill">Hot / Warm / Cold</span>
+        <span class="pill">現場 Demo</span>
+      </div>
+      <p class="cite hero-cite">來源 <a href="https://github.com/cyclone-tw/cyclone-wiki">cyclone-tw/cyclone-wiki</a> · 講稿另見 <strong>SCRIPT.md</strong></p>
+    </div>
+  </section>
+
+  <!-- 2 PROBLEM -->
+  <section data-section="2" class="snap-center">
+    <div class="inner inner-wide">
+      <span class="tag">為什麼需要？</span>
+      <h2>聊天是暫時的，筆記是長久的</h2>
+      <div class="compare-split" aria-label="聊天與筆記對照">
+        <div class="compare-pane ephemeral">
+          <h3>Discord 對話</h3>
+          <p>像白板便利貼</p>
+          <p>關視窗 → 容易斷片</p>
+          <span class="label">Ephemeral 暫時的</span>
+        </div>
+        <div class="compare-arrow" aria-hidden="true">→</div>
+        <div class="compare-pane durable">
+          <h3>Cyclone-Wiki</h3>
+          <p>像活頁夾 + 圖書館</p>
+          <p>可搜尋、有版本、可審核</p>
+          <span class="label">Durable 持久的</span>
+        </div>
+      </div>
+      <div class="card">
+        <strong>三個原則（記這個就夠）</strong>
+        <ul class="plain">
+          <li><strong>Wiki 優先</strong> — 該記的事寫進筆記，不要只留在聊天。</li>
+          <li><strong>可以廣讀、謹慎寫</strong> — Agent 可以查很多資料；但<strong>寫入要走「統一櫃檯」</strong>，不能隨手改正式規則。</li>
+          <li><strong>人和儀表板看同一份結構</strong> — 筆記標籤 → Dashboard 卡片。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 TWO INSPIRATIONS -->
+  <section class="section-alt tall" data-section="3">
+    <div class="inner">
+      <span class="tag">設計靈感</span>
+      <h2>兩條路線，各管一邊</h2>
+      <p class="lead">不是從零發明，而是把兩種已被驗證的做法拼在一起。<strong>左＝團隊共用規則，右＝個人與 Agent 工作日誌。</strong></p>
+      <div class="explain-box">
+        <strong>本頁名詞：</strong>
+        <strong>Tolaria</strong> = 我們 Wiki 的「正式筆記格式」精神（有類型、可審核）；
+        <strong>K 大 LLM Wiki</strong> = Karpathy 提倡的「Agent 幫你維護 Markdown 筆記」做法；
+        <strong>QMD</strong> = 本機搜尋工具，像圖書館檢索，需要時才查整本 Wiki。
+      </div>
+      <div class="grid2">
+        <div class="card compare-col core">
+          <h3>Tolaria 精神 → Core/</h3>
+          <p><strong>比喻：公司手冊</strong></p>
+          <ul class="plain">
+            <li>流程、決策、專案現況</li>
+            <li>每份筆記有類型與審核狀態</li>
+            <li>Git + 標籤 + 搜尋（QMD）</li>
+          </ul>
+          <p class="cite">決策：<code>decision-cyclone-wiki-tolaria-native</code></p>
+        </div>
+        <div class="card compare-col private">
+          <h3>K 大 LLM Wiki → Private/</h3>
+          <p><strong>比喻：個人研究筆記</strong></p>
+          <ul class="plain">
+            <li>收網址 → 整理 → 寫摘要</li>
+            <li>Agent 維護互相連結的 Markdown</li>
+            <li>必要時才升級成正式規則</li>
+          </ul>
+          <p class="cite"><a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Karpathy gist</a> · <code>procedure-llm-wiki-private-loop</code></p>
+        </div>
+      </div>
+      <div class="repo-band" aria-label="單一 repo 兩資料夾">
+        <div class="core">Core/ 共用規則與專案</div>
+        <div class="private">Private/ 個人與 Agent 工作日誌</div>
+        <div class="repo-band-foot">同一個 Git：cyclone-tw/cyclone-wiki</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 CORE PRIVATE TOWERS -->
+  <section data-section="4" class="snap-center">
+    <div class="inner inner-wide">
+      <span class="tag">資料夾地圖</span>
+      <h2>Core 與 Private 裡面有什麼？</h2>
+      <p class="lead lead-center">這是「地圖」——記<strong>每格放什麼</strong>就好，不用背英文檔名。</p>
+      <div class="folder-map">
+        <div class="folder-col core">
+          <h3 class="folder-head">Core — 工程與營運</h3>
+          <div class="folder-row"><span class="fn">procedure-*</span><span class="fd">怎麼做（SOP）</span></div>
+          <div class="folder-row"><span class="fn">decision-* / project-*</span><span class="fd">決策與專案</span></div>
+          <div class="folder-row folder-highlight"><span class="fn">_inbox/</span><span class="fd">收件匣（新東西先丟這）</span></div>
+          <div class="folder-row"><span class="fn">coding-sessions</span><span class="fd">寫程式回顧草稿</span></div>
+          <div class="folder-row"><span class="fn">agent-captures</span><span class="fd">Agent 交接單、派工</span></div>
+        </div>
+        <div class="folder-col private">
+          <h3 class="folder-head">Private — 個人與 Agent</h3>
+          <div class="folder-row"><span class="fn">Life / Education</span><span class="fd">生活與教育</span></div>
+          <div class="folder-row"><span class="fn">info-collect</span><span class="fd">Aurelion 收的網址</span></div>
+          <div class="folder-row folder-highlight"><span class="fn">working.md</span><span class="fd">Agent 桌上便利貼</span></div>
+          <div class="folder-row"><span class="fn">agent-sessions</span><span class="fd">每日日誌</span></div>
+        </div>
+        <div class="folder-foot">大檔案（PDF、錄音）→ Google Drive · Wiki 只放<strong>索引卡</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 K LOOP -->
+  <section data-section="5" class="snap-center">
+    <div class="inner inner-wide">
+      <span class="tag">K 大式迴圈</span>
+      <h2>收集 → 整理 → 摘要 →（可選）升級</h2>
+      <p class="lead lead-center">用<strong>收郵件</strong>比喻：先丟收件匣，不求完美；審過才可能變成正式公文。</p>
+      <div class="pipeline" aria-label="K 大式迴圈">
+        <div class="pipe-step">
+          <span class="pipe-num">1</span>
+          <strong>Capture 收集</strong>
+          <p>好文章、決定先丟 inbox</p>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">2</span>
+          <strong>Extract 整理</strong>
+          <p>拆重點、加標籤</p>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">3</span>
+          <strong>Report 摘要</strong>
+          <p>寫給未來的自己一段話</p>
+        </div>
+        <div class="pipe-step pipe-optional">
+          <span class="pipe-num">4</span>
+          <strong>Promote 升級</strong>
+          <p>變團隊規則才搬 Core（要審核）</p>
+        </div>
+      </div>
+      <p class="takeaway">大部分新東西停在 inbox 是<strong>正常的</strong>——代表沒把草稿當聖旨。</p>
+    </div>
+  </section>
+
+  <!-- 6 TEMPERATURE -->
+  <section data-section="6" class="snap-center">
+    <div class="inner inner-wide">
+      <span class="tag">記憶溫度</span>
+      <h2>口袋、桌面、圖書館 — 不是整本背下來</h2>
+      <p class="lead lead-center"><strong>寫進 Wiki 的絕大多數是「圖書館級」</strong> — 需要時才搜尋，不會每次醒來整本載入。</p>
+      <div class="temp-scale" aria-label="Hot warm cold">
+        <p class="temp-note">Discord 當下對話 → 比 Hot 還熱，但不進 Wiki</p>
+        <div class="temp-bars">
+          <div class="temp-bar hot">
+            <strong>Hot 熱</strong>
+            <p>口袋小抄<br>Agent 出廠規則</p>
+          </div>
+          <div class="temp-bar warm">
+            <strong>Warm 溫</strong>
+            <p>桌面便利貼<br>本週重點 · working.md · 近日日誌</p>
+          </div>
+          <div class="temp-bar cold">
+            <strong>Cold 冷</strong>
+            <p>圖書館書架<br>正式筆記 · inbox · 歷史日誌 · QMD 搜尋</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ZONES -->
+  <section class="section-alt tall" data-section="7">
+    <div class="inner">
+      <span class="tag">四個區域 Z0–Z3</span>
+      <h2>Wiki 分成四個「抽屜」</h2>
+      <p class="lead" style="margin-bottom:0.75rem">上一頁講記憶<strong>溫度</strong>（Hot / Warm / Cold）。這頁回答：<strong>筆記實際放在哪、Agent 開工先翻哪一格？</strong>「白話比喻」是幫你記用途，不是另一套名詞。</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>抽屜</th><th>Wiki 裡放什麼</th><th>生活比喻（像什麼）</th><th>溫度</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Z0</strong></td>
+            <td><code>Core/</code> 正式筆記<br><span class="table-sub">SOP、決策、專案現況</span></td>
+            <td><strong>公司圖書館參考書</strong><br><span class="table-sub">需要查規則時才翻，不會整本背進腦袋</span></td>
+            <td>Cold</td>
+          </tr>
+          <tr>
+            <td><strong>Z1</strong></td>
+            <td><code>agent-startup-brief</code> 等<br><span class="table-sub">Cyclone <strong>現在</strong>在忙什麼、偏好什麼</span></td>
+            <td><strong>會議室門口的「本週重點」告示</strong><br><span class="table-sub">短、常更新，開工第一眼就看這個</span></td>
+            <td>Warm</td>
+          </tr>
+          <tr>
+            <td><strong>Z2</strong></td>
+            <td><code>Private/Life</code>、教育等<br><span class="table-sub">個人生活、教育相關（git 內去識別）</span></td>
+            <td><strong>個人置物櫃</strong><br><span class="table-sub">平常不翻；只有接到相關任務才打開</span></td>
+            <td>Cold</td>
+          </tr>
+          <tr>
+            <td><strong>Z3</strong></td>
+            <td><code>Private/agents/{名字}/</code><br><span class="table-sub">working.md、近日 session 日誌</span></td>
+            <td><strong>每個 Agent 桌上的便利貼</strong><br><span class="table-sub">「我這幾天收了什麼、做到哪」</span></td>
+            <td>Warm</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="read-flow" aria-label="開工閱讀順序">
+        <div class="read-step">開工</div>
+        <div class="read-step">讀本週重點</div>
+        <div class="read-step">讀工作桌</div>
+        <div class="read-step">需要時搜圖書館</div>
+      </div>
+      <p class="read-caption">read-pack（開工包）→ preflight（需要才搜）→ QMD（全文檢索）</p>
+    </div>
+  </section>
+
+  <!-- 8 GOVERNANCE -->
+  <section data-section="8" class="tall">
+    <div class="inner">
+      <span class="tag">怎麼管理</span>
+      <h2>四個等級 — 要不要寫、要不要開會</h2>
+      <p class="lead">控制「什麼值得進 Wiki」的門檻。等級越高，越需要人審、越不能亂改。</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>等級</th><th>白話</th><th>舉例</th></tr></thead>
+        <tbody>
+          <tr><td><strong>L0 不寫</strong></td><td>閒聊、問候</td><td>「早安」「今天天氣好」→ 不進知識庫</td></tr>
+          <tr><td><strong>L1 收件匣</strong></td><td>值得留，先丟草稿區</td><td>今天 coding 有學到教訓 → 先寫 inbox</td></tr>
+          <tr><td><strong>L2 審核升格</strong></td><td>變正式團隊規則</td><td>草稿升格成 SOP → 要開 issue、人看過</td></tr>
+          <tr><td><strong>L3 改系統</strong></td><td>動 Agent 排程與自動化</td><td>改日終日誌怎麼跑 → 最慎重、要驗證</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="takeaway" style="margin-top:1.25rem;border-top:none;padding-top:0">台階越高 → 流程越正式 · 推送前必跑 <code>wiki-lint.sh</code> + <code>privacy-scan.sh</code></p>
+    </div>
+  </section>
+
+  <!-- 9 AGENTS -->
+  <section class="section-alt tall" data-section="9">
+    <div class="inner">
+      <span class="tag">誰寫哪裡</span>
+      <h2>各 Agent 的分工（不用背指令）</h2>
+      <p class="lead">記「崗位」就好：誰負責收資料、誰派工、誰寫程式回顧。右欄是<strong>他們平常寫到哪一格</strong>。</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>角色</th><th>在哪台電腦</th><th>常寫到哪</th><th>在做什麼（白話）</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Aurelion</strong></td>
+            <td>Mac mini</td>
+            <td>Private / info-collect</td>
+            <td>你丟 URL → 他幫收進<strong>個人剪報櫃</strong>，不是只在 Discord 回一句</td>
+          </tr>
+          <tr>
+            <td><strong>Bahamut</strong></td>
+            <td>Mac mini</td>
+            <td>Core / agent-captures</td>
+            <td>像<strong>專案經理</strong>：發交接單、派工給其他 Agent</td>
+          </tr>
+          <tr>
+            <td><strong>Cursor 等</strong></td>
+            <td>MacBook</td>
+            <td>Core / coding-sessions</td>
+            <td>寫完程式留<strong>工程日誌</strong>，給未來的自己或同事看</td>
+          </tr>
+          <tr>
+            <td><strong>OpenClaw</strong></td>
+            <td>Mac mini</td>
+            <td>Private / 生活教育</td>
+            <td>生活教育助理（完整強制流程還在推進）</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="card">
+        <strong>統一櫃檯（capture）</strong> — 所有日常寫入必須走寫入腳本（mini 用 <code>macmini-wiki-capture.sh</code>、MacBook 用 <code>write_inbox_capture.sh</code>），<strong>不能隨手改任意檔案</strong>。就像公司報帳要走會計櫃檯，不能自己改總帳。
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 DEMO -->
+  <section data-section="10" class="tall">
+    <div class="inner">
+      <span class="tag">現場 Demo · 約 10 分鐘</span>
+      <h2>同一天的小故事</h2>
+      <p class="lead">用「早上收 URL → 中午寫 code → 下午派工 → 晚上日誌」串起來。箭頭後是<strong>筆記最後躺在 Wiki 哪一格</strong>。</p>
+      <div class="demo-step"><span class="demo-num">1</span><div><strong>早上 · Aurelion 收 URL</strong> → <code>Private/_inbox/info-collect/</code><span class="sub">你在 Discord 貼文章連結 → 登記成 Markdown，放私人剪報櫃（不是只在聊天裡回「收到了」）</span></div></div>
+      <div class="demo-step"><span class="demo-num">2</span><div><strong>中午 · Cursor 寫回顧</strong> → <code>Core/_inbox/coding-sessions/macbook-cursor/</code><span class="sub">寫程式結束 → 留工程日誌草稿，以後可升格成正式 SOP</span></div></div>
+      <div class="demo-step"><span class="demo-num">3</span><div><strong>下午 · Bahamut 交接</strong> → <code>Core/_inbox/agent-captures/</code><span class="sub">派工單：「請 Cursor 改 README」→ 寫進 Core，不是只在 Discord @ 人</span></div></div>
+      <div class="demo-step"><span class="demo-num">4</span><div><strong>隔天開工 · 讀取</strong><span class="sub"><strong>read-pack</strong> = 自動打包「本週重點 + 工作桌 + 近日日誌」給 Agent 開工看；<strong>preflight</strong> = 任務需要查舊案時才搜尋整本 Wiki</span></div></div>
+      <div class="demo-step"><span class="demo-num">5</span><div><strong>晚上 · 日終日誌</strong><span class="sub">Agent <strong>自己判斷</strong>今天值不值得寫；沒事回 <code>[SILENT]</code>（安靜不寫），有則寫 session log 並在 Discord 貼 Wiki 路徑 + 一行摘要</span></div></div>
+      <div class="demo-step"><span class="demo-num">6</span><div><strong>隨時 · Dashboard /wiki</strong><span class="sub">把 Wiki 匯成網頁卡片給人看——<strong>唯讀</strong>，改內容仍回 Wiki 正規流程</span></div></div>
+
+      <div class="explain-box">
+        <strong>Demo 名詞：</strong>
+        <strong>dry-run</strong> = 試跑、不真的寫檔，只看會寫到哪；
+        <strong>capture</strong> = 走櫃檯登記寫入；
+        <strong>[SILENT]</strong> = 今天沒值得留的，日誌跳過。
+      </div>
+
+      <h3>指令備忘（建議 dry-run 試跑）</h3>
+      <pre>export CYCLONE_WIKI_ROOT="$HOME/Cyclone-System/cyclone-wiki"
+cd "$CYCLONE_WIKI_ROOT"
+
+# 1 Aurelion
+scripts/macmini-wiki-capture.sh --dry-run \
+  --surface private --agent Aurelion --kind info-collect \
+  --slug demo --title "Demo URL" \
+  --source-url "https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f" \
+  --body-file /tmp/demo-body.md
+
+# 4 讀取
+scripts/agent-read-pack.sh --agent Aurelion --topic "demo"
+
+# 6 Dashboard
+scripts/wiki-dashboard-export.sh --out .cache/wiki-export.v1.json</pre>
+      <p class="cite">指令僅供 Demo 參考 · 口語講稿見 <strong>SCRIPT.md</strong></p>
+    </div>
+  </section>
+
+  <!-- 11 DASHBOARD -->
+  <section class="section-alt snap-center" data-section="11">
+    <div class="inner inner-wide">
+      <span class="tag">Dashboard</span>
+      <h2>Wiki 是原文，儀表板是唯讀橱窗</h2>
+      <div class="explain-box">
+        <strong>一句話：</strong>Wiki（Git）= 公司正本；Dashboard（/wiki 網頁）= 把正本<strong>影印成卡片</strong>掛在牆上給人看。<strong>JSON</strong> = 中間那包「卡片資料」，由腳本定時從 Wiki 匯出。
+      </div>
+      <div class="dash-flow" aria-label="Dashboard 資料流">
+        <div class="dash-box">cyclone-wiki<span>Git 筆記本（正本）</span></div>
+        <div class="dash-arrow" aria-hidden="true">→</div>
+        <div class="dash-box">export JSON<span>定時匯出</span></div>
+        <div class="dash-arrow" aria-hidden="true">→</div>
+        <div class="dash-box accent">/wiki 頁面<span>Now · 動態 · Agent 脈搏 · 唯讀</span></div>
+      </div>
+      <p class="read-caption">Mac mini Tailscale：<code>http://100.100.12.99:&lt;port&gt;/wiki</code></p>
+    </div>
+  </section>
+
+  <!-- 12 ROADMAP -->
+  <section data-section="12" class="tall">
+    <div class="inner">
+      <span class="tag">進度</span>
+      <h2>已完成與下一步</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3 style="margin-top:0;color:var(--accent-bright)">✓ 已完成</h3>
+          <ul class="plain">
+            <li>Core / Private 資料夾分好（#33）</li>
+            <li>讀寫腳本 + Dashboard 匯出（#34）</li>
+            <li>記憶溫度 Hot/Warm/Cold 規劃（#40–#41）</li>
+            <li>Aurelion / Bahamut 能寫日誌與記憶（#43）</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;color:#f0a090">→ 進行中</h3>
+          <ul class="plain">
+            <li>#22 開發雷達 — 跨專案進度一覽</li>
+            <li>#28 Wiki 策展人 — 幫忙整理 inbox、升格正式筆記</li>
+            <li>#42 OpenClaw — 生活教育完整接上 Wiki</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:1rem"><strong>給所有人的一句話：</strong>Cyclone-Wiki 讓 AI 的記憶可以累積、可以審核、可以搜尋 — 像請了一位一直在整理筆記的圖書館員。</p>
+    </div>
+  </section>
+
+  <!-- 13 SOURCES -->
+  <section class="section-alt tall" data-section="13">
+    <div class="inner">
+      <span class="tag">來源</span>
+      <h2>參考資料</h2>
+      <ul class="sources plain">
+        <li>[S1] <a href="https://github.com/cyclone-tw/cyclone-wiki/blob/main/README.md">cyclone-wiki README.md</a></li>
+        <li>[S2] <code>Core/decision-cyclone-wiki-core-private-layout.md</code></li>
+        <li>[S3] <code>Core/decision-cyclone-wiki-tolaria-native.md</code></li>
+        <li>[S4] <code>Core/procedure-llm-wiki-private-loop.md</code></li>
+        <li>[S5] <code>Core/synthesis-agent-memory-hot-cold-retrieval.md</code></li>
+        <li>[S6] <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Karpathy LLM wiki gist</a></li>
+        <li>[S7] <code>Core/project-cyclone-wiki-dashboard-integration.md</code></li>
+      </ul>
+      <p class="cite">簡報版本 2026-06-26 · <a href="https://cyclone-tw.github.io/slides/2026-06-26-cyclone-wiki-intro/">cyclone-tw.github.io/slides</a></p>
+      <div class="card">
+        <h3 style="margin-top:0">常見問題</h3>
+        <dl class="glossary">
+          <dt>跟 Notion 差別？</dt>
+          <dd>Wiki + Git 是<strong>唯一真相</strong>；Notion 可以當鏡像或給外人看，但不取代 Wiki。</dd>
+          <dt>會洩漏隱私嗎？</dt>
+          <dd>推送前會跑 privacy scan；學生敏感資料不進 Core，放 Private 教育 vault。</dd>
+          <dt>一定要裝 Tolaria 嗎？</dt>
+          <dd>不必。Tolaria 是可選的 Wiki 閱讀器，用 VS Code 或 GitHub 也能看。</dd>
+          <dt>QMD 是什麼？</dt>
+          <dd>本機全文搜尋，像圖書館檢索——Agent 需要查舊資料時才用，不是每次醒來跑一遍。</dd>
+          <dt>capture 櫃檯是什麼？</dt>
+          <dd>統一的「寫入櫃檯」腳本。所有 Agent 日常寫入都走這裡，避免各自改檔造成混亂。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <nav class="deck-nav" aria-label="簡報導覽">
+    <button type="button" id="btn-prev" aria-label="上一段">↑</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <span class="counter" id="counter">1 / 13</span>
+    <button type="button" id="btn-next" aria-label="下一段">↓</button>
+  </nav>
+
+  <script>
+    (function () {
+      const deck = document.getElementById("deck");
+      const sections = Array.from(document.querySelectorAll("section[data-section]"));
+      const dotsEl = document.getElementById("dots");
+      const counterEl = document.getElementById("counter");
+      const progressEl = document.getElementById("progress");
+
+      sections.forEach((_, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "dot" + (i === 0 ? " active" : "");
+        b.title = "第 " + (i + 1) + " 段";
+        b.addEventListener("click", () => goTo(i));
+        dotsEl.appendChild(b);
+      });
+
+      function currentIndex() {
+        const mid = deck.scrollTop + deck.clientHeight * 0.4;
+        let best = 0;
+        sections.forEach((s, i) => {
+          if (s.offsetTop <= mid + 2) best = i;
+        });
+        return best;
+      }
+
+      function sectionBottomVisible(sec) {
+        const bottom = sec.offsetTop + sec.offsetHeight;
+        return bottom <= deck.scrollTop + deck.clientHeight + 8;
+      }
+
+      function goTo(i) {
+        const next = Math.max(0, Math.min(sections.length - 1, i));
+        deck.scrollTo({ top: sections[next].offsetTop, behavior: "smooth" });
+        updateUI();
+      }
+
+      function goNext() {
+        const i = currentIndex();
+        const sec = sections[i];
+        if (sec.classList.contains("tall") && !sectionBottomVisible(sec)) {
+          deck.scrollBy({ top: deck.clientHeight * 0.82, behavior: "smooth" });
+        } else {
+          goTo(i + 1);
+        }
+      }
+
+      function goPrev() {
+        const i = currentIndex();
+        const sec = sections[i];
+        if (deck.scrollTop > sec.offsetTop + 40) {
+          deck.scrollBy({ top: -deck.clientHeight * 0.82, behavior: "smooth" });
+        } else {
+          goTo(i - 1);
+        }
+      }
+
+      function updateUI() {
+        const i = currentIndex();
+        const pct = ((i + 1) / sections.length) * 100;
+        progressEl.style.width = pct + "%";
+        counterEl.textContent = (i + 1) + " / " + sections.length;
+        dotsEl.querySelectorAll(".dot").forEach((d, j) => {
+          d.classList.toggle("active", j === i);
+        });
+      }
+
+      document.getElementById("btn-next").addEventListener("click", goNext);
+      document.getElementById("btn-prev").addEventListener("click", goPrev);
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === "PageDown") {
+          e.preventDefault();
+          goNext();
+        } else if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "PageUp") {
+          e.preventDefault();
+          goPrev();
+        } else if (e.key === "Home") {
+          e.preventDefault();
+          goTo(0);
+        } else if (e.key === "End") {
+          e.preventDefault();
+          goTo(sections.length - 1);
+        }
+      });
+
+      deck.addEventListener("scroll", updateUI, { passive: true });
+      updateUI();
+    })();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>

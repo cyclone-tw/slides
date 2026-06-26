@@ -1,0 +1,20 @@
+{
+  "name": "Cyclone-Wiki 入門簡報",
+  "short_name": "Wiki 簡報",
+  "description": "Cyclone-Wiki 規劃、記憶分層與 Agent 讀寫入門（繁體中文）",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#051C2C",
+  "theme_color": "#051C2C",
+  "orientation": "any",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
