@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="LPR 2026 上半年回顧：從 Vibe Coding、Cyclone workflow、Hermes Agents 到下半年教學落地。">
+<link rel="icon" href="data:,">
+<title>LPR 2026 上半年回顧 — 從 Vibe Coding 到教學落地</title>
+<style>
+  /* ===== Tokens (warm technical editorial — locked from source brief) ===== */
+  :root{
+    --ink:#171717;          /* deep ink */
+    --ink-soft:#2c2825;     /* body text */
+    --paper:#f7f3ed;        /* paper white */
+    --panel:#fffaf2;        /* surface */
+    --muted:#6f6a63;        /* warm gray */
+    --muted-2:#9a938a;      /* lighter warm gray */
+    --line:#d8d0c4;         /* hairline border */
+    --line-soft:#e6e0d4;
+    --accent:#c84e2f;       /* restrained orange-red (terracotta) */
+    --accent-soft:#c84e2f1f;
+    --teal:#24706f;         /* teal secondary */
+    --teal-soft:#24706f1f;
+
+    --font-display:"Iowan Old Style","Charter","Source Serif Pro",Georgia,"Songti TC","Noto Serif TC",serif;
+    --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+    --font-mono:ui-monospace,"JetBrains Mono","IBM Plex Mono",Menlo,Consolas,monospace;
+
+    --maxw:1120px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow:hidden;
+  }
+
+  /* ===== Deck shell ===== */
+  .deck{
+    position:relative;
+    height:100vh;
+    height:100svh;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    scroll-snap-type:y proximity;
+    scroll-behavior:smooth;
+    scrollbar-width:none;
+  }
+  .deck::-webkit-scrollbar{display:none}
+
+  .slide{
+    min-height:100vh;
+    min-height:100svh;
+    scroll-snap-align:start;
+    display:flex;
+    flex-direction:column;
+    justify-content:safe center;
+    padding:96px 72px 132px;
+    position:relative;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .slide-inner{
+    width:100%;
+    max-width:var(--maxw);
+    margin:0 auto;
+  }
+
+  /* ===== Type ===== */
+  .kicker{
+    font-family:var(--font-mono);
+    font-size:.78rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:28px;
+  }
+  .kicker .tick{
+    width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;
+  }
+  .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    color:var(--ink);
+    font-size:2.7rem;
+    line-height:1.22;
+    letter-spacing:.005em;
+    margin:0 0 30px;
+    max-width:20ch;
+  }
+  .lead{
+    font-size:1.18rem;
+    line-height:1.7;
+    color:var(--ink-soft);
+    max-width:54ch;
+  }
+  .bullets{
+    list-style:none;
+    margin:0;padding:0;
+    display:flex;flex-direction:column;gap:14px;
+    max-width:62ch;
+  }
+  .bullets li{
+    position:relative;
+    padding-left:26px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .bullets li::before{
+    content:"";
+    position:absolute;left:0;top:.62em;
+    width:12px;height:2px;background:var(--accent);
+  }
+  .bullets li b{color:var(--ink);font-weight:650}
+
+  .cite{
+    margin-top:40px;
+    font-family:var(--font-mono);
+    font-size:.74rem;
+    letter-spacing:.08em;
+    color:var(--muted-2);
+    text-transform:uppercase;
+  }
+  .cite .c{color:var(--accent);font-weight:600}
+
+  /* ===== HUD: progress + counter + nav ===== */
+  .hud{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    display:flex;align-items:center;gap:18px;
+    padding:14px 28px calc(14px + env(safe-area-inset-bottom));
+    pointer-events:none;
+    z-index:50;
+    background:linear-gradient(to top,var(--paper) 55%,transparent);
+  }
+  .counter{
+    font-family:var(--font-mono);
+    font-size:.8rem;
+    color:var(--muted);
+    letter-spacing:.08em;
+    white-space:nowrap;
+  }
+  .counter b{color:var(--ink);font-weight:600}
+  .progress{
+    flex:1;
+    height:2px;background:var(--line);border-radius:2px;overflow:hidden;max-width:240px;
+  }
+  .progress-bar{height:100%;width:0;background:var(--accent);transition:width .35s ease}
+  .nav{
+    margin-left:auto;
+    display:flex;gap:8px;
+    pointer-events:auto;
+  }
+  .nav button{
+    width:34px;height:34px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--muted);
+    border-radius:8px;
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:1rem;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    opacity:.7;
+    transition:opacity .2s ease,color .2s ease,border-color .2s ease,transform .12s ease;
+  }
+  .nav button:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+  .nav button:active{transform:scale(.94)}
+  .nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;opacity:1}
+  .nav button:disabled{opacity:.3;cursor:not-allowed}
+  .nav button:disabled:hover{color:var(--muted);border-color:var(--line);opacity:.3}
+
+  .hint{
+    position:fixed;
+    left:28px;bottom:54px;
+    font-family:var(--font-mono);
+    font-size:.7rem;letter-spacing:.06em;
+    color:var(--muted-2);
+    z-index:49;
+    transition:opacity .6s ease;
+    pointer-events:none;
+  }
+  .hint.gone{opacity:0}
+
+  /* ===== Cover ===== */
+  .cover{padding:88px 72px 132px}
+  .cover .slide-inner{max-width:1000px}
+  .cover-eyebrow{
+    font-family:var(--font-mono);
+    font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:40px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .cover-eyebrow::after{content:"";flex:0 0 64px;height:1px;background:var(--line)}
+  .cover h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--ink);
+    font-size:5rem;
+    line-height:1.04;
+    letter-spacing:.01em;
+    margin:0;
+  }
+  .cover .subtitle{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-style:italic;
+    color:var(--muted);
+    font-size:1.7rem;
+    margin:18px 0 0;
+    letter-spacing:.02em;
+  }
+  .cover .thesis{
+    font-family:var(--font-display);
+    font-style:italic;
+    font-size:1.42rem;
+    line-height:1.7;
+    color:var(--ink-soft);
+    max-width:46ch;
+    margin:64px 0 0;
+    padding-left:22px;
+    border-left:2px solid var(--accent);
+  }
+  .cover .meta{
+    margin-top:64px;
+    display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;
+    font-family:var(--font-mono);
+    font-size:.82rem;letter-spacing:.06em;
+    color:var(--muted);
+  }
+  .cover .meta .sep{color:var(--line)}
+  .cover .meta b{color:var(--ink);font-weight:600}
+  .cover .cite{margin-top:30px}
+
+  /* ===== Stat trio (slide 2) ===== */
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+    margin:8px 0 8px;max-width:820px;
+  }
+  .stat{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+    padding:24px 22px 20px;
+  }
+  .stat .num{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    font-size:3.1rem;line-height:1;
+    color:var(--ink);
+    font-weight:500;
+    letter-spacing:-.01em;
+  }
+  .stat.peak .num{color:var(--accent)}
+  .stat .lab{
+    margin-top:12px;
+    font-size:.92rem;color:var(--muted);line-height:1.45;
+  }
+  .stat .lab b{color:var(--ink-soft);font-weight:600}
+  .caveat{
+    display:inline-flex;align-items:center;gap:8px;
+    margin-top:24px;
+    font-family:var(--font-mono);font-size:.76rem;letter-spacing:.05em;
+    color:var(--muted);
+    border:1px dashed var(--line);
+    padding:7px 12px;border-radius:999px;
+    background:var(--paper);
+  }
+  .caveat::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--muted-2)}
+
+  /* ===== Monthly bars (slide 3) ===== */
+  .bars{
+    display:flex;align-items:flex-end;gap:14px;
+    height:200px;
+    border-bottom:1px solid var(--line);
+    padding:18px 4px 0;
+    max-width:760px;
+    margin:6px 0 22px;
+  }
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%}
+  .bar .bn{
+    font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+    font-size:.78rem;color:var(--muted);
+  }
+  .bar.peak .bn{color:var(--accent);font-weight:600}
+  .track{flex:1;width:100%;max-width:74px;display:flex;align-items:flex-end}
+  .fill{
+    width:100%;
+    background:var(--muted-2);
+    border-radius:5px 5px 0 0;
+    min-height:5px;
+  }
+  .bar.peak .fill{background:var(--accent)}
+  .bar .bl{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+  .rhythm{
+    display:flex;flex-wrap:wrap;gap:10px 22px;
+    max-width:760px;
+    font-size:.95rem;color:var(--ink-soft);
+  }
+  .rhythm span{display:inline-flex;align-items:baseline;gap:8px}
+  .rhythm b{font-family:var(--font-mono);color:var(--ink);font-weight:600;font-size:.85rem;letter-spacing:.04em}
+
+  /* ===== Loop / two-lane (slide 4, 5, 8) ===== */
+  .twocol{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;
+    max-width:820px;
+    margin:4px 0 10px;
+  }
+  .lane{
+    border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    padding:22px 22px 20px;
+  }
+  .lane h3{
+    margin:0 0 12px;
+    font-family:var(--font-mono);font-size:.82rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);font-weight:600;
+  }
+  .lane h3 .who{color:var(--ink);font-family:var(--font-body);text-transform:none;letter-spacing:0;font-size:1.02rem;margin-left:6px}
+  .lane.accent h3 .who{color:var(--accent)}
+  .lane ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  .lane ul li{position:relative;padding-left:20px;font-size:.98rem;line-height:1.5;color:var(--ink-soft)}
+  .lane ul li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:1px;background:var(--muted-2)}
+  .lane-arrow{
+    display:flex;align-items:center;justify-content:center;
+    padding:0 18px;
+    font-family:var(--font-mono);color:var(--accent);font-size:1.3rem;
+  }
+  .loop-caption{
+    margin-top:18px;
+    font-family:var(--font-mono);font-size:.8rem;letter-spacing:.04em;
+    color:var(--muted);
+    max-width:820px;
+  }
+  .loop-caption b{color:var(--ink-soft)}
+
+  /* commit evidence chips */
+  .evidence{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;max-width:820px;
+  }
+  .ev{
+    font-family:var(--font-mono);font-size:.74rem;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 10px;
+    line-height:1.3;
+  }
+  .ev .t{color:var(--teal);font-weight:600}
+
+  /* ===== Node line (slide 6) ===== */
+  .nodeline{
+    display:flex;flex-wrap:wrap;gap:0;align-items:center;
+    max-width:760px;margin:4px 0 22px;
+    position:relative;
+  }
+  .node{
+    position:relative;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding:0 30px;
+    flex:0 0 auto;
+  }
+  .node .nd{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--panel);border:2px solid var(--muted-2);
+    z-index:1;
+  }
+  .node.core .nd{width:18px;height:18px;background:var(--accent);border-color:var(--accent)}
+  .node .nl{font-size:.88rem;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+  .node .ns{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);letter-spacing:.04em}
+  .nodeline::before{
+    content:"";position:absolute;left:30px;right:30px;top:7px;height:2px;background:var(--line);z-index:0;
+  }
+
+  /* ===== Quotes (slide 7, 13) ===== */
+  .qblock{
+    border-left:2px solid var(--accent);
+    padding:6px 0 6px 24px;
+    margin:0 0 22px;
+    max-width:60ch;
+  }
+  .qblock .q{
+    font-family:var(--font-display);
+    font-style:italic;
+    color:var(--ink);
+    font-size:1.5rem;line-height:1.5;
+  }
+  .qblock .anno{
+    margin-top:10px;
+    font-size:.92rem;color:var(--muted);line-height:1.55;
+  }
+  .qblock .anno b{color:var(--teal);font-family:var(--font-mono);font-size:.82rem;letter-spacing:.03em;font-weight:600}
+
+  .pullquote{
+    font-family:var(--font-display);
+    font-weight:500;
+    color:var(--ink);
+    font-size:2.5rem;line-height:1.32;
+    letter-spacing:.005em;
+    max-width:18ch;
+    margin:0 0 36px;
+    position:relative;
+  }
+  .pullquote::before{
+    content:"";
+    display:block;width:56px;height:3px;background:var(--accent);
+    margin-bottom:28px;border-radius:2px;
+  }
+  .closing-sub{
+    font-family:var(--font-display);font-style:italic;
+    color:var(--muted);font-size:1.25rem;line-height:1.6;max-width:42ch;
+  }
+
+  /* ===== Split + stamp (slide 8) ===== */
+  .stamp{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);
+    border:1.5px solid var(--accent);
+    border-radius:999px;
+    padding:7px 14px;
+    margin:22px 0 0;
+    background:var(--paper);
+  }
+  .stamp::before{content:"●";font-size:.6rem}
+
+  /* ===== Cost chips (slide 9) ===== */
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;max-width:760px}
+  .chip{
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:12px;
+    padding:18px 22px;
+    min-width:132px;
+  }
+  .chip .ch{font-family:var(--font-display);font-size:1.5rem;color:var(--ink);font-weight:600;line-height:1.1}
+  .chip .cd{margin-top:6px;font-size:.84rem;color:var(--muted);line-height:1.4}
+
+  /* ===== Scatter -> teaching (slide 11) ===== */
+  .scatter{width:100%;max-width:680px;height:auto;margin:4px 0 10px;display:block}
+  .scatter .dot{fill:var(--muted-2);opacity:.55}
+  .scatter .dot.near{fill:var(--accent);opacity:.85}
+  .scatter .target{fill:var(--accent)}
+  .scatter .ring{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.5}
+  .scatter .path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round}
+  .scatter text{font-family:var(--font-body);fill:var(--ink-soft)}
+  .scatter .lab-num{font-family:var(--font-mono);fill:var(--muted);font-size:11px}
+
+  /* ===== Sources (slide 14) ===== */
+  .src-list{display:flex;flex-direction:column;gap:18px;max-width:760px;margin:4px 0 10px}
+  .src{
+    display:grid;grid-template-columns:54px 1fr;gap:18px;align-items:start;
+    padding:16px 0;border-top:1px solid var(--line);
+  }
+  .src .id{
+    font-family:var(--font-mono);font-weight:600;color:var(--accent);
+    font-size:.92rem;letter-spacing:.04em;
+  }
+  .src .body{font-size:.98rem;color:var(--ink-soft);line-height:1.55}
+  .src .body b{color:var(--ink);font-weight:600}
+  .src .body .note{display:block;margin-top:6px;color:var(--muted);font-size:.88rem}
+  .privacy-note{
+    margin-top:22px;
+    font-family:var(--font-mono);font-size:.76rem;letter-spacing:.04em;
+    color:var(--muted);
+    border-top:1px dashed var(--line);padding-top:14px;max-width:760px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width:760px){
+    body{font-size:16px}
+    .slide{padding:64px 22px 120px}
+    .cover{padding:60px 22px 120px}
+    .kicker{margin-bottom:20px;font-size:.72rem}
+    .claim{font-size:1.85rem;margin-bottom:22px}
+    .lead{font-size:1.04rem}
+    .cover-eyebrow{font-size:.7rem;margin-bottom:28px}
+    .cover-eyebrow::after{flex-basis:40px}
+    .cover h1{font-size:2.55rem}
+    .cover .subtitle{font-size:1.2rem}
+    .cover .thesis{font-size:1.08rem;margin-top:40px}
+    .cover .meta{margin-top:40px;gap:10px 18px;font-size:.74rem}
+    .stats{grid-template-columns:1fr 1fr;gap:12px}
+    .stat{padding:18px 16px}
+    .stat .num{font-size:2.3rem}
+    .stat:last-child{grid-column:1 / -1}
+    .bars{height:150px;gap:8px;padding-top:14px}
+    .track{max-width:48px}
+    .bar .bn{font-size:.68rem}
+    .bar .bl{font-size:.64rem}
+    .rhythm{gap:8px 16px;font-size:.86rem}
+    .twocol{grid-template-columns:1fr;gap:12px;max-width:100%}
+    .lane-arrow{padding:4px 0;transform:rotate(90deg)}
+    .nodeline{justify-content:flex-start;gap:0}
+    .node{padding:0 18px}
+    .nodeline::before{display:none}
+    .pullquote{font-size:1.7rem}
+    .closing-sub{font-size:1.02rem}
+    .qblock .q{font-size:1.18rem}
+    .chips .chip{min-width:0;flex:1 1 calc(50% - 6px);padding:14px 16px}
+    .chip .ch{font-size:1.2rem}
+    .nav button{width:38px;height:38px}
+    .hint{left:16px;bottom:60px;font-size:.62rem}
+    .src{grid-template-columns:44px 1fr;gap:12px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .deck{scroll-behavior:auto}
+    .progress-bar{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<main class="deck" id="deck">
+
+  <!-- 01 — Cover -->
+  <section class="slide cover" data-screen-label="01 封面" data-index="0">
+    <div class="slide-inner">
+      <div class="cover-eyebrow">LPR · 2026 H1 Review</div>
+      <h1>LPR 2026<br>上半年回顧</h1>
+      <div class="subtitle">從 Vibe Coding 到教學落地</div>
+      <p class="thesis">這半年，我不是突然變成工程師。<br>我是開始學會用 AI、工程流程和人一起，把想法變成能跑的系統。</p>
+      <div class="meta">
+        <span><b>Cyclone</b></span><span class="sep">/</span>
+        <span>2026-07-05</span><span class="sep">/</span>
+        <span>10–15 分鐘</span>
+      </div>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 02 — 行動軌跡 -->
+  <section class="slide" data-screen-label="02 行動軌跡" data-index="1">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>02 — 行動軌跡</div>
+      <h2 class="claim">Git 不是人生的全部，但它留下了我上半年行動的痕跡。</h2>
+      <div class="stats">
+        <div class="stat"><div class="num">36</div><div class="lab">本機可驗證 <b>cyclone-tw</b> repo</div></div>
+        <div class="stat"><div class="num">2,239</div><div class="lab">2026 上半年 <b>commits</b></div></div>
+        <div class="stat peak"><div class="num">701</div><div class="lab"><b>4 月</b>最高峰，之後轉向系統化</div></div>
+      </div>
+      <div class="caveat">local git audit · not a KPI</div>
+      <div class="cite">來源 <span class="c">[G1]</span></div>
+    </div>
+  </section>
+
+  <!-- 03 — 節奏地圖 -->
+  <section class="slide" data-screen-label="03 節奏地圖" data-index="2">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>03 — 上半年節奏</div>
+      <h2 class="claim">不是直線成長，而是從探索、爆發、整合，慢慢走向收斂。</h2>
+      <div class="bars" role="img" aria-label="2026 上半年每月 commit 數：1月81、2月455、3月370、4月701、5月430、6月340">
+        <div class="bar"><span class="bn">81</span><div class="track"><div class="fill" style="height:11.6%"></div></div><span class="bl">1月</span></div>
+        <div class="bar"><span class="bn">455</span><div class="track"><div class="fill" style="height:64.9%"></div></div><span class="bl">2月</span></div>
+        <div class="bar"><span class="bn">370</span><div class="track"><div class="fill" style="height:52.8%"></div></div><span class="bl">3月</span></div>
+        <div class="bar peak"><span class="bn">701</span><div class="track"><div class="fill" style="height:100%"></div></div><span class="bl">4月</span></div>
+        <div class="bar"><span class="bn">430</span><div class="track"><div class="fill" style="height:61.3%"></div></div><span class="bl">5月</span></div>
+        <div class="bar"><span class="bn">340</span><div class="track"><div class="fill" style="height:48.5%"></div></div><span class="bl">6月</span></div>
+      </div>
+      <div class="rhythm">
+        <span><b>1月</b>零散工具</span>
+        <span><b>2月</b>教育／校務爆發</span>
+        <span><b>3月</b>OpenClaw · 簡報 · 文件</span>
+        <span><b>4–5月</b>workflow · CycloneOS 整合</span>
+        <span><b>6月</b>Hermes · Wiki · 治理</span>
+      </div>
+      <div class="cite">來源 <span class="c">[G1] [G2]</span></div>
+    </div>
+  </section>
+
+  <!-- 04 — Vibe Coding -->
+  <section class="slide" data-screen-label="04 Vibe Coding 實戰營" data-index="3">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>04 — 第一件大事 · Vibe Coding 實戰營</div>
+      <h2 class="claim">AI coding 不是叫 AI 寫程式，而是學會和 AI 形成開發 loop。</h2>
+      <div class="twocol">
+        <div class="lane">
+          <h3>人 <span class="who">· Cyclone</span></h3>
+          <ul>
+            <li>先寫<b>規格</b>（SDD：用規格帶動開發）</li>
+            <li>給需求、回饋與驗收條件</li>
+            <li>判斷產出風險、定錨</li>
+          </ul>
+        </div>
+        <div class="lane-arrow" aria-hidden="true">↔</div>
+        <div class="lane accent">
+          <h3>AI <span class="who">· Partner</span></h3>
+          <ul>
+            <li>實作 / 產出第一版</li>
+            <li>測試 → 修正 → 再產出</li>
+            <li>反覆形成開發 loop</li>
+          </ul>
+        </div>
+      </div>
+      <div class="loop-caption">非工程背景也需要基本 <b>AI coding literacy</b>，否則無法判斷 AI 產出的風險。</div>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 05 — Cyclone workflow -->
+  <section class="slide" data-screen-label="05 Cyclone workflow" data-index="4">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>05 — 第二件大事 · Cyclone workflow</div>
+      <h2 class="claim">第一次比較清楚地站在 product owner 的位置。</h2>
+      <div class="twocol">
+        <div class="lane accent">
+          <h3>dar <span class="who">· implementation</span></h3>
+          <ul>
+            <li>協助開發、實作系統</li>
+            <li>把需求轉成可跑的程式</li>
+          </ul>
+        </div>
+        <div class="lane-arrow" aria-hidden="true">↔</div>
+        <div class="lane">
+          <h3>Cyclone <span class="who">· requirement + acceptance</span></h3>
+          <ul>
+            <li>提需求、測試、回饋與驗收</li>
+            <li>用工程方式參與系統建造</li>
+          </ul>
+        </div>
+      </div>
+      <div class="evidence">
+        <span class="ev"><span class="t">feat(#184)</span> 每位成員專屬 Letta agent</span>
+        <span class="ev"><span class="t">fix(#5)</span> 管家對話隱私強化 Tier 1</span>
+        <span class="ev"><span class="t">test</span> e2e / component / audit 修正</span>
+      </div>
+      <div class="cite">來源 <span class="c">[U1] [G1] [G2]</span></div>
+    </div>
+  </section>
+
+  <!-- 06 — Hermes Agents -->
+  <section class="slide" data-screen-label="06 龍之洞窟 Hermes Agents" data-index="5">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>06 — 第三件大事 · 龍之洞窟 Hermes Agents</div>
+      <h2 class="claim">AI 走進 Discord、日常管理與社群互動。</h2>
+      <div class="nodeline">
+        <div class="node"><span class="nd"></span><span class="nl">Rycen</span></div>
+        <div class="node core"><span class="nd"></span><span class="nl">龍之洞窟 Hermes</span><span class="ns">Discord server</span></div>
+        <div class="node"><span class="nd"></span><span class="nl">芝麻</span></div>
+      </div>
+      <ul class="bullets">
+        <li><b>玩樂</b>與<b>工作／日常行事</b>並存的 agent 應用。</li>
+        <li>5–6 月從玩具走向 <b>runtime · memory · backup · governance</b>。</li>
+        <li>代表 repo：<span style="font-family:var(--font-mono);font-size:.9rem;color:var(--muted)">cyclone-hermes · cyclone-wiki · cyclone-agent-config</span>。</li>
+      </ul>
+      <div class="cite">來源 <span class="c">[U1] [G1] [G2]</span></div>
+    </div>
+  </section>
+
+  <!-- 07 — 成長了什麼 -->
+  <section class="slide" data-screen-label="07 我到底成長了什麼" data-index="6">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>07 — 我到底成長了什麼？</div>
+      <h2 class="claim">誠實說，我沒有覺得自己突然變強。真正的成長是：開始知道自己不懂什麼。</h2>
+      <div class="qblock">
+        <div class="q">「沒有能力比較強的 AI，這些開發我根本無法進行下去。」</div>
+      </div>
+      <div class="qblock">
+        <div class="q">「現階段我要更理解 AI coding、harness engineering、loop engineering。」</div>
+        <div class="anno"><b>harness</b> ＝ AI 能碰哪些資料、用哪些工具、在哪裡行動的外層系統。<br><b>loop engineering</b> ＝ 讓 AI 產出、測試、回饋、修正能反覆進行的流程設計。</div>
+      </div>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 08 — 最重要的一課 -->
+  <section class="slide" data-screen-label="08 最重要的一課" data-index="7">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>08 — 最重要的一課</div>
+      <h2 class="claim">AI 可以很方便，但不能讓大腦整個外包。</h2>
+      <div class="twocol">
+        <div class="lane">
+          <h3>AI <span class="who">can generate</span></h3>
+          <ul>
+            <li>可以快速產出</li>
+            <li>「可以跑」不等於「應該上線」</li>
+            <li>「看起來合理」不等於「真的對」</li>
+          </ul>
+        </div>
+        <div class="lane-arrow" aria-hidden="true">→</div>
+        <div class="lane accent">
+          <h3>Human <span class="who">must anchor</span></h3>
+          <ul>
+            <li>所有決策與判斷仍由人定錨</li>
+            <li>使用 AI ≠ 責任消失</li>
+            <li>更要知道自己在批准什麼</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stamp">責任仍在人</div>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 09 — 挫折與代價 -->
+  <section class="slide" data-screen-label="09 挫折與代價" data-index="8">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>09 — 挫折與代價</div>
+      <h2 class="claim">不是一路順，是大量試錯、重工與消耗。</h2>
+      <div class="chips">
+        <div class="chip"><div class="ch">重工</div><div class="cd">經常打掉重練</div></div>
+        <div class="chip"><div class="ch">token</div><div class="cd">有點燒</div></div>
+        <div class="chip"><div class="ch">焦慮</div><div class="cd">是不是不務正業</div></div>
+        <div class="chip"><div class="ch">睡眠</div><div class="cd">少，需要更好的修復</div></div>
+      </div>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 10 — 能量來源 -->
+  <section class="slide" data-screen-label="10 什麼讓我有能量" data-index="9">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>10 — 什麼讓我有能量？</div>
+      <h2 class="claim">看見東西長出功能，也遇見各行各業正在努力的人。</h2>
+      <ul class="bullets">
+        <li><b>AI coding 過程</b>本身有探索感。</li>
+        <li><b>Agent 功能</b>越來越多，帶來成就與好奇。</li>
+        <li>接觸到許多<b>沒接觸過的領域</b>。</li>
+        <li>在社群遇到不同職業、<b>各自努力的人</b>。</li>
+      </ul>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 11 — 慣性模式 -->
+  <section class="slide" data-screen-label="11 我的慣性模式" data-index="10">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>11 — 我的慣性模式</div>
+      <h2 class="claim">我像一個 AI 學習過動兒：看到有趣的 project，就想摸一下。</h2>
+      <svg class="scatter" viewBox="0 0 640 190" role="img" aria-label="散射的 project 點收斂成一條指向教學本業的路徑">
+        <path class="path" d="M70,150 C200,140 320,100 470,95" />
+        <circle class="dot" cx="40" cy="40" r="5"/>
+        <circle class="dot" cx="80" cy="120" r="4"/>
+        <circle class="dot" cx="130" cy="60" r="6"/>
+        <circle class="dot" cx="170" cy="160" r="4"/>
+        <circle class="dot" cx="215" cy="45" r="5"/>
+        <circle class="dot" cx="250" cy="130" r="4"/>
+        <circle class="dot near" cx="300" cy="80" r="5"/>
+        <circle class="dot near" cx="345" cy="140" r="4"/>
+        <circle class="dot near" cx="395" cy="70" r="5"/>
+        <circle class="ring" cx="495" cy="95" r="16"/>
+        <circle class="target" cx="495" cy="95" r="9"/>
+        <text x="495" y="130" text-anchor="middle" font-size="14" font-weight="600">教學本業</text>
+        <text class="lab-num" x="40" y="22">很多門</text>
+        <text class="lab-num" x="495" y="148" text-anchor="middle">少開一點 · 走深</text>
+      </svg>
+      <p class="lead" style="margin-top:18px">上半年，這個慣性幫我打開視野。下半年，同一個慣性可能會讓我失焦。</p>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 12 — 下半年 -->
+  <section class="slide" data-screen-label="12 下半年 落地教學本業" data-index="11">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>12 — 下半年 · 落地教學本業</div>
+      <h2 class="claim">把上半年的 AI 學習，帶回教學現場。</h2>
+      <ul class="bullets">
+        <li>結合<b>總校長 AI 課程</b>。</li>
+        <li>把 <b>AI coding / workflow / agent / wiki</b> 轉成教學可用方法。</li>
+        <li>不是追更多工具，而是回答：能不能<b>幫老師減負</b>、<b>幫學生更容易學</b>？</li>
+        <li>能不能讓教學設計更有<b>回饋 loop</b>？</li>
+        <li>能不能讓人<b>保留判斷</b>，而不是被 AI 取代？</li>
+      </ul>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 13 — 結尾 -->
+  <section class="slide" data-screen-label="13 結尾" data-index="12">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>13 — 結尾</div>
+      <p class="pullquote">上半年，我在 AI 世界裡打開很多門。<br>下半年，我想少開一點門，把真正重要的幾扇門走深，帶回教學本業。</p>
+      <p class="closing-sub">我希望半年後的自己會感謝現在的我：開始收斂、開始落地，也開始更好地照顧自己的節奏。</p>
+      <div class="cite">來源 <span class="c">[U1]</span></div>
+    </div>
+  </section>
+
+  <!-- 14 — Sources -->
+  <section class="slide" data-screen-label="14 Sources" data-index="13">
+    <div class="slide-inner">
+      <div class="kicker"><span class="tick"></span>14 — Sources / provenance</div>
+      <h2 class="claim" style="font-size:2.1rem">引用與資料來源</h2>
+      <div class="src-list">
+        <div class="src">
+          <div class="id">[U1]</div>
+          <div class="body"><b>Cyclone 2026-07-05 LPR 口述回答</b>（本 note 擷取）。</div>
+        </div>
+        <div class="src">
+          <div class="id">[G1]</div>
+          <div class="body"><b>MacBook local git audit, 2026-07-05</b> — 36 repos、2,239 commits、local checkout only。
+            <span class="note">非完整 GitHub org audit；commit 數包含 AI agent / pair programming，不等同手寫程式量，僅作行動軌跡 evidence。</span>
+          </div>
+        </div>
+        <div class="src">
+          <div class="id">[G2]</div>
+          <div class="body"><b>Representative git log samples</b> — CycloneOS、CycloneOpenClaw、cyclone-workflow、cyclone-hermes、cyclone-wiki、edu-studio、dicord-bot、CycloneBot、gas-calendar-app。</div>
+        </div>
+      </div>
+      <div class="privacy-note">本簡報未使用真實學生照片或任何學生個資；commit 數字僅為行動軌跡，非個人價值或 KPI。</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- HUD -->
+<div class="hud" aria-hidden="true">
+  <div class="counter"><b id="cur">01</b> <span style="color:var(--line)">/</span> <span id="total">14</span></div>
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="nav">
+    <button id="prev" type="button" aria-label="上一頁">‹</button>
+    <button id="next" type="button" aria-label="下一頁">›</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var curEl = document.getElementById('cur');
+  var totalEl = document.getElementById('total');
+  var bar = document.getElementById('progressBar');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  var hint = document.getElementById('hint');
+  var KEY = 'lpr2026-h1-pos';
+  var current = 0;
+
+  totalEl.textContent = String(total).padStart(2,'0');
+
+  function reduced(){
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function topOf(i){
+    var el = slides[i];
+    return el.getBoundingClientRect().top - deck.getBoundingClientRect().top + deck.scrollTop;
+  }
+
+  function goTo(i, instant){
+    i = Math.max(0, Math.min(total-1, i));
+    current = i;
+    deck.scrollTo({ top: topOf(i), behavior: instant || reduced() ? 'auto' : 'smooth' });
+    update();
+  }
+
+  function update(){
+    curEl.textContent = String(current+1).padStart(2,'0');
+    bar.style.width = (total<=1 ? 100 : (current/(total-1))*100) + '%';
+    try { localStorage.setItem(KEY, String(current)); } catch(e){}
+    prevBtn.disabled = current===0;
+    nextBtn.disabled = current===total-1;
+  }
+
+  // keyboard
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    var nextKeys = ['ArrowDown','ArrowRight','PageDown',' '];
+    var prevKeys = ['ArrowUp','ArrowLeft','PageUp'];
+    if (nextKeys.indexOf(k) !== -1){ e.preventDefault(); goTo(current+1); dismissHint(); }
+    else if (prevKeys.indexOf(k) !== -1){ e.preventDefault(); goTo(current-1); dismissHint(); }
+    else if (k === 'Home'){ e.preventDefault(); goTo(0); dismissHint(); }
+    else if (k === 'End'){ e.preventDefault(); goTo(total-1); dismissHint(); }
+  });
+
+  // buttons
+  prevBtn.addEventListener('click', function(){ goTo(current-1); dismissHint(); });
+  nextBtn.addEventListener('click', function(){ goTo(current+1); dismissHint(); });
+
+  // wheel/touch also navigates naturally via scroll-snap; track position via IntersectionObserver
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting && en.intersectionRatio >= 0.55){
+        var idx = parseInt(en.target.getAttribute('data-index'),10);
+        if (!isNaN(idx) && idx !== current){
+          current = idx;
+          update();
+        }
+      }
+    });
+  }, { root: deck, threshold: [0.55, 0.75] });
+  slides.forEach(function(s){ io.observe(s); });
+
+  // dismiss hint on first interaction
+  var hintDismissed = false;
+  function dismissHint(){
+    if (hintDismissed) return;
+    hintDismissed = true;
+    if (hint) hint.classList.add('gone');
+  }
+  deck.addEventListener('wheel', dismissHint, { passive:true });
+  deck.addEventListener('touchmove', dismissHint, { passive:true });
+
+  // restore position
+  function restore(){
+    var saved = parseInt(localStorage.getItem(KEY) || '0', 10);
+    if (isNaN(saved) || saved < 0) saved = 0;
+    if (saved >= total) saved = total-1;
+    current = saved;
+    deck.scrollTo({ top: topOf(saved), behavior: 'auto' });
+    update();
+  }
+  if (document.readyState === 'complete') restore();
+  else window.addEventListener('load', restore);
+})();
+</script>
+</body>
+</html>
