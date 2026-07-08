@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="給新進鑑定安置人員快速閱讀的一頁式摘要、常見誤解與報告檢核句。">
+  <title>中文版摘要：學習障礙鑑定的證據鏈</title>
+  <style>
+:root {
+  color-scheme: light;
+  --paper: #fbfcfd;
+  --surface: #ffffff;
+  --surface-2: #eef4f5;
+  --ink: #17212b;
+  --muted: #5b6570;
+  --line: #d6dee5;
+  --green: #177665;
+  --blue: #235f99;
+  --amber: #aa5b18;
+  --max: 980px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.72;
+  letter-spacing: 0;
+}
+a { color: var(--blue); }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px max(18px, calc((100vw - var(--max)) / 2));
+  background: rgba(251, 252, 253, 0.92);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.topbar nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.topbar a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+header {
+  padding: 58px 18px 28px;
+  background: linear-gradient(180deg, #eef4f5, #fbfcfd);
+  border-bottom: 1px solid var(--line);
+}
+.hero, .content, footer {
+  width: min(var(--max), calc(100% - 36px));
+  margin: 0 auto;
+}
+.kicker {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--green);
+  font-weight: 760;
+  margin-bottom: 14px;
+}
+.kicker::before {
+  content: "";
+  width: 34px;
+  height: 3px;
+  background: var(--green);
+  border-radius: 999px;
+}
+h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 6vw, 4.1rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+.lead {
+  max-width: 760px;
+  margin: 0;
+  color: #33404b;
+  font-size: 1.2rem;
+}
+.content {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 28px;
+  padding: 28px 0 72px;
+}
+.toc {
+  position: sticky;
+  top: 76px;
+  align-self: start;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.toc strong { display: block; margin-bottom: 8px; }
+.toc a {
+  display: block;
+  padding: 5px 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+article {
+  min-width: 0;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgba(30, 47, 62, 0.08);
+}
+article h1 { font-size: 2.2rem; }
+article h2 {
+  margin-top: 2.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+}
+article h3 { margin-top: 1.55rem; color: #24313b; }
+article h4 { margin-top: 1.1rem; color: var(--green); }
+article p, article li { font-size: 1.02rem; color: #293743; }
+article li { margin: 0.36rem 0; }
+blockquote {
+  margin: 1rem 0;
+  padding: 14px 16px;
+  border-left: 6px solid var(--green);
+  border-radius: 8px;
+  background: #f4faf8;
+  color: #24313b;
+  font-weight: 720;
+}
+code {
+  padding: 0.1rem 0.28rem;
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: #24313b;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 740;
+}
+.button-link.primary { background: var(--green); color: #fff; border-color: var(--green); }
+details {
+  margin-top: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  font-weight: 760;
+}
+pre {
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+  background: #f6faf9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+footer {
+  padding: 0 0 42px;
+  color: var(--muted);
+}
+@media (max-width: 860px) {
+  .content { grid-template-columns: 1fr; }
+  .toc { position: static; }
+  article { padding: 18px; }
+}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="./index.html">返回簡報</a>
+    <nav>
+      <a href="./summary.html">中文版摘要</a>
+      <a href="./translation.html">完整中文譯整</a>
+      
+    </nav>
+  </div>
+  <header>
+    <div class="hero">
+      <div class="kicker">學習障礙鑑定研習</div>
+      <h1>中文版摘要：學習障礙鑑定的證據鏈</h1>
+      <p class="lead">給新進鑑定安置人員快速閱讀的一頁式摘要、常見誤解與報告檢核句。</p>
+      <div class="actions">
+        <a class="button-link primary" href="./index.html">看投影片版</a>
+        <a class="button-link" href="./summary.html">讀摘要版</a>
+        <a class="button-link" href="./translation.html">讀完整譯整</a>
+      </div>
+    </div>
+  </header>
+  <main class="content">
+    <aside class="toc"><strong>頁面目錄</strong><a href="#一頁版重點摘要">一頁版重點摘要</a>
+<a href="#給新進鑑定安置人員的理解框架">給新進鑑定安置人員的理解框架</a>
+<a href="#新人常見誤解提醒">新人常見誤解提醒</a>
+<a href="#誤解-1-成績低就是學習障礙">誤解 1：成績低就是學習障礙</a>
+<a href="#誤解-2-智力測驗某一分數低-就可以直接判定">誤解 2：智力測驗某一分數低，就可以直接判定</a>
+<a href="#誤解-3-心理歷程有弱勢-就一定造成學業困難">誤解 3：心理歷程有弱勢，就一定造成學業困難</a>
+<a href="#誤解-4-只要有-adhd-焦慮或動作協調問題-就不能有學習障礙">誤解 4：只要有 ADHD、焦慮或動作協調問題，就不能有學習障礙</a>
+<a href="#誤解-5-診斷敘述只要寫類別名稱即可">誤解 5：診斷敘述只要寫類別名稱即可</a>
+<a href="#可直接給鑑定安置人員使用的檢核句">可直接給鑑定安置人員使用的檢核句</a>
+<a href="#簡短結論">簡短結論</a></aside>
+    <article>
+      <h2 id="一頁版重點摘要">一頁版重點摘要</h2>
+<p>這份講義的核心是：判斷學生是否可能有學習障礙時，不能只看「成績差」或「測驗低分」，而要建立一條合理的證據鏈。</p>
+<p>這條證據鏈可以整理成 7 個問題：</p>
+<ol>
+<li>學生是否真的有學業表現困難？</li>
+<li>學生的整體認知能力是否至少接近平均，或有足夠證據支持其思考推理能力並非全面低落？</li>
+<li>學生是否在一種或多種基本心理歷程上有缺損？</li>
+<li>這些心理歷程缺損，是否能合理解釋其學業困難？</li>
+<li>學生的學業低成就是否與其能力不一致，也就是「非預期低成就」？</li>
+<li>這個低成就是否主要由心理歷程缺損造成，而不是其他因素造成？</li>
+<li>最後是否能寫出清楚、具資訊量的診斷敘述？</li>
+</ol>
+<p>對新進鑑定安置人員來說，最重要的是不要把學習障礙看成單一測驗分數，而是看「能力、歷程、學業表現、排除因素」之間是否形成一致而合理的說明。</p>
+<h2 id="給新進鑑定安置人員的理解框架">給新進鑑定安置人員的理解框架</h2>
+<p>學習障礙的判斷重點不是問：「這個孩子有沒有考不好？」而是問：</p>
+<ul>
+<li>他的學業困難是否持續存在？</li>
+<li>他的智力或推理能力是否不能用全面智能不足來解釋？</li>
+<li>是否有特定心理歷程的困難，例如音韻處理、語言、記憶與注意、處理速度、視知覺動作、視空間或執行功能？</li>
+<li>這些心理歷程困難是否和學業困難有明確關聯？</li>
+<li>是否已排除其他主要原因，例如智能障礙、感官障礙、缺乏教學機會、文化語言差異、動機不足、出席不穩定、焦慮、ADHD 或發展性協調障礙等？</li>
+</ul>
+<p>換句話說，學習障礙的鑑定不是「找一個低分」，而是「說清楚為什麼這個孩子在有合理能力與學習機會下，仍出現特定且持續的學業困難」。</p>
+<h2 id="新人常見誤解提醒">新人常見誤解提醒</h2>
+<h3 id="誤解-1-成績低就是學習障礙">誤解 1：成績低就是學習障礙</h3>
+<p>不是。成績低可能來自很多原因，例如缺課、教學落差、語言文化差異、情緒、注意力、家庭支持不足、智能障礙或感官問題。學習障礙需要有更完整的證據鏈。</p>
+<h3 id="誤解-2-智力測驗某一分數低-就可以直接判定">誤解 2：智力測驗某一分數低，就可以直接判定</h3>
+<p>不行。需要看整體能力估計、分數是否有效、各分測驗差異，以及是否能解釋實際學業困難。</p>
+<h3 id="誤解-3-心理歷程有弱勢-就一定造成學業困難">誤解 3：心理歷程有弱勢，就一定造成學業困難</h3>
+<p>不一定。必須說清楚這個歷程弱勢如何影響特定學業表現。例如音韻處理與識字、閱讀流暢常有較直接關聯；視覺處理與數學排列、抄寫可能較直接相關。</p>
+<h3 id="誤解-4-只要有-adhd-焦慮或動作協調問題-就不能有學習障礙">誤解 4：只要有 ADHD、焦慮或動作協調問題，就不能有學習障礙</h3>
+<p>不一定。這些狀況可能共存，但鑑定時要判斷主要造成學業低成就的因素是什麼，並說明各因素之間的關係。</p>
+<h3 id="誤解-5-診斷敘述只要寫類別名稱即可">誤解 5：診斷敘述只要寫類別名稱即可</h3>
+<p>不夠。好的敘述要包含心理歷程缺損、受影響的學業領域，以及排除或區辨其他原因後的判斷。</p>
+<h2 id="可直接給鑑定安置人員使用的檢核句">可直接給鑑定安置人員使用的檢核句</h2>
+<p>在撰寫或審查個案資料時，可以用以下問題自我檢查：</p>
+<ol>
+<li>我是否清楚描述學生的學業困難，而不是只寫分數？</li>
+<li>我是否有合理估計學生的整體認知或推理能力？</li>
+<li>我是否指出具體心理歷程弱勢？</li>
+<li>我是否說明這些弱勢如何影響閱讀、書寫、數學或口語表現？</li>
+<li>我是否能說明這是非預期低成就？</li>
+<li>我是否已排除或區辨其他主要原因？</li>
+<li>我的鑑定敘述是否讓其他老師或家長看得懂學生「困難在哪裡、為什麼困難、需要什麼支持」？</li>
+</ol>
+<h2 id="簡短結論">簡短結論</h2>
+<p>這份講義把學習障礙鑑定整理成一個邏輯流程：先確認學業困難，再確認學生能力，接著找出心理歷程弱勢，最後證明這些弱勢能合理解釋學業低成就，並排除其他主要原因。</p>
+<p>對新的鑑定安置人員來說，最重要的能力是建立證據鏈，而不是只看單一測驗分數。好的鑑定結果應能幫助團隊理解學生的學習困難、保留學生優勢，並轉化成實際可執行的教學介入與支持。</p>
+
+      
+    </article>
+  </main>
+  <footer>
+    <p>來源：Cyclone 提供的研習講義 PDF 與其繁體中文譯整。本文為培訓閱讀版，不取代正式鑑定法規或跨專業團隊判斷。</p>
+  </footer>
+</body>
+</html>

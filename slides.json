@@ -1,5 +1,19 @@
 [
   {
+    "folder": "2026-07-08-learning-disabilities-diagnosis",
+    "title": "學習障礙鑑定：給新進鑑定安置人員的證據鏈簡報",
+    "description": "給新進鑑定安置人員的學習障礙鑑定流程簡報：從學業困難、能力估計、心理歷程、非預期低成就到診斷敘述。",
+    "category": "Slides",
+    "date": "2026-07-08",
+    "url": "https://cyclone-tw.github.io/slides/2026-07-08-learning-disabilities-diagnosis/",
+    "accent": {
+      "a": "#f5f5f0",
+      "b": "#8fb5ff",
+      "bg": "#111111",
+      "hue": 113
+    }
+  },
+  {
     "folder": "2026-07-05-lpr-2026-h1-review",
     "title": "LPR 2026 上半年回顧 — 從 Vibe Coding 到教學落地",
     "description": "LPR 2026 上半年回顧：從 Vibe Coding、Cyclone workflow、Hermes Agents 到下半年教學落地。",
