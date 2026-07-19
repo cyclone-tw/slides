@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>兩週 Agent 衝刺｜共學分享 2026-07-19</title>
+  <style>
+    :root {
+      --bg: #05070d;
+      --ink: #ffffff;
+      --muted: #d0d8ec;
+      --cyan: #5eead4;
+      --amber: #f5c56b;
+      --violet: #a8b4ff;
+      --line: rgba(255,255,255,.16);
+      --sans: "Iowan Old Style", "Palatino Linotype", "Noto Serif TC", "Songti TC", serif;
+      --ui: "Avenir Next", "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+      --mono: "SF Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+    body {
+      font-family: var(--ui);
+      background:
+        radial-gradient(ellipse 80% 50% at 18% 8%, rgba(94,234,212,.14), transparent 50%),
+        radial-gradient(ellipse 55% 40% at 88% 18%, rgba(168,180,255,.16), transparent 45%),
+        radial-gradient(ellipse 50% 35% at 55% 92%, rgba(245,197,107,.09), transparent 42%),
+        var(--bg);
+      overflow: hidden;
+    }
+    .deck {
+      height: 100vh;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+    .slide {
+      min-height: 100vh;
+      height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      color: #fff;
+    }
+    .slide.cover, .slide.text {
+      align-content: center;
+      padding: clamp(24px, 4.5vw, 64px) clamp(22px, 5.5vw, 88px);
+    }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    h1 {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: clamp(36px, 5.6vw, 72px);
+      line-height: 1.08;
+      margin: 0 0 16px;
+      max-width: 15ch;
+      color: #fff;
+    }
+    h2 {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: clamp(26px, 3.5vw, 44px);
+      line-height: 1.15;
+      margin: 0 0 12px;
+      max-width: 20ch;
+      color: #fff;
+    }
+    .lead, .claim, p, li, .pillar p, .stat span, .meta, .t {
+      color: #fff;
+    }
+    .lead {
+      font-size: clamp(17px, 2vw, 24px);
+      max-width: 36ch;
+      line-height: 1.45;
+      margin: 0 0 24px;
+      opacity: .95;
+    }
+    .claim {
+      font-size: clamp(16px, 1.7vw, 20px);
+      max-width: 42ch;
+      line-height: 1.5;
+      margin: 0 0 22px;
+      opacity: .92;
+      border-left: 3px solid var(--amber);
+      padding-left: 14px;
+    }
+    .meta { font-size: 14px; opacity: .75; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      max-width: 960px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      background: rgba(8,12,22,.62);
+      padding: 16px 14px;
+      border-radius: 10px;
+    }
+    .stat b {
+      display: block;
+      font-family: var(--sans);
+      font-size: clamp(26px, 3.2vw, 40px);
+      color: var(--cyan);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat span { font-size: 13px; opacity: .85; }
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+      max-width: 1000px;
+    }
+    .pillar {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 16px;
+      background: rgba(10,14,26,.72);
+    }
+    .pillar strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--amber);
+    }
+    .pillar p { margin: 0; font-size: 15px; line-height: 1.5; opacity: .95; }
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 980px;
+      margin-top: 8px;
+    }
+    .map-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      background: rgba(10,14,26,.7);
+    }
+    .map-card .repo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--cyan);
+      margin-bottom: 6px;
+    }
+    .map-card .role { font-size: 15px; color: #fff; line-height: 1.4; }
+
+    .slide.bleed { padding: 0; }
+    .bleed-frame { position: absolute; inset: 0; background: #000; }
+    .bleed-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    .bleed-frame img.diagram {
+      object-fit: contain;
+      object-position: center;
+      background: #0b1220;
+    }
+    .bleed-caption {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 32px 28px 22px;
+      background: linear-gradient(transparent, rgba(0,0,0,.92) 42%);
+    }
+    .bleed-caption .tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .bleed-caption h2 {
+      font-size: clamp(20px, 2.8vw, 32px);
+      max-width: none;
+      margin: 0 0 6px;
+      color: #fff;
+      text-shadow: 0 2px 16px rgba(0,0,0,.85);
+    }
+    .bleed-caption p {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(14px, 1.45vw, 17px);
+      max-width: 58ch;
+      line-height: 1.4;
+      opacity: .95;
+    }
+
+    .table {
+      width: min(920px, 100%);
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+    .table th, .table td {
+      border-top: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+      color: #fff;
+    }
+    .table th { color: var(--cyan); font-weight: 600; width: 22%; }
+    .table td .s {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--amber);
+      margin-right: 8px;
+    }
+    .next-list {
+      list-style: none; padding: 0; margin: 12px 0 0; max-width: 760px;
+    }
+    .next-list li {
+      border-top: 1px solid var(--line);
+      padding: 13px 0;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 14px;
+    }
+    .next-list .s { color: var(--amber); font-family: var(--mono); font-size: 13px; }
+    .next-list .t { font-size: 17px; color: #fff; }
+    .stars {
+      position: absolute; inset: 0; pointer-events: none; opacity: .5;
+      background-image:
+        radial-gradient(1px 1px at 12% 18%, #fff, transparent),
+        radial-gradient(1px 1px at 28% 62%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 44% 22%, #cde, transparent),
+        radial-gradient(1px 1px at 63% 48%, #fff, transparent),
+        radial-gradient(1px 1px at 78% 14%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 88% 72%, #def, transparent),
+        radial-gradient(1px 1px at 18% 84%, #fff, transparent),
+        radial-gradient(1px 1px at 52% 90%, #fff, transparent);
+    }
+    .nav-hint {
+      position: fixed; right: 16px; bottom: 14px; z-index: 20;
+      color: rgba(255,255,255,.4); font-size: 12px; font-family: var(--mono);
+    }
+    .progress {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 30;
+      background: var(--cyan);
+      box-shadow: 0 0 12px rgba(94,234,212,.55);
+    }
+    .page-no {
+      position: absolute; top: 18px; right: 22px;
+      font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,.45);
+    }
+    /* Slide 06: Core/Private map with white text */
+    .folder-map {
+      max-width: 980px;
+      margin-top: 6px;
+    }
+    .folder-map .badge {
+      display: inline-block;
+      border: 1px solid rgba(94,234,212,.55);
+      color: var(--cyan);
+      font-size: 12px;
+      letter-spacing: .12em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+    .folder-map h2 {
+      max-width: none;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .folder-map .sub {
+      color: #fff;
+      opacity: .9;
+      font-size: 16px;
+      margin: 0 0 20px;
+    }
+    .folder-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .folder-col h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .folder-col.core h3 { color: #7ec8ff; }
+    .folder-col.private h3 { color: #ff9b8a; }
+    .folder-box {
+      border: 1px solid rgba(126,200,255,.55);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 15px;
+      background: rgba(8,14,28,.55);
+    }
+    .folder-col.private .folder-box {
+      border-color: rgba(255,155,138,.55);
+    }
+    .folder-box.hot {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 1px rgba(245,197,107,.25);
+    }
+    .folder-foot {
+      margin-top: 8px;
+      border: 1px solid rgba(126,200,255,.45);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 15px;
+      background: rgba(8,14,28,.55);
+    }
+    @media (max-width: 860px) {
+      .stats, .pillars, .map-grid, .folder-cols { grid-template-columns: 1fr 1fr; }
+      .next-list li { grid-template-columns: 1fr; gap: 4px; }
+      h1, h2 { max-width: none; }
+      .folder-cols { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="nav-hint">← → / 空白鍵</div>
+  <main class="deck" id="deck">
+
+    <!-- 1 開場 -->
+    <section class="slide cover" data-i="0">
+      <div class="stars"></div>
+      <div class="page-no">01 / 11</div>
+      <div class="kicker">共學分享 · 2026.07.05–07.19 · 約 10 分鐘</div>
+      <h1>兩週 Agent 開發衝刺</h1>
+      <p class="lead">不是零散修 bug。<br>主線是：知識可見 → Agent 會 intake → Runtime 可升級。</p>
+      <p class="meta">來源：GitHub · Cyclone-Wiki · Cursor／Codex session</p>
+    </section>
+
+    <!-- 2 地圖 -->
+    <section class="slide text" data-i="1">
+      <div class="page-no">02 / 11</div>
+      <div class="kicker">地圖 · 誰在動、動哪裡</div>
+      <h2>四個核心系統＋兩條側翼</h2>
+      <p class="claim">工作集中在 Dashboard／Wiki／agent-config／Hermes；側翼是 Deck 與 KIAO 學習產出。</p>
+      <div class="map-grid">
+        <div class="map-card"><div class="repo">Cyclone-Dashboard</div><div class="role">控制面 · Galaxy · Vigil</div></div>
+        <div class="map-card"><div class="repo">cyclone-wiki</div><div class="role">長期知識真相 · Core／Private</div></div>
+        <div class="map-card"><div class="repo">cyclone-agent-config</div><div class="role">Skills 供應鏈 · privacy intake</div></div>
+        <div class="map-card"><div class="repo">cyclone-hermes</div><div class="role">Mac mini runtime · Aurelion／Bahamut</div></div>
+        <div class="map-card"><div class="repo">cyclone-deck</div><div class="role">互動簡報 · Codex OAuth presenter</div></div>
+        <div class="map-card"><div class="repo">kiao-ai-course</div><div class="role">課程作業 · P0 system filler</div></div>
+      </div>
+      <div class="stats" style="margin-top:22px">
+        <div class="stat"><b>216</b><span>commits</span></div>
+        <div class="stat"><b>50</b><span>merged PRs</span></div>
+        <div class="stat"><b>28</b><span>Dashboard PRs</span></div>
+        <div class="stat"><b>10</b><span>agent-config PRs</span></div>
+      </div>
+    </section>
+
+    <!-- 3 Galaxy 全幅 -->
+    <section class="slide bleed" data-i="2">
+      <div class="page-no" style="z-index:2">03 / 11</div>
+      <div class="bleed-frame">
+        <img src="assets/galaxy.png" alt="Knowledge Galaxy：283 notes、1427 links">
+      </div>
+      <div class="bleed-caption">
+        <div class="tag">亮點 01 · Knowledge Galaxy MVP</div>
+        <h2>Wiki 從「文件庫」變成可探索的控制面</h2>
+        <p>283 notes · 1427 links · Engineering 160 是最大星群。節點可搜、可讀、可連。</p>
+      </div>
+    </section>
+
+    <!-- 4 能用敢用可搜 — 白字 -->
+    <section class="slide text" data-i="3">
+      <div class="page-no">04 / 11</div>
+      <div class="kicker">Galaxy 之後 · 不是再堆特效</div>
+      <h2 style="color:#fff">能用、敢用、可搜</h2>
+      <p class="claim" style="color:#fff">MVP 之後補的是 UX、安全邊界、Agent 可讀性——讓星系敢天天用。</p>
+      <div class="pillars">
+        <div class="pillar">
+          <strong>能用</strong>
+          <p style="color:#fff">鍵盤搜尋與聚焦、小螢幕 Library 收合、show-raw 開關。</p>
+        </div>
+        <div class="pillar">
+          <strong>敢用</strong>
+          <p style="color:#fff">Owner graph 雙重拒絕、fail-closed 503、禁止用 query 偷升權。</p>
+        </div>
+        <div class="pillar">
+          <strong>可搜</strong>
+          <p style="color:#fff">note-level retrieval、圖譜鄰居、wiki-api.v1 給 Agent CLI／MCP。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 Skills 供應鏈 + anything-to-context 圖 -->
+    <section class="slide bleed" data-i="4">
+      <div class="page-no" style="z-index:2">05 / 11</div>
+      <div class="bleed-frame">
+        <img class="diagram" src="assets/anything-to-context.png" alt="anything-to-context 架構圖">
+      </div>
+      <div class="bleed-caption">
+        <div class="tag">亮點 02 · Skills 供應鏈</div>
+        <h2>document-context-ingest → anything-to-context → deck skills VC</h2>
+        <p>單一入口先過隱私閘門；正式核心建 Context Package；OCR／轉錄只當明確適配器。一律暫存，人工才發布。</p>
+      </div>
+    </section>
+
+    <!-- 6 OpenWiki + Core/Private 地圖（白字 HTML，不用暗字圖） -->
+    <section class="slide text" data-i="5">
+      <div class="page-no">06 / 11</div>
+      <div class="folder-map">
+        <div class="badge">資料夾地圖</div>
+        <h2>Core 與 Private 裡面有什麼？</h2>
+        <p class="sub">這是「地圖」——記每格放什麼就好，不用背英文檔名。</p>
+        <div class="folder-cols">
+          <div class="folder-col core">
+            <h3>Core — 工程與營運</h3>
+            <div class="folder-box">procedure-* 怎麼做 (SOP)</div>
+            <div class="folder-box">decision-* / project-* 決策與專案</div>
+            <div class="folder-box hot">_inbox/ 收件匣（先丟這）</div>
+            <div class="folder-box">coding-sessions / agent-captures</div>
+          </div>
+          <div class="folder-col private">
+            <h3>Private — 個人與 Agent</h3>
+            <div class="folder-box">Life / Education 生活與教育</div>
+            <div class="folder-box">_inbox/info-collect 收的網址</div>
+            <div class="folder-box hot">agents/某某/working.md 工作桌</div>
+            <div class="folder-box">agent-sessions 每日日誌</div>
+          </div>
+        </div>
+        <div class="folder-foot">大檔案 → Google Drive Assets（Wiki 只放索引卡）</div>
+        <p class="claim" style="margin-top:22px;color:#fff">Cyclone-Wiki 是正式圖書館；OpenWiki 是研究助理。Core＝工程營運；Private＝個人與 Agent 工作桌。</p>
+      </div>
+    </section>
+
+    <!-- 7 Vigil Runtime -->
+    <section class="slide bleed" data-i="6">
+      <div class="page-no" style="z-index:2">07 / 11</div>
+      <div class="bleed-frame">
+        <img src="assets/vigil.png" alt="Vigil Discord 日復盤與 GitHub push">
+      </div>
+      <div class="bleed-caption">
+        <div class="tag">Runtime · Vigil／Hermes</div>
+        <h2>對話 → 日復盤 → GitHub push</h2>
+        <p>OpenAB／Luna 升級可跑；Hermes 採 runtime-first（先看 live → replay patch）。覺察不會蒸發。</p>
+      </div>
+    </section>
+
+    <!-- 8 閉環 Candidate -->
+    <section class="slide text" data-i="7">
+      <div class="page-no">08 / 11</div>
+      <div class="kicker">閉環 · Research 不再停在 inbox</div>
+      <h2>Candidate → Radar → Issue → PR</h2>
+      <p class="claim">Development Candidate lifecycle 打通：Wiki 候選 → Dashboard radar → Hermes 路由 → 可追蹤 PR。</p>
+      <div class="pillars">
+        <div class="pillar"><strong>1. 捕獲</strong><p>inbox／agent-capture 標成 candidate</p></div>
+        <div class="pillar"><strong>2. 可見</strong><p>Dashboard Development radar</p></div>
+        <div class="pillar"><strong>3. 落地</strong><p>Issue-first → PR（含 Discord idea capture）</p></div>
+      </div>
+    </section>
+
+    <!-- 9 側翼 -->
+    <section class="slide text" data-i="8">
+      <div class="page-no">09 / 11</div>
+      <div class="kicker">側翼 · 同一套 agent 節奏</div>
+      <h2>Deck · KIAO · 個人知識</h2>
+      <div class="pillars">
+        <div class="pillar"><strong>cyclone-deck</strong><p>localhost Codex OAuth presenter 加固；互動簡報 runtime 可講可助教。</p></div>
+        <div class="pillar"><strong>KIAO／P0</strong><p>EP10 整合與眺望入庫；P0 system filler 作業站。</p></div>
+        <div class="pillar"><strong>Life／profile</strong><p>個人自畫像 raw／extracted；與 Galaxy owner graph 對接。</p></div>
+      </div>
+    </section>
+
+    <!-- 10 進度儀表 -->
+    <section class="slide text" data-i="9">
+      <div class="page-no">10 / 11</div>
+      <div class="kicker">進度儀表板</div>
+      <h2>一眼看完成／進行／下一步</h2>
+      <table class="table">
+        <tr><th>主題</th><td><span class="s">已上線</span>Knowledge Galaxy MVP · Vigil 復盤閉環</td></tr>
+        <tr><th>Skills</th><td><span class="s">已入庫</span>anything-to-context／document-context-ingest · 驗收掃描件 privacy</td></tr>
+        <tr><th>OpenWiki</th><td><span class="s">決策完成</span>角色邊界定了 · 下一步 OpenRouter 非 Codex 路線</td></tr>
+        <tr><th>Runtime</th><td><span class="s">可升級</span>OpenAB／Luna · Hermes runtime-first replay</td></tr>
+        <tr><th>閉環</th><td><span class="s">初成</span>Candidate radar · Discord idea capture</td></tr>
+      </table>
+    </section>
+
+    <!-- 11 收束 -->
+    <section class="slide cover" data-i="10">
+      <div class="stars"></div>
+      <div class="page-no">11 / 11</div>
+      <div class="kicker">收束 · 下兩週</div>
+      <h1>讓 Agent 長記憶，也讓人看得到。</h1>
+      <ul class="next-list">
+        <li><span class="s">下一棒 1</span><span class="t">Galaxy 深鏈 UX（既定 #85–88）</span></li>
+        <li><span class="s">下一棒 2</span><span class="t">OpenWiki × OpenRouter 驗證</span></li>
+        <li><span class="s">下一棒 3</span><span class="t">Context Package 人工審核節奏跑穩</span></li>
+      </ul>
+      <p class="meta" style="margin-top:28px">謝謝 · 歡迎問「你實際怎麼用」</p>
+    </section>
+
+  </main>
+  <script>
+    const deck = document.getElementById('deck');
+    const slides = [...document.querySelectorAll('.slide')];
+    const progress = document.getElementById('progress');
+    let i = 0;
+    function go(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    }
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); go(i + 1); }
+      if (['ArrowUp','ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); go(i - 1); }
+      if (e.key === 'Home') go(0);
+      if (e.key === 'End') go(slides.length - 1);
+    });
+    deck.addEventListener('scroll', () => {
+      const idx = Math.round(deck.scrollTop / window.innerHeight);
+      i = Math.max(0, Math.min(slides.length - 1, idx));
+      progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    }, { passive: true });
+    progress.style.width = (100 / slides.length) + '%';
+  </script>
+</body>
+</html>
