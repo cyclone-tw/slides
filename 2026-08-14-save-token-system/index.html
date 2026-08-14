@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="從 Cyclone 的 agent config、skills、coding 與 code review 架構，拆解真正有效的 Token 節流方法。">
+  <title>省 Token，不是叫 AI 少說話</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="deck-shell toc-collapsed" data-scaffold-contract="soil-static-v2"
+    data-deck-title="省 Token，不是叫 AI 少說話"
+    data-deck-subtitle="從 Cyclone 的 agent config、skills、coding／review 架構找真正的節省槓桿">
+    <aside id="tocPanel" class="toc" aria-label="章節導覽">
+      <div class="brand"><span>SOIL HTML Deck</span><strong>省 Token，不是叫 AI 少說話</strong></div>
+      <nav id="slideNav"></nav>
+      <div class="sync-state" id="syncState">Phase 1 靜態模式</div>
+    </aside>
+    <main class="stage" id="stage" tabindex="-1">
+      <section class="slide title-slide" id="slide-cover" data-title="封面" data-feature="[BG]" data-slide-modules="local-reveal">
+        <div>
+          <p class="eyebrow">AI Agent 共學｜2026.08.14</p>
+          <h1>省 Token，不是叫 AI 少說話</h1>
+          <p class="subtitle">從 Cyclone 的 agent config、skills、coding 與 review 架構找真正的節省槓桿</p>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：節流不等於只少輸出字，而是縮減主線 context 與流程開銷。</p>
+            <p class="soil-task"><b>理解任務</b>：把 Cyclone 的真實流程轉成可量化決策框架。</p>
+          </div>
+          <p class="takeaway reveal-item">先找「每輪都重送」與「每次都重讀」的東西。</p>
+          <p class="muted-note reveal-item">Token、費用、延遲、品質是四種不同預算。</p>
+        </div>
+        <div class="metric-band" aria-label="summary metrics">
+          <p class="metric"><span>48,823</span><small>cheap 樣本（token）</small></p>
+          <p class="metric"><span>42,598</span><small>flagship 樣本（token）</small></p>
+        </div>
+      </section>
+
+      <section class="slide" id="slide-poll" data-title="快速投票" data-feature="[INTERACT:local-poll]" data-slide-modules="local-poll local-reveal">
+        <header>
+          <div><p class="eyebrow">第一步</p><h2>快速投票</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：先靠共識校準，再談策略。</p>
+            <p class="soil-task"><b>理解任務</b>：先選一個你最在意的瓶頸。</p>
+          </div>
+        </header>
+        <div class="poll" id="votePoll" data-locked="false">
+          <button type="button" class="poll-btn" data-option="token">Token 用量爆掉</button>
+          <button type="button" class="poll-btn" data-option="cost">費用太高</button>
+          <button type="button" class="poll-btn" data-option="latency">回應延遲</button>
+          <button type="button" class="poll-btn" data-option="quality">品質波動</button>
+        </div>
+        <p id="voteResult" class="reveal-item muted-note" aria-live="polite">本機暫存結果：請先點選。僅本機投票，無同步。</p>
+      </section>
+
+      <section class="slide" data-title="Token 成本延遲品質" data-feature="[BUDGETS]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">模型工程</p><h2>Token / 成本 / 延遲 / 品質 四種預算</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：四種預算各自有不同 KPI，不可互相替代。</p>
+            <p class="soil-task"><b>理解任務</b>：標記每個決策會打在哪個預算上。</p>
+          </div>
+        </header>
+        <ul class="budget-grid">
+          <li><strong>Token 預算</strong>：上下文大小、重複敘述、訊息往返。</li>
+          <li><strong>成本預算</strong>：模型單價＋工具呼叫次數。</li>
+          <li><strong>延遲預算</strong>：排程等待、重試、路由切換。</li>
+          <li><strong>品質預算</strong>：正確性、可讀性、可追溯性。</li>
+        </ul>
+        <p class="takeaway reveal-item">Token 下降不等於成本一定下降；品質也不是可以免費犧牲的預算。</p>
+      </section>
+
+      <section class="slide" data-title="Token 流向" data-feature="[FLOW]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">流程觀測</p><h2>Token 流向</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：先看流向，再砍節點。</p>
+            <p class="soil-task"><b>理解任務</b>：追出哪一段最常重複喂入 context。</p>
+          </div>
+        </header>
+        <div class="flow">
+          <p>使用者輸入</p>
+          <p>→</p>
+          <p>固定指令（AGENTS）</p>
+          <p>→</p>
+          <p>skill metadata／完整 skill</p>
+          <p>→</p>
+          <p>tool output／歷史訊息</p>
+          <p>→</p>
+          <p>subagent／review 回傳</p>
+        </div>
+        <p class="muted-note reveal-item">最大的浪費通常不是一句客套話，而是整段 raw log、全文與規則被反覆送進 context。</p>
+      </section>
+
+      <section class="slide" data-title="Cyclone 現況數字" data-feature="[CURRENT]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">基線資料</p><h2>Cyclone 現況數字</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：以真實數字對齊 baseline，才能證明節流效果。</p>
+            <p class="soil-task"><b>理解任務</b>：確認目前上下文與治理邊界。</p>
+          </div>
+        </header>
+        <ul class="metric-list">
+          <li><span>全域 AGENTS.md <span class="chip">[S1]</span></span><strong>36.9 KB</strong></li>
+          <li><span>skill descriptions <span class="chip">[S2]</span></span><strong>88 條／19.8 KB</strong></li>
+          <li><span>review loop <span class="chip">[S3]</span></span><strong>最多 2 輪</strong></li>
+          <li><span>Wiki targeted read <span class="chip">[S5]</span></span><strong>首輪 1 至 3 篇</strong></li>
+        </ul>
+        <p class="muted-note reveal-item">若不先定基線，任何「省字數」都只是表面最適化。</p>
+      </section>
+
+      <section class="slide" data-title="真正省 Token 的四個槓桿" data-feature="[DIRECT-SAVINGS]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">直接節流</p><h2>真正省 Token 的四個槓桿</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：只有「送進模型的內容變少」，才算直接省 Token。</p>
+            <p class="soil-task"><b>理解任務</b>：分辨固定輸入、按需取回、工具輸出與對話歷史。</p>
+          </div>
+        </header>
+        <div class="savings-table-wrap">
+          <table class="savings-table">
+            <thead>
+              <tr><th>位置</th><th>Before</th><th>After</th><th>省下什麼</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>常駐規則</strong><small>AGENTS 36.9 KB</small></td>
+                <td>詳細 SOP 每次帶入</td><td>短核心＋命中才讀</td>
+                <td><span class="saving-badge direct">輸入 Token</span></td>
+              </tr>
+              <tr>
+                <td><strong>Skill 清單</strong><small>88 條 descriptions</small></td>
+                <td>所有 profile 共用</td><td>按角色啟用／停用</td>
+                <td><span class="saving-badge direct">輸入 Token</span></td>
+              </tr>
+              <tr>
+                <td><strong>知識取回</strong><small>Wiki / docs</small></td>
+                <td>整批全文載入</td><td>搜尋摘要 → 1 至 3 篇</td>
+                <td><span class="saving-badge direct">輸入 Token</span></td>
+              </tr>
+              <tr>
+                <td><strong>工具與歷史</strong><small>log / chat</small></td>
+                <td>raw log＋長對話</td><td>欄位過濾＋compact</td>
+                <td><span class="saving-badge direct">Context Token</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted-note reveal-item">這四項才是直接節流；model routing 與 review 要另外計算。<span class="chip">[S1]</span> <span class="chip">[S2]</span> <span class="chip">[S4]</span> <span class="chip">[S5]</span></p>
+      </section>
+
+      <section class="slide" data-title="真實 A/B" data-feature="[AB]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">實測快照</p><h2>真實 A/B：不是只比 token 數</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：核心比較指標是樣本質量與整體成本，不是單看 token。</p>
+            <p class="soil-task"><b>理解任務</b>：解讀下列兩組數據的實務意義。</p>
+          </div>
+        </header>
+        <div class="ab-chart" role="img" aria-label="單一檢索任務中，cheap 模型使用 48,823 tokens，flagship 模型使用 42,598 tokens">
+          <div class="chart-row">
+            <div class="chart-label"><strong>cheap</strong><span>48,823</span></div>
+            <div class="bar-track"><span class="bar-fill cheap-bar" style="--bar-size: 100%"></span></div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label"><strong>flagship</strong><span>42,598</span></div>
+            <div class="bar-track"><span class="bar-fill flagship-bar" style="--bar-size: 87.25%"></span></div>
+          </div>
+          <div class="chart-delta"><strong>+6,225 Token</strong><span>cheap 樣本高 14.6%</span></div>
+        </div>
+        <div class="slide-footer-notes">
+          <p class="takeaway reveal-item">同一檢索任務，cheap 樣本的 Token 反而高約 15%。<span class="chip">[S3]</span></p>
+          <p class="muted-note reveal-item">單一樣本不是 benchmark；它只證明「便宜模型」與「較少 Token」是兩件事。</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Before/After 熱溫冷 context" data-feature="[CONTEXT]">
+        <header>
+          <div><p class="eyebrow">情境治理</p><h2>Before / After：熱溫冷 Context</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：分層 context 是最實際的節流槓桿。</p>
+            <p class="soil-task"><b>理解任務</b>：定義何時加載哪些 context。</p>
+          </div>
+        </header>
+        <div class="temp-grid">
+          <article><h3>Hot</h3><p>身份、安全紅線、極短的常駐規則。</p></article>
+          <article><h3>Warm</h3><p>startup brief、工作狀態、近期 session。</p></article>
+          <article><h3>Cold</h3><p>Wiki 正式知識、歷史 log，任務命中才取回。<span class="chip">[S5]</span></p></article>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Review 的 Token 經濟學" data-feature="[REVIEW-ECONOMICS]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">Code Review</p><h2>Review 不是直接省 Token</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：獨立 Reviewer 會增加一輪 Token；價值是避免更大的返工。</p>
+            <p class="soil-task"><b>理解任務</b>：比較「晚發現問題」與「受控 review gate」的成本路徑。</p>
+          </div>
+        </header>
+        <div class="review-economics">
+          <article class="review-route risk-route">
+            <div class="route-heading"><h3>問題晚發現</h3><span class="route-badge risk">成本不確定</span></div>
+            <div class="route-nodes"><span>Coding</span><i>→</i><span>Merge</span><i>→</i><span>晚發現問題</span><i>→</i><span>Debug／Rollback／重審</span></div>
+          </article>
+          <article class="review-route bounded-route">
+            <div class="route-heading"><h3>受控 Review Gate</h3><span class="route-badge bounded">最多 2 輪</span></div>
+            <div class="route-nodes"><span>Coding</span><i>→</i><span>Exact-SHA Review</span><i>→</i><span>修正</span><i>→</i><span>Merge</span></div>
+          </article>
+        </div>
+        <p class="takeaway reveal-item">Review 是可控的保險成本，不是免費的 Token 優化。<span class="chip">[S7]</span></p>
+      </section>
+
+      <section class="slide" data-title="Review 如何止血" data-feature="[REVIEW-GUARDRAILS]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">Review Guardrails</p><h2>你的 Review 架構在哪裡止血</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：五道限制把「重審循環」控制在明確邊界內。</p>
+            <p class="soil-task"><b>理解任務</b>：指出每道限制避免哪一種重複工作。</p>
+          </div>
+        </header>
+        <div class="guardrail-flow" role="list" aria-label="Cyclone code review 的五道成本限制">
+          <article role="listitem"><span>01</span><strong>Exact base／HEAD</strong><small>只審指定版本</small></article>
+          <article role="listitem"><span>02</span><strong>Review 期間凍結</strong><small>不 push 移動目標</small></article>
+          <article role="listitem"><span>03</span><strong>Coder ≠ Reviewer</strong><small>新 context 獨立檢查</small></article>
+          <article role="listitem"><span>04</span><strong>Round 2 同 lane</strong><small>不用重新熟悉背景</small></article>
+          <article role="listitem"><span>05</span><strong>最多 2 輪</strong><small>超過即停止循環</small></article>
+        </div>
+        <div class="guardrail-results">
+          <p><strong>避免 stale review</strong><span>不審過期 SHA</span></p>
+          <p><strong>避免 context 重建</strong><span>Round 2 不換 Reviewer lane</span></p>
+          <p><strong>避免流程過度</strong><span>低風險 docs／typo 走 fast path</span></p>
+        </div>
+        <p class="muted-note reveal-item">這些設計省的是「重複 review 與返工」，不是取消品質 gate。<span class="chip">[S7]</span></p>
+      </section>
+
+      <section class="slide" data-title="正確計算總成本" data-feature="[MEASURE-TOTAL]" data-slide-modules="local-reveal">
+        <header>
+          <div><p class="eyebrow">Measurement</p><h2>正確計算：整條任務鏈都要記</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：只看主模型或單一 worker，會把 review 與返工藏起來。</p>
+            <p class="soil-task"><b>理解任務</b>：用同一公式比較每個完整任務。</p>
+          </div>
+        </header>
+        <div class="cost-equation" aria-label="總任務 Token 等於主線、worker、reviewer、重試與返工 Token 相加">
+          <span>Main</span><b>＋</b><span>Worker</span><b>＋</b><span>Reviewer</span><b>＋</b><span>Retry</span><b>＋</b><span>Rework</span><strong>＝ Task Total</strong>
+        </div>
+        <div class="measurement-table-wrap">
+          <table class="measurement-table">
+            <thead><tr><th>階段</th><th>必記欄位</th><th>回答的問題</th></tr></thead>
+            <tbody>
+              <tr><td>Main／Worker</td><td>input、cached、output、model</td><td>是少 Token，還是只省單價？</td></tr>
+              <tr><td>Reviewer</td><td>lane、round、tokens、verdict</td><td>品質保險花了多少？</td></tr>
+              <tr><td>Retry／Rework</td><td>次數、追加 Token、耗時</td><td>省下的流程有沒有吐回去？</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted-note reveal-item">目前 ledger 多筆為 <code>n/a</code>；現階段只能解讀單一 A/B，還不能宣稱全系統省了多少。<span class="chip">[S3]</span></p>
+      </section>
+
+      <section class="slide" data-title="七天實驗" data-feature="[EXPERIMENT]">
+        <header>
+          <div><p class="eyebrow">驗證</p><h2>7 天實驗</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：最短周期先證明主線影響，非追求一次到位。</p>
+            <p class="soil-task"><b>理解任務</b>：跑 7 天 A/B，一次只改一個變因。</p>
+          </div>
+        </header>
+        <div class="timeline">
+          <p><strong>Day 1 至 2</strong>：選 5 個可重複任務，記 baseline。</p>
+          <p><strong>Day 3 至 5</strong>：只改一項，例如縮短 AGENTS 或過濾 tool output。</p>
+          <p><strong>Day 6 至 7</strong>：比較 input、cached input、output、tool bytes、延遲與返工。</p>
+        </div>
+        <p class="muted-note reveal-item">驗收條件：至少一項明顯改善，其他指標不得越過事先設定的退步門檻。</p>
+      </section>
+
+      <section class="slide" data-title="結論與 Q&A" data-feature="[END]">
+        <header>
+          <div><p class="eyebrow">結論 / Q&A</p><h2>結論</h2></div>
+          <div class="soil-frame">
+            <p class="soil-claim"><b>本頁主張</b>：少載入才省 Token；model routing 省單價；review 避免返工。</p>
+            <p class="soil-task"><b>理解任務</b>：選一個直接節流槓桿，先做可量測實驗。</p>
+          </div>
+        </header>
+        <div class="end-grid">
+          <p class="takeaway">省 Token 的順序：少載入 → 少取回 → 少帶 raw output／歷史 → 再控制返工。</p>
+          <div class="sources">
+            <h3>精簡 Sources</h3>
+            <p><span class="chip">[S1][S2]</span> 本機 <code>AGENTS.md</code> 與 skill metadata inventory（2026-08-14）</p>
+            <p><span class="chip">[S3]</span> Cyclone-Wiki <code>Core/logs/model-dispatch/cyclone-agent-config.md</code></p>
+            <p><span class="chip">[S4]</span> <a href="https://learn.chatgpt.com/docs/agent-configuration/subagents.md">Codex manual：AGENTS／Skills／Subagents／compact</a></p>
+            <p><span class="chip">[S5]</span> Cyclone-Wiki <code>synthesis-agent-memory-hot-cold-retrieval.md</code></p>
+            <p><span class="chip">[S7]</span> Cyclone-Wiki <code>procedure-multi-agent-pr-review-loop.md</code></p>
+            <p><span class="chip">[S6]</span> <a href="https://dev.benben.me/slides/s/save-tokens">參考 deck：僅借鏡視覺與節奏</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="controls" aria-label="簡報導覽">
+      <div class="deck-identity">
+        <span class="deck-identity-mark" aria-hidden="true"></span>
+        <div class="deck-identity-copy">
+          <strong id="deckTitle">省 Token，不是叫 AI 少說話</strong>
+          <span id="deckSubtitle">從 Cyclone 的 agent config、skills、coding 與 review 架構找真正的節省槓桿</span>
+        </div>
+      </div>
+      <button type="button" id="tocToggle" aria-controls="tocPanel" aria-expanded="false" aria-label="目錄展開"></button>
+      <div class="page-controls">
+        <span id="pageInfo" aria-live="polite">1 / 1</span>
+        <button type="button" id="prevBtn" aria-label="上一頁"><span aria-hidden="true">←</span><span class="nav-label">上一頁</span></button>
+        <button type="button" id="nextBtn" aria-label="下一頁"><span class="nav-label">下一頁</span><span aria-hidden="true">→</span></button>
+      </div>
+    </footer>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

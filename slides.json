@@ -1,5 +1,19 @@
 [
   {
+    "folder": "2026-08-14-save-token-system",
+    "title": "省 Token，不是叫 AI 少說話",
+    "description": "從 Cyclone 的 agent config、skills、coding 與 code review 架構，拆解真正有效的 Token 節流方法。",
+    "category": "Slides",
+    "date": "2026-08-14",
+    "url": "https://cyclone-tw.github.io/slides/2026-08-14-save-token-system/",
+    "accent": {
+      "a": "#f5f5f0",
+      "b": "#8fb5ff",
+      "bg": "#111111",
+      "hue": 125
+    }
+  },
+  {
     "folder": "2026-07-19-two-week-agent-sprint",
     "title": "兩週 Agent 衝刺｜共學分享 2026-07-19",
     "description": "不是零散修 bug。主線是：知識可見 → Agent 會 intake → Runtime 可升級。",
