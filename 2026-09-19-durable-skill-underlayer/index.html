@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="李海碩 2026-09-19 加碼直播的好讀整理：持久技能底下的那一層。不按時間軸，並附他後段推薦的工具。">
+  <title>持久技能底下的那一層｜2026-09-19 好讀整理</title>
+  <style>
+    :root {
+      --paper: #141816;
+      --ink: #efe8dc;
+      --muted: #b3aa9c;
+      --olive: #d7e2d4;
+      --olive-soft: #8fbfa4;
+      --terra: #e0a06a;
+      --rule: #2c3330;
+      --aside: #1c2420;
+      --max: 40rem;
+      --wide: 52rem;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Iowan Old Style", Palatino, "Palatino Linotype", "Songti TC", "Noto Serif TC", serif;
+      font-size: 1.125rem;
+      line-height: 1.75;
+    }
+
+    a { color: var(--terra); text-underline-offset: 0.18em; }
+    a:hover { color: #f3d7b8; }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 2.5rem));
+      margin: 0 auto;
+    }
+
+    header.cover {
+      padding: 4.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .kicker {
+      margin: 0 0 1rem;
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--terra);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.6rem;
+      font-weight: 560;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .deck {
+      margin: 1.25rem 0 0;
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: var(--olive);
+    }
+
+    .meta {
+      margin: 1.5rem 0 0;
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    nav.toc {
+      padding: 1.75rem 0 0.5rem;
+    }
+
+    nav.toc ol {
+      margin: 0.4rem 0 0;
+      padding: 0;
+      list-style: none;
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.98rem;
+    }
+
+    nav.toc li {
+      border-top: 1px solid var(--rule);
+    }
+
+    nav.toc a {
+      display: flex;
+      gap: 0.8rem;
+      padding: 0.55rem 0;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover { color: var(--terra); }
+
+    .download {
+      display: inline-block;
+      margin-top: 1.4rem;
+      padding: 0.62rem 1rem;
+      border: 1px solid var(--terra);
+      border-radius: 999px;
+      color: #141816;
+      background: var(--terra);
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .download:hover { background: #f3d7b8; border-color: #f3d7b8; }
+    .download:disabled { opacity: 0.65; cursor: wait; }
+
+    nav.toc span {
+      color: var(--terra);
+      font-variant-numeric: tabular-nums;
+      min-width: 1.4rem;
+    }
+
+    main { padding-bottom: 4rem; }
+
+    section {
+      padding: 3.2rem 0 0.4rem;
+    }
+
+    h2 {
+      margin: 0 0 1rem;
+      font-size: 1.7rem;
+      font-weight: 560;
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      margin: 2rem 0 0.6rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    p { margin: 0 0 1rem; }
+
+    .lead { font-size: 1.22rem; }
+
+    figure {
+      width: min(var(--wide), calc(100% - 1.5rem));
+      margin: 2rem auto;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0d100e;
+      border: 1px solid var(--rule);
+    }
+
+    figcaption {
+      margin-top: 0.55rem;
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    blockquote {
+      margin: 1.6rem 0;
+      padding: 0 0 0 1.1rem;
+      border-left: 3px solid var(--terra);
+      color: var(--olive);
+      font-size: 1.28rem;
+      line-height: 1.55;
+    }
+
+    blockquote p { margin: 0; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 2rem;
+      margin: 1.4rem 0 1.6rem;
+    }
+
+    .split h3 {
+      margin: 0 0 0.45rem;
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .split .high h3 { color: var(--terra); }
+    .split .low h3 { color: var(--olive-soft); }
+
+    .split ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .note {
+      margin: 1.2rem 0 1.4rem;
+      padding: 0.9rem 1rem;
+      background: var(--aside);
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--olive);
+    }
+
+    .tool {
+      padding-top: 0.4rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    .tool p:last-child { margin-bottom: 1.4rem; }
+
+    ol.steps, ul.plain {
+      margin: 0 0 1rem;
+      padding-left: 1.2rem;
+    }
+
+    ol.steps li, ul.plain li { margin: 0 0 0.45rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.4rem 0 1.2rem;
+      font-size: 1rem;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 0.55rem 0.4rem 0.55rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    th {
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem 0 3.5rem;
+      color: var(--muted);
+      font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    footer h2 {
+      font-family: "Iowan Old Style", Palatino, "Songti TC", serif;
+      color: var(--ink);
+      font-size: 1.35rem;
+    }
+
+    footer ul { padding-left: 1.1rem; }
+
+    @media (max-width: 720px) {
+      h1 { font-size: 2.05rem; }
+      .deck, blockquote { font-size: 1.12rem; }
+      .split { grid-template-columns: 1fr; gap: 1.2rem 0; }
+      header.cover { padding-top: 2.6rem; }
+      .wrap { width: min(var(--max), calc(100% - 1.7rem)); }
+      figure { width: min(var(--wide), calc(100% - 1rem)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="wrap">
+      <p class="kicker">2026-09-19 · 好讀整理</p>
+      <h1>持久技能底下的那一層</h1>
+      <p class="deck">李海碩這一場沒有重講課前讀本。他把新材料收成一句：機器加強得最好的，正好是人最不該停練的。</p>
+      <p class="meta">依 2026-09-19 加碼直播重組，不照講話的順序。數字都是他現場說的，沒有另做核對。家庭配置與體罰那段不收進這份。插圖是依講法繪的，不是簡報截圖。</p>
+      <button type="button" class="download" id="download-html">下載這份 HTML</button>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="目錄">
+    <div class="wrap">
+      <ol>
+        <li><a href="#thesis"><span>01</span>被加強的，正好是不該停練的</a></li>
+        <li><a href="#two-kinds"><span>02</span>兩種能力</a></li>
+        <li><a href="#two-left"><span>03</span>留下的兩件事</a></li>
+        <li><a href="#credibility"><span>04</span>時間只給值得的人</a></li>
+        <li><a href="#unsexy"><span>05</span>不要做大家都想得到的題</a></li>
+        <li><a href="#rough"><span>06</span>學得會，而且第一版可以爛</a></li>
+        <li><a href="#interpolate"><span>07</span>內插給機器，外推留給人</a></li>
+        <li><a href="#practice"><span>08</span>過程、閱讀、語言</a></li>
+        <li><a href="#tools"><span>09</span>他後來要大家去用的</a></li>
+        <li><a href="#reader"><span>10</span>讀本沒有被這場取代</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <main>
+    <section id="thesis">
+      <div class="wrap">
+        <h2>被加強的，正好是不該停練的</h2>
+        <p class="lead">七月他在 Minerva 的課上拿到 Harvard Business Review 帳號。版權鎖住整包下載，所以他做了一個 agent，把跟 AI 有關的文章一篇一篇讀完、做成卡片、再融合。他口頭說有五千多篇。他說如果結論只是以前直播講過的，就不會浪費這一場。</p>
+        <blockquote>
+          <p>AI 最能取代的，是企業非常關鍵的能力。正因為做得那麼好，最需要練習這些能力的人，反而失去它們。</p>
+        </blockquote>
+        <p>這句他重講了兩次。從 2023 年就開始出現的模式是：用得越好，被加強的恰好是企業最關鍵的能力。機器可以又快又準地把材料丟出來。統計結果跑出來之後怎麼詮釋，他認為仍是人的工作。</p>
+        <p>他不要人只把那張圖看成「風險很高」。他把它改寫成 AI-ready：這些事情已經準備好可以拿去用。人要補的是希望感，以及重新框架。</p>
+      </div>
+      <figure>
+        <img src="images/01-machine-practices.png" alt="黃昏的工作室裡，黃銅機器在桌上把幾何形體做完，人站在窗邊，手是空的。">
+        <figcaption>機器把形狀做完的時候，人只是站在旁邊。插圖依這句講法繪製，不是現場簡報。</figcaption>
+      </figure>
+    </section>
+
+    <section id="two-kinds">
+      <div class="wrap">
+        <h2>兩種能力</h2>
+        <p>他指著風險圖，把項目分成兩邊。高的那一邊幾乎都是理性鏈。低的那一邊，是人仍然想從人身上得到的東西。他還說「時間」那一項已被證明極度容易被取代。</p>
+        <div class="split">
+          <div class="high">
+            <h3>置換風險高</h3>
+            <ul>
+              <li>理解問題</li>
+              <li>分析</li>
+              <li>創意思考</li>
+              <li>產生解方</li>
+              <li>系統思考</li>
+              <li>判斷與決定</li>
+            </ul>
+          </div>
+          <div class="low">
+            <h3>風險較低</h3>
+            <ul>
+              <li>好奇心</li>
+              <li>終身學習</li>
+              <li>韌性</li>
+              <li>同理</li>
+              <li>領導</li>
+              <li>在場</li>
+            </ul>
+          </div>
+        </div>
+        <p>終身學習對上 Leon Huang 的第一點。韌性、同理、領導還在低風險區，因為人仍想被人領導。他問有沒有遇過完全用情緒做事的人，聊天室大量打叉。他的說法是，人會因為不爽而用很糟的方式做事，AI 比較不會。</p>
+        <p class="note">圖上「3.0 以上」是他的歸類。五千多篇、各項風險高低，都是講師現場說法，這份沒有回查 HBR 原文。</p>
+      </div>
+    </section>
+
+    <section id="two-left">
+      <div class="wrap">
+        <h2>留下的兩件事</h2>
+        <p>他跟 AI 辯論一百輪。一百沒有特殊意義，只是他選的輪數。辯完之後，他要教孩子的只剩兩邊。</p>
+      </div>
+      <figure>
+        <img src="images/02-doubt-and-reframe.png" alt="左圖一盞燈照著一團還沒成形的墨跡，右圖同一團墨被收進框裡，中間有一片葉子。">
+        <figcaption>左邊是先問這句可不可信。右邊是把同一份材料收成你要別人相信的事。插圖，不是簡報。</figcaption>
+      </figure>
+      <div class="wrap">
+        <h3>這句話可不可信</h3>
+        <p>辯證是在判斷時分出什麼為真、什麼為假。他重提讀本裡的幼兒園課程大綱：63 條裡有蒐集訊息、整理訊息、解決問題，沒有「這個說法可不可信」。他的立場仍是幼兒園不要讓孩子用 AI，但沒有說孩子因此不需要學判斷。原因是 AI 產生資料太快。</p>
+        <h3>你要別人相信什麼</h3>
+        <p>說故事的重點不是情節。現場公式是：抓一個事實，抓聽眾共同經歷過、情感很強的記憶，再把那份情感綁上你要推進的目標。他舉歐巴馬演講裡的建國、廢奴、西進、登月。接著說，從現在到 11 月 28 日選舉，最有力的說故事就是這一套，並明講「聽起來有點邪惡」，但是政治學裡的基本功。</p>
+        <p>亞里斯多德三段，對回讀本是 ethos（可信度）、pathos（情感）、logos（邏輯）。邏輯放最後。AI 可以用這個公式很快寫出文章。三項各選什麼，必須人決定。</p>
+      </div>
+    </section>
+
+    <section id="credibility">
+      <div class="wrap">
+        <h2>時間只給值得的人</h2>
+        <p>有格局的人可以很慈善，但真的把時間給一個人之前，會先判斷值不值得。所以要先在一個領域做出可核對的結果，才認識得到夠厲害的人。那些人能指出你還需要多想的地方。</p>
+        <p>自我介紹如果只說「大家好，我是李海碩」，對聽的人沒有意義。他改說自己曾幫學生在一個學期從 520 分進步到 870 分。信任和注意力都稀缺，個人品牌是把這個可證明的結果塑出來。聊天室有人接了一句：時間和專注力是超級稀缺資源。他直接接上。</p>
+        <p class="note">520 到 870 是他的例證。這份沒有另核對分數，也不寫聊天室那個人的名字。</p>
+      </div>
+    </section>
+
+    <section id="unsexy">
+      <div class="wrap">
+        <h2>不要做大家都想得到的題</h2>
+        <p>讀本的七個縫口是定題、對帳、伸手、接人、殘留、開盲點、認出。他說檔案裡都寫了，現場沒有逐條講。展開的是定題，和一點行動。</p>
+        <p>定題接到 Christina Wallace 的 sexy business 與 unsexy business。語言教育加 AI，大家想得到，所以是紅海。AI 把執行速度拉太高之後，想得到的題目會立刻變滿。他要人找一個沒那麼容易直接想到的區塊。</p>
+        <p>他不認為一個人閉門就可以想出那個區塊。自己有能力 A，找到有能力 B 的人疊上去，比較可能走出別人想不到的地方。Grok Bot 在這裡被當成證據：執行已經快到不能再選大家都看得到的題。</p>
+        <p>對帳他一句帶過：做出什麼產品，和自己變得會的，要分開。伸手是想做和做了的差別。他用 Amy 的故事講執行力。學位可以讀得很順，後來走的路仍可能和當初想像不同，所以要先行動。Amy 的職稱聽不清，這裡不寫。</p>
+        <p class="note">「知識衛星上目前賣最好的 AI 課是她的」「哈佛在 AI 方面最有名的教授」是講師的介紹，不是這份查證過的頭銜。</p>
+      </div>
+      <figure>
+        <img src="images/03-quiet-craft.png" alt="兩個人在安靜的工作室裡各自用不同的工具做同一件東西，門外是一大片一模一樣的船。">
+        <figcaption>門內是兩種能力疊在一起的慢工。門外是大家都衝向同一題。插圖，不是簡報。</figcaption>
+      </figure>
+    </section>
+
+    <section id="rough">
+      <div class="wrap">
+        <h2>學得會，而且第一版可以爛</h2>
+        <p>Leon Huang 寫的是：持續校準自己的學習能力，讓自己學得會、用得出來，也改得動。能看見理解與現實的落差，借助他人與 AI，在實踐中接受回饋、修正判斷，並把經驗帶到新情境。連什麼該自己練、什麼可以交出去，也要重新檢查。</p>
+        <p>講師說這和自己的版本重疊極高，課程從頭到尾就是在講怎麼學。「用得出來」對上做出能改善生活的產品。「改得動」對上開盲點，而盲點大部分靠跟厲害的人相處。</p>
+        <p>盧育成的 ROOTS，他這樣對：</p>
+        <table>
+          <thead>
+            <tr><th>ROOTS</th><th>他聽到的意思</th><th>對上</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Rough</td><td>低標準，第一版可以爛</td><td>創造</td></tr>
+            <tr><td>Otherness</td><td>不預設別人跟自己一樣</td><td>同理</td></tr>
+            <tr><td>Outspoken</td><td>不盲從、勇於表達</td><td>觀點</td></tr>
+            <tr><td>Time</td><td>把時間給人</td><td>在場</td></tr>
+            <tr><td>Star</td><td>長期北極星</td><td>希望</td></tr>
+          </tbody>
+        </table>
+        <p>低標準對上黃仁勳：一開始期望太高就動不了。他認為這在 AI 時代特別難，因為 AI 的第一版就已經做得好看，人更不敢交出爛的第一版。盧育成補充：在場不是一定要給對方錢或幫助。有時只是在，結果反而有幫助。要把時間放在心上。講師的回應是，AI 能講出這層，代表不是第一天在用，要多互動，答案深度才會上來。</p>
+      </div>
+      <figure>
+        <img src="images/04-rough-first.png" alt="一隻手正把一塊粗糙的磚放上木桌，旁邊是已經砌得很整齊的牆。">
+        <figcaption>牆已經太整齊。手上那塊還帶指紋。插圖，不是簡報。</figcaption>
+      </figure>
+    </section>
+
+    <section id="interpolate">
+      <div class="wrap">
+        <h2>內插給機器，外推留給人</h2>
+        <p>創造力他拆成兩種。在限制裡做組合，是內插，AI 很強。跨領域、別人沒想過的，是外推，人還比較強。</p>
+        <p>磚塊用途是內插的例子。人寫兩到三分鐘，班上多數約二十幾個。Leon 聊天室更正：限時四分鐘寫了 38 個，一般人 16 到 20 個，講師自己說只寫到 21 個。AI 兩分鐘寫出 200 到 300 個，他認為只要模型不要太差就辦得到。珍道具也一樣：把網站和幾個範例給 AI，大約十分鐘可以拼出一排。</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <div class="wrap">
+        <h2>過程、閱讀、語言</h2>
+        <h3>過程看你怎麼想</h3>
+        <p>有人問：老師刻意不給答案，學生卻隨時能問 AI，成品也都能生成，過程怎麼評。他用高中企業競賽的 progress report。至少三到四輪。最重要是 Reflection，因為讀的人要看見你怎麼想。</p>
+        <ul class="plain">
+          <li>Result：看到什麼結果</li>
+          <li>Reflection：怎麼想</li>
+          <li>Reaction：下一步</li>
+        </ul>
+        <p>他遇過一位台中中學生做了 67 輪。他去查 67 的意義，結論是沒有固定意義，是年輕人的迷因。</p>
+        <h3>哲學要找同齡</h3>
+        <p>很小就可以開始，但不要只有家長對小孩。要找同齡一起把思考引出來。成本他認為已經很低，沒有現成課就自己做。</p>
+        <h3>閱讀是 unsexy，他仍然同意要推的人</h3>
+        <p>林晏履寫：這個時代繼續推閱讀就是 unsexy business。他同意，並說對方在桃園長期做閱讀與寫作，同時也在讀 Minerva，所以不是不懂數位。他自己說紙本閱讀推不起來，是耐性不夠。</p>
+        <h3>學習先掉，檢定後掉</h3>
+        <p>語言學習和語言檢定要拆開。學習已經在高速下降，因為 AI 可以直接做掉一部分。檢定掉得比較慢，因為它是業界設的標準，撐住它的不一定是教學機構。他點名一所加拿大英語學校，他說是 EC，突然倒閉，認為和「語言學習 × AI」這種大家都想得到的題被取代有關。</p>
+        <h3>3C 的分化已經在發生</h3>
+        <p>越能讓孩子晚一點接觸 3C 的家庭，越是有資源的家庭。短影音是很便宜、價值很低的娛樂。紙本閱讀代價高，通常來自從小有人陪。他保證太晚學科技不會吃虧，因為越晚開始，科技線的起點越高。這段他再次要大家去用 Grok Bot，尤其有自己事業的人。</p>
+        <p>實驗教育他沒有給出完整替代方案，只說整體仍比一般體制有空間。後段聽寫不完整，這裡不補政策建議。</p>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="wrap">
+        <h2>他後來要大家去用的</h2>
+        <p>聊天室他打出來的名字只有兩個：Lenny's Newsletter、Grok Bot。語音裡他把怎麼串、要買到哪一檔、以及和另外兩種代理的差別講完。下面先記他的推薦，最後才是這份整理自己的判斷。</p>
+
+        <article class="tool">
+          <h3>三支一起比，不是只留一支</h3>
+          <p>做 HBR 卡片時，他說自己一次用三支，並給它們搜尋資料的權利。第一支聽起來像 ChatGPT 的 Astra。第二支他說是 Claude 的 Fable。第三支用來瘋狂比對，用的是 Grok Bot。後段他又催還沒用過 Astra 那條的人一定要去弄。這兩個名字的聽寫不穩，只保留「他要人拿高階模型跟 Grok Bot 對看」，不把聽寫寫成已核對的產品頁。</p>
+          <p>模型比較時他說，自己現在的主推仍是 Claude。Fable 和 Extra 拿來跟深度研究比，他覺得有得拼。即便是 Gemini 最好的模型，他認為出來的內容跟這兩個完全沒得比。</p>
+          <ul class="plain">
+            <li>Fable 或 Extra，至少買一個，而且要買到每月 100 美元以上。他同時說「3000 塊以上」，是他自己的換算。</li>
+            <li>ChatGPT 的 Extra，他要使用者買到頂，口頭說 200 美元。理由是付多少錢，會決定呼叫到多好的模型。</li>
+            <li>Gemini 他不是在推薦去買更強的版本。他說 Gemini 目前沒有要做出比別人更厲害的模型，做的是成本低很多的算力。</li>
+            <li>若只比便宜，他說中國還有更便宜的選擇，但要把資料送進去算，所以中國與非中國的 AI 會切開。</li>
+          </ul>
+        </article>
+
+        <article class="tool">
+          <h3>Grok Bot</h3>
+          <p>他講得很明白：他說的不是 Grok 本體。Grok Bot 的底層是用 Cursor 串起來的，所以實際把事情做好的能力來自那裡。介面像 Telegram，旁邊一隻一隻對話機器人，每一隻給不同能力。</p>
+          <ol class="steps">
+            <li>先試用。登入後跟它說要試用，有七天。最大額度頁面上寫 300 美元，他建議先試，額度不多也能感覺到。</li>
+            <li>步驟清楚就告訴它要什麼，不要限制它怎麼做。他的經驗是，它給的方案常常比他自己想的好。</li>
+            <li>他現在把網路行銷幾乎全部外包給它，認為可以當 AI 員工。</li>
+            <li>用法是只跟第一隻說話。第一隻自己決定要不要開第二隻、第三隻，並替他跟後面幾隻溝通。要檢查品質時，再設一隻專門做這件事。</li>
+          </ol>
+          <p>有人問它和「龍蝦代理」、「愛馬仕代理」的 Telegram 差在哪。他用車子比喻：三臺都可以從台中到台北，後兩個他沒有說不好，但裝的時候仍要打一些指令。Grok Bot 他說從頭到尾只有自然語言，一句指令都沒打。這兩個名字是語音聽寫，這裡不改寫成特定產品。</p>
+          <p>他自己的提醒比推薦更硬。他說每次提到資安都會追回去：底層是 Cursor，他追到的伺服器在上海，電腦操作是上海的虛擬主機，電腦沒開也能用手機操縱。便利和資料安不安全，要自己考慮。能接受的話，他說這是自己用過最滑的自動化。自己有公司、想把東西留在裡面最安全。他承認自己選的是方便。</p>
+        </article>
+
+        <article class="tool">
+          <h3>Lenny's Newsletter</h3>
+          <p>他要大家點進去看。一年大約一萬多台幣，換二三十個工具一整年的 VIP。他說這是團購。他自己買到 Insider。</p>
+          <p>串法是：先裝好 Grok Bot，再用它去操縱那些工具。Bot 只發指令、把結果抓回來，運算量在那些工具上。他甚至把權限給 Bot，讓它把工具註冊做完，再幫每個工具想它在自己工作裡的角色，直接串起來。他說這是快速商業化最簡單的方案。若在那包裡看到適合自己的，就應該用。</p>
+          <p>連結是 <a href="https://www.lennysnewsletter.com/">lennysnewsletter.com</a>。聊天室只留下名字，沒有完整 URL。Grok Bot 也沒有留下網址。</p>
+        </article>
+
+        <div class="note">
+          <p>這段不是講師的話，是整理時的判斷。Lenny's Newsletter 的付費價值主要是產品經理社群，加上多半限新用戶的工具年費。2026-09-19 的 Product Pass 頁寫 Annual 一年 200 美元、約 22 項先到先得，Insider 一年 400 美元、優先領約 35 項。已經付過費或用過付費試用的產品就領不到，取消後已領的試用也可能被收回。若只想吸收同類內容，免費的 Lenny、<a href="https://www.svpg.com/">SVPG</a>、<a href="https://www.producttalk.org/">Product Talk</a>、<a href="https://tldr.tech/product">TLDR Product</a> 就夠。</p>
+          <p>Grok Bot 也不必因為這一場就加購寫著 300 美元的那一檔。先用他說的七天，確認自己有沒有清楚到可以只講目的、不規定步驟。上海那臺虛擬主機是他自己點出的代價，試用前要先決定資料能不能送出去。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="reader">
+      <div class="wrap">
+        <h2>讀本沒有被這場取代</h2>
+        <p>兩份讀本都署名李海碩，2026-09-19。讀本自己寫明：文件先發，直播主要是討論。他在讀本裡把核心句標成「我的解釋」，不是研究結論。那句是：AI 時代最持久的技能，正好是 AI 預設會抹掉的那一個。動作叫「撐」，是待在不會裡而且待得住。地方叫「地」，縫不會咬人的地方。方針是先留縫，再放機。</p>
+        <p>這一場沒有把十一層和八筆研究重講。那些仍以讀本為準。</p>
+        <p>讀本的回家三件事，各三分鐘：孩子問問題時說「你覺得呢」，然後數到十。這週在別人面前說一次「我不知道」。明天用工具之前，先在紙上寫三句想法。聊天室他另寫：找到你覺得最關鍵的三件事，此刻開始，幫自己和孩子鍛鍊。</p>
+        <p>下次他預告要分享的是圍棋。課前閱讀發得晚，他有道歉。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <h2>來源與沒核對的地方</h2>
+      <ul>
+        <li>這是 2026-09-19 李海碩加碼直播的好讀整理，不是逐字稿，也不是研究結論。完整逐字稿與音檔不在這個公開頁。</li>
+        <li>專有名詞依現場與課前材料校正。Hover、Hubbub 是 Harvard Business Review。李紅、李洪、禮宏是 Leon Huang。盧董、路子是盧育成。Grogbot、GrabBot、GluckBug 是 Grok Bot。Ladies' Newsletter 是 Lenny's Newsletter。</li>
+        <li>Astra、龍蝦代理、愛馬仕代理只保留聽寫，沒有改成官方產品名。Fable 他明說是 Claude 的，Extra 他掛在 ChatGPT，仍不是這次打開產品頁核對的結果。</li>
+        <li>五千多篇、一百輪、520 到 870、67 輪、磚塊個數、七天試用、300 美元、100 與 200 美元、一萬多台幣，都是講師現場說法。</li>
+      </ul>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("download-html").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = "正在打包圖片…";
+      try {
+        const clone = document.documentElement.cloneNode(true);
+        const clonedImages = [...clone.querySelectorAll("img")];
+        const liveImages = [...document.querySelectorAll("img")];
+        for (let index = 0; index < clonedImages.length; index += 1) {
+          const live = liveImages[index];
+          const source = live.currentSrc || live.src;
+          if (source.startsWith("data:")) {
+            clonedImages[index].setAttribute("src", source);
+            continue;
+          }
+          const response = await fetch(source);
+          const blob = await response.blob();
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+          });
+          clonedImages[index].setAttribute("src", dataUrl);
+        }
+        const file = new Blob(["<!DOCTYPE html>\n" + clone.outerHTML], { type: "text/html;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(file);
+        link.download = "2026-09-19-durable-skill-underlayer.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        button.textContent = "下載失敗，請重試";
+        console.error(error);
+        return;
+      } finally {
+        button.disabled = false;
+        if (button.textContent !== "下載失敗，請重試") button.textContent = original;
+      }
+    });
+  </script>
+</body>
+</html>
