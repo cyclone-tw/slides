@@ -26,4 +26,6 @@ python3 build.py
 
 Tracking: https://github.com/cyclone-tw/slides/issues/11
 
-此版本供本機預覽，尚未公開發布。
+公開簡報：https://cyclone-tw.github.io/slides/campus-guardian/
+
+115學年度校內資通安全研習；對象：國姓國小學校教職員。用途為校內研習宣講與情境演練，完整講稿見 [SCRIPT.md](SCRIPT.md)。
