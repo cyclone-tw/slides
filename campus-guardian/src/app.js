@@ -52,7 +52,7 @@
     $('location').textContent = state.phase === 'cover' || state.phase === 'finish' ? '' : chapter.place;
     $('back').hidden = state.phase === 'cover';
     if (state.phase === 'cover') {
-      screen.innerHTML = `<section class="cover-copy"><h1 tabindex="-1">校園守護者</h1><p class="subtitle">教師的一天，一場資安冒險。</p><div class="start-actions">${primary('start','開始冒險')}${resume ? '<button class="text-button" data-action="resume">接續上次</button>' : ''}</div></section><div class="cover-cast">${teacher()}${owl()}</div>`;
+      screen.innerHTML = `<section class="cover-copy"><h1 tabindex="-1"><span>校園資通安全</span><span>與數位防護實務</span></h1><p class="cover-details"><span>國姓國小</span><time datetime="2026-10-07">2026-10-07</time></p><div class="start-actions">${primary('start','開始冒險')}${resume ? '<button class="text-button" data-action="resume">接續上次</button>' : ''}</div></section><div class="cover-cast">${teacher()}${owl()}</div>`;
     } else if (state.phase === 'intro') {
       screen.innerHTML = `<div class="cast">${teacher()}</div><section class="panel">${heading(chapter.title)}${paragraphs([chapter.intro])}<blockquote class="dialogue"><span class="speaker">${escape(chapter.speaker)}</span><p>${escape(chapter.quote)}</p></blockquote><div class="panel-actions">${primary('question','做出選擇')}</div></section>`;
     } else if (state.phase === 'question') {
