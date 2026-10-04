@@ -1,0 +1,207 @@
+{
+  "checked": "2026-10-05",
+  "sources": [
+    {
+      "id": "voice",
+      "publisher": "FTC 美國聯邦貿易委員會",
+      "title": "Scammers use AI to enhance their family emergency schemes",
+      "url": "https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes",
+      "note": "聲音可被仿冒；使用已知電話另行確認。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "voice"
+      ]
+    },
+    {
+      "id": "clickfix",
+      "publisher": "TWCERT/CC",
+      "title": "駭客結合惡意廣告與 AI 平台發動 ClickFix 攻擊",
+      "url": "https://www.twcert.org.tw/newepaper/cp-146-11067-5d2f9-3.html",
+      "note": "假驗證誘導執行指令，以及隔離設備、檢查帳號的應變建議。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "clickfix",
+        "incident"
+      ]
+    },
+    {
+      "id": "moe",
+      "publisher": "教育部",
+      "title": "中小學使用「生成式人工智慧」注意事項 2.0（教師、行政人員及家長版）",
+      "url": "https://www.ycjh.tp.edu.tw/uploadfiles/annex/20260102141112_2.pdf",
+      "note": "第四、五、八點；教育部文件，由臺北市立螢橋國中網站提供原文 PDF。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "ai",
+        "continuity",
+        "protect"
+      ]
+    },
+    {
+      "id": "prompt",
+      "publisher": "Google",
+      "title": "使用 Google 提示登入",
+      "url": "https://support.google.com/accounts/answer/7026266?hl=zh-Hant",
+      "note": "未發起登入卻收到通知時，拒絕要求並檢查帳戶。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "login"
+      ]
+    },
+    {
+      "id": "mfa",
+      "publisher": "Google",
+      "title": "開啟兩步驟驗證功能",
+      "url": "https://support.google.com/accounts/answer/185839?hl=zh-Hant",
+      "note": "在密碼以外增加驗證步驟。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "login"
+      ]
+    },
+    {
+      "id": "third",
+      "publisher": "Google",
+      "title": "管理 Google 帳戶與第三方之間的連結",
+      "url": "https://support.google.com/accounts/answer/13533235?hl=zh-Hant",
+      "note": "區分登入連結與資料存取；移除連結不等於刪除第三方已持有資料。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "permission"
+      ]
+    },
+    {
+      "id": "key",
+      "publisher": "Google AI for Developers",
+      "title": "Using Gemini API keys",
+      "url": "https://ai.google.dev/gemini-api/docs/api-key",
+      "note": "Security and secret management、Leak response checklist、Restricting and securing your keys。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "byok",
+        "leaked-key",
+        "incident"
+      ]
+    },
+    {
+      "id": "mask",
+      "publisher": "MDN Web Docs",
+      "title": "HTML 密碼輸入欄位",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/password",
+      "note": "遮蔽畫面字元不會清除欄位的實際值。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "byok"
+      ]
+    },
+    {
+      "id": "byok",
+      "publisher": "OpenRouter",
+      "title": "Bring your own API Keys",
+      "url": "https://openrouter.ai/docs/guides/overview/auth/byok",
+      "note": "BYOK 指使用自己的供應商金鑰；本教材不推薦特定工具。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "byok"
+      ]
+    },
+    {
+      "id": "share",
+      "publisher": "Google",
+      "title": "透過 Google 雲端硬碟共用檔案",
+      "url": "https://support.google.com/drive/answer/2494822?hl=zh-Hant",
+      "note": "指定對象、一般存取權、檢視與編輯權限及資料夾的影響。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "share"
+      ]
+    },
+    {
+      "id": "account",
+      "publisher": "Google",
+      "title": "保護遭到入侵或盜用的 Google 帳戶",
+      "url": "https://support.google.com/accounts/answer/6294825?hl=zh-Hant",
+      "note": "變更密碼、檢查活動、陌生裝置與安全設定。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "login",
+        "incident"
+      ]
+    },
+    {
+      "id": "shared",
+      "publisher": "Google",
+      "title": "在他人的裝置上登入帳戶",
+      "url": "https://support.google.com/accounts/answer/2917834?hl=zh-Hant",
+      "note": "訪客／私密瀏覽與用完後登出。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "continuity",
+        "shared-device"
+      ]
+    },
+    {
+      "id": "incognito",
+      "publisher": "Google",
+      "title": "使用無痕模式瀏覽網路",
+      "url": "https://support.google.com/chrome/answer/95464?hl=zh-Hant",
+      "note": "無痕模式的保護範圍；下載檔案仍保留在裝置上。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "shared-device"
+      ]
+    },
+    {
+      "id": "protection",
+      "publisher": "衛生福利部",
+      "title": "終結性影像，沒有人是局外人！",
+      "url": "https://www.mohw.gov.tw/fp-16-74815-1.html",
+      "note": "不散布性影像；記錄網址、帳號等線索並尋求協助。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "protect"
+      ]
+    },
+    {
+      "id": "siarc",
+      "publisher": "衛生福利部性影像處理中心",
+      "title": "性影像申訴、檢舉與下架協助",
+      "url": "https://siarc.mohw.gov.tw/",
+      "note": "性影像事件的官方求助入口。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "protect"
+      ]
+    },
+    {
+      "id": "iwin",
+      "publisher": "iWIN 網路內容防護機構",
+      "title": "網路不當內容檢舉",
+      "url": "https://i.win.org.tw/",
+      "note": "教育部注意事項指定的其他網路不當內容檢舉管道。",
+      "reliability": "official / primary",
+      "usedBy": [
+        "protect"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "title": "研習講綱_BYOK更新版.md",
+      "type": "user-provided draft",
+      "use": "topic coverage and teaching intent"
+    },
+    {
+      "title": "campus_cybersecurity_50min_BYOK.pptx",
+      "type": "user-provided draft",
+      "use": "scenario seeds and source links; all schedules removed"
+    }
+  ],
+  "caveats": [
+    "All school scenarios and characters are fictional.",
+    "Offline teaching alternatives and role-based reporting are instructional adaptations, not quotations or claims about a particular school.",
+    "API credential handling is platform-dependent; production rotation and trial-key revocation are distinguished.",
+    "MOE original PDF is hosted by Taipei Municipal Ying-Qiao Junior High School."
+  ],
+  "images": "assets/provenance.json"
+}

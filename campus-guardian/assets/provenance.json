@@ -1,0 +1,32 @@
+{
+  "generator": "built-in image_gen",
+  "kind": "original decorative pixel art; fictional school and adult teacher",
+  "reference": "User-selected B concept and approved Q character preview",
+  "prompts": [
+    [
+      "teacher",
+      true,
+      "Extract and redraw ONLY the adult female teacher character as one full-body standalone sprite on genuine transparent background. Remove the entire classroom and owl. Preserve dark bob hair, blue overshirt, cream shirt, dark navy trousers, white sneakers, folder. Make the head slightly smaller than the reference chibi teacher, around three heads tall overall, still clearly chibi cute adult teacher. Friendly neutral composed expression, mouth gently smiling, arms holding folder. Straight-on slight three-quarter pose, centered, entire body visible with compact transparent margin, no ground shadow, no floating sparkles. Crisp detailed pixel-art contours and pixel clusters. One character only, no duplicates, no writing."
+    ],
+    [
+      "owl",
+      true,
+      "Extract and redraw ONLY the round cream and navy owl guardian as one standalone full-body pixel-art sprite on genuine transparent background. Preserve identity, gold eyes, tiny beak, blue diamond pendant, friendly knowing expression. Wings slightly open as if explaining to a teacher. Remove teacher, all background, all sparkles. Center the single owl with compact transparent margins. Entire wings and feet visible. No ground shadow, no text."
+    ],
+    [
+      "classroom",
+      false,
+      "Generate a background-only wide landscape 16:9 classroom matching the reference EXACT art direction, pixel density, Taiwanese school setting and cheerful soft daylight. Remove ALL characters, teacher and owl. A wide classroom view with simple pale wooden desks at edges, large plain teal green chalkboard, tall windows, blue sky and trees, pale aqua details. Clear floor foreground, much quiet space in middle, no tiny decorative clutter. Detailed authentic crisp pixel-art environment. Absolutely no writing, numbers, clocks, signs, text, logos, interface or characters."
+    ],
+    [
+      "office",
+      false,
+      "Create a NEW background-only wide landscape 16:9 Taiwanese teachers' office matching reference pixel art, bright cool daylight and pale aqua, cream, wood palette. Large windows at left, orderly pale wood desks, a plain desktop monitor without interface or writing, a few closed books, cabinets, open door to school corridor. Eye-level three-quarter RPG environment, plenty of quiet floor foreground and simple shapes across right half for overlaid dialogue. Clean, inviting, same campus world as reference. No characters or animals. No clocks, text, numbers, labels, signage, logos, UI, dark scene or excessive props."
+    ],
+    [
+      "corridor",
+      false,
+      "Create a NEW background-only wide landscape 16:9 Taiwanese elementary school open-air corridor matching reference pixel art, bright fresh daylight and pale aqua, cream, pale wood palette. Classroom door on right, pale tiled walls, low balustrade on left overlooking courtyard with one large leafy tree, school building across courtyard, blue sky. Eye-level three-quarter RPG environment, clean open foreground with simple floor tiles, restrained props and spacious composition for overlaid character and dialogue. Same campus world as reference. No people, animals, clocks, text, numbers, signs, logos or UI."
+    ]
+  ]
+}

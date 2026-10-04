@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="教師的一天，一場守護校園的像素冒險。校園資安情境互動簡報。">
+<title>校園守護者｜教師的資安冒險</title>
+<link rel="icon" href="data:,">
+<style>/*__STYLE__*/</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <img class="backdrop" id="backdrop" alt="" aria-hidden="true">
+  <div class="veil" aria-hidden="true"></div>
+  <header class="toolbar">
+    <button class="quiet-button back" id="back" aria-label="返回上一個畫面" title="返回">返回</button>
+    <span class="location" id="location"></span>
+    <nav aria-label="簡報操作">
+      <button class="quiet-button" id="chapters-button" aria-haspopup="dialog">章節</button>
+      <button class="quiet-button" id="fullscreen" aria-label="切換全螢幕">全螢幕</button>
+    </nav>
+  </header>
+  <main id="screen" class="screen" aria-live="polite" aria-atomic="true"></main>
+</div>
+<dialog id="navigation" aria-labelledby="navigation-title">
+  <div class="dialog-header"><h2 id="navigation-title">校園裡的選擇</h2><button class="quiet-button" data-close="navigation">關閉</button></div>
+  <div class="chapter-list" id="chapter-list"></div>
+  <div class="dialog-footer"><button class="text-button" id="cover-button">回到封面</button><button class="text-button" id="all-sources-button">全部資訊來源</button></div>
+</dialog>
+<dialog id="sources" aria-labelledby="sources-title">
+  <div class="dialog-header"><h2 id="sources-title">資訊來源</h2><button class="quiet-button" data-close="sources">關閉</button></div>
+  <div id="source-list" class="source-list"></div>
+</dialog>
+<noscript><div class="noscript">請使用支援 JavaScript 的瀏覽器開啟這份互動簡報。</div></noscript>
+<script>
+/*__ASSETS__*/
+/*__CONTENT__*/
+/*__APP__*/
+</script>
+</body>
+</html>
