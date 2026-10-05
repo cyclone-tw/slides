@@ -1,6 +1,6 @@
-# 本機驗證
+# 驗證紀錄
 
-本次完成的是本機預覽版本，未公開部署。
+以下為初稿本機驗證紀錄。其後使用者已授權公開發布，PR #12 合併並完成 GitHub Pages 驗證；公開網址：https://cyclone-tw.github.io/slides/campus-guardian/
 
 - Chromium 桌面：十二關、二十四個錯誤選項、二十五段解說；逐一測試重試後題目與選項不變、正確答案進解說、錯誤答案不能前進、每關來源可開啟。
 - 桌面逐狀態檢查七十四次；所有介紹與解說已截圖並檢視。
@@ -14,3 +14,9 @@
 外部來源連結需要網路；各校聯絡窗口採職務稱呼，並未填入未知姓名與分機。
 
 QA 腳本與畫面留在本機 slides-local/campus-guardian-qa，未混入公開簡報。
+
+## 支援範圍與後續維護
+
+支援具備原生 dialog/showModal 的現代瀏覽器；Safari 15.4 以前版本不在支援範圍。未宣稱已完成 Safari 或 HTML Reader 實機驗證。本次不增加舊瀏覽器相容層。
+
+既有 localStorage key `campus-guardian-preview-v1` 保留為穩定儲存識別字，不代表網站仍是預覽版；避免僅因改名而遺失續播進度。
