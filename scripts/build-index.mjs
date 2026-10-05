@@ -100,7 +100,7 @@ function collectSlides() {
         title,
         description,
         category,
-        date: dateFromFolder(folder),
+        date: firstMatch(html, [/<meta\s+name=["']date["']\s+content=["'](\d{4}-\d{2}-\d{2})["']/i]) || dateFromFolder(folder),
         url: `${baseUrl}${folder}/`,
         accent: accentFor(category, folder),
       };
@@ -518,7 +518,7 @@ ${cards}
           title,
           description,
           category: itemCategory,
-          date: dateFromFolder(entry.name),
+          date: html.match(/<meta\\s+name=["']date["']\\s+content=["'](\\d{4}-\\d{2}-\\d{2})["']/i)?.[1] || dateFromFolder(entry.name),
           url: \`\${location.origin}\${location.pathname.replace(/\\/[^/]*$/, "/")}\${entry.name}/\`,
           accent: accentFor(itemCategory, entry.name),
         };
