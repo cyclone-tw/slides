@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>金門大橋真偽拆解</title>
+<meta name="description" content="用一張金門大橋投影片，拆解 AI 說明的真偽：照片是真的橋，說明卻把兩座同名的橋拼在一起。">
+<link rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+<style>
+/* 版面概念：偵探案件簿。一張投影片拆成「照片」與「文字」，文字再拆成 7 個說法，每句可猜真假、附註編號。 */
+:root {
+  --bg: #F3F6FA; --surface: #FFFFFF; --paper: #FFF6DA; --ink: #1F2430; --muted: #4A5262;
+  --brand: #1F4E9E; --btn: #1F4E9E; --btn-ink: #FFFFFF; --line: #D3DCE8; --focus: #B35A00;
+  --ok: #1F7A46; --ok-ink: #FFFFFF; --bad: #B3261E; --bad-ink: #FFFFFF; --maybe: #F2C14E; --maybe-ink: #1F2430;
+  --skin: #F7D2B5; --taro: #8B6DB8; --robot: #BFD9E8; --pink: #E0457B;
+  --font: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151C; --surface: #1B212C; --paper: #2B2A22; --ink: #EEF2F8; --muted: #B9C3D3; --brand: #8DB4FF;
+    --btn: #8DB4FF; --btn-ink: #11151C; --line: #343E50; --focus: #FFB454;
+    --ok: #7BD39A; --ok-ink: #10221A; --bad: #FF9C94; --bad-ink: #2B1D17; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151C; --surface: #1B212C; --paper: #2B2A22; --ink: #EEF2F8; --muted: #B9C3D3; --brand: #8DB4FF;
+  --btn: #8DB4FF; --btn-ink: #11151C; --line: #343E50; --focus: #FFB454;
+  --ok: #7BD39A; --ok-ink: #10221A; --bad: #FF9C94; --bad-ink: #2B1D17; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 1.125rem; line-height: 1.7;
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+.skip { position: absolute; left: -999px; top: 8px; background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: 10px; z-index: 5; }
+.skip:focus { left: 8px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+main { max-width: 800px; margin-inline: auto; padding-block: 28px 12px; display: grid; gap: 30px; }
+h1, h2 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 7vw, 3.1rem); font-weight: 800; }
+h2 { font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 800; }
+p { margin: 0; }
+.eyebrow { color: var(--brand); font-weight: 800; letter-spacing: .08em; font-size: 1rem; }
+.lead { font-size: 1.25rem; color: var(--muted); max-width: 34em; }
+figure { margin: 0; }
+.scene { background: var(--surface); border: 3px solid var(--ink); border-radius: 26px; padding: 14px; display: block; width: 100%; height: auto; }
+figcaption { margin-top: 12px; font-size: 1.15rem; max-width: 38em; }
+.step { display: grid; gap: 14px; }
+.step-head { display: flex; align-items: center; gap: 14px; }
+.num { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 1.6rem; line-height: 1; }
+.term { color: var(--brand); font-weight: 800; }
+sup { line-height: 0; }
+a.fn { display: inline-block; min-width: 24px; min-height: 24px; text-align: center; color: var(--brand); font-weight: 800; font-size: .85rem; text-decoration: none; border-radius: 6px; padding: 0 2px; }
+a.fn:hover { text-decoration: underline; }
+button {
+  font: inherit; font-weight: 800; min-height: 48px; min-width: 48px; padding: 8px 20px; border-radius: 16px;
+  border: 3px solid var(--ink); background: var(--btn); color: var(--btn-ink); cursor: pointer;
+}
+button.alt { background: var(--surface); color: var(--ink); }
+button:active:not(:disabled) { transform: translateY(2px); }
+button:disabled { cursor: default; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.badge { display: inline-block; padding: 2px 14px; border-radius: 999px; font-weight: 800; font-size: 1rem; border: 2px solid var(--ink); }
+.b-true { background: var(--ok); color: var(--ok-ink); }
+.b-false { background: var(--bad); color: var(--bad-ink); }
+.b-maybe { background: var(--maybe); color: var(--maybe-ink); }
+.verdict { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface); border: 3px solid var(--ink); border-radius: 18px; padding: 12px 16px; font-weight: 700; }
+.note { background: var(--paper); border: 2px dashed var(--ink); border-radius: 16px; padding: 12px 16px; font-size: 1rem; line-height: 1.7; }
+.license { display: grid; gap: 8px; }
+.license a { color: var(--brand); text-underline-offset: 3px; }
+.claims { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.claim { background: var(--surface); border: 3px solid var(--ink); border-radius: 20px; padding: 14px 16px; display: grid; gap: 10px; }
+.claim .q { font-weight: 800; font-size: 1.15rem; }
+.claim .q span { color: var(--brand); margin-right: 6px; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choices button { min-height: 44px; padding: 4px 18px; background: var(--surface); color: var(--ink); }
+.choices button.picked { background: var(--ink); color: var(--bg); }
+.result { display: grid; gap: 6px; border-top: 2px solid var(--line); padding-top: 10px; font-size: 1.05rem; }
+.result .you { font-weight: 800; }
+.is-hidden { display: none; }
+.score { font-weight: 800; color: var(--brand); min-height: 1.7em; }
+.sum { font-size: 1.3rem; font-weight: 800; text-align: center; text-wrap: balance; }
+.steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.steps3 .card { background: var(--surface); border: 3px solid var(--ink); border-radius: 20px; padding: 12px 10px; text-align: center; display: grid; gap: 4px; justify-items: center; align-content: start; }
+.steps3 svg { width: 100%; max-width: 96px; height: auto; }
+.steps3 b { font-size: 1.15rem; }
+.steps3 small { color: var(--muted); font-size: 1rem; line-height: 1.5; }
+.sources { margin: 0; padding-left: 1.6em; display: grid; gap: 10px; font-size: 1rem; line-height: 1.65; }
+.sources li { padding-left: 4px; }
+.sources a { color: var(--brand); word-break: break-all; text-underline-offset: 3px; }
+.sources .use { color: var(--muted); }
+footer { max-width: 800px; margin: 36px auto 0; padding-block: 24px 40px; border-top: 2px solid var(--line); text-align: center; font-size: 1rem; }
+.id-line { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; align-items: center; color: var(--muted); }
+.id-line img { width: 40px; height: 40px; border-radius: 50%; display: block; border: 2px solid var(--ink); background: var(--surface); }
+.who { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; }
+details.about { margin-top: 14px; text-align: left; }
+details.about > summary { display: inline-block; cursor: pointer; font-weight: 800; color: var(--brand); text-decoration: underline; text-underline-offset: 4px; min-height: 24px; }
+details.about[open] > summary { margin-bottom: 10px; }
+.about-body { background: var(--surface); border: 2px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 12px; font-size: 1rem; line-height: 1.75; }
+.about-body h3 { margin: 6px 0 0; font-size: 1.05rem; color: var(--brand); }
+.about-body a { color: var(--brand); text-underline-offset: 3px; }
+.tagline { font-weight: 800; font-size: 1.15rem; }
+.langbar { display: flex; gap: 8px; }
+.langbar button { min-height: 44px; font-size: 1rem; padding: 4px 16px; background: var(--surface); color: var(--ink); }
+.langbar button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+@media (prefers-reduced-motion: no-preference) {
+  .result { animation: fadein .35s ease-out; }
+  .about-body { animation: fadein .6s ease-out; }
+}
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 440px) {
+  body { font-size: 1.05rem; }
+  .steps3 { grid-template-columns: 1fr; }
+  .steps3 .card { grid-template-columns: 80px 1fr; text-align: left; justify-items: start; align-items: center; }
+  .steps3 .card svg { grid-row: span 2; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="kid" viewBox="0 0 100 130">
+      <circle cx="26" cy="24" r="12" fill="var(--ink)"/><circle cx="74" cy="24" r="12" fill="var(--ink)"/>
+      <circle cx="50" cy="48" r="28" fill="var(--skin)" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M23 44 Q50 10 77 44 Q62 30 23 44Z" fill="var(--ink)"/>
+      <circle cx="40" cy="53" r="4" fill="#2B1D17"/><circle cx="60" cy="53" r="4" fill="#2B1D17"/>
+      <circle cx="32" cy="63" r="5" fill="#E0457B" opacity=".45"/><circle cx="68" cy="63" r="5" fill="#E0457B" opacity=".45"/>
+      <path d="M42 64 Q50 73 58 64" fill="none" stroke="#2B1D17" stroke-width="3" stroke-linecap="round"/>
+      <path d="M22 130 L28 84 Q50 78 72 84 L78 130Z" fill="var(--taro)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="robot" viewBox="0 0 100 130">
+      <line x1="50" y1="8" x2="50" y2="20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="7" r="5" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="16" y="20" width="68" height="50" rx="16" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="36" cy="43" r="6" fill="#2B1D17"/><circle cx="64" cy="43" r="6" fill="#2B1D17"/>
+      <circle cx="38" cy="41" r="2" fill="#fff"/><circle cx="66" cy="41" r="2" fill="#fff"/>
+      <path d="M38 57 Q50 66 62 57" fill="none" stroke="#2B1D17" stroke-width="3" stroke-linecap="round"/>
+      <rect x="26" y="74" width="48" height="40" rx="12" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="50" cy="94" r="7" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="32" y="114" width="14" height="12" rx="4" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="54" y="114" width="14" height="12" rx="4" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+    </symbol>
+    <symbol id="lens" viewBox="0 0 40 40">
+      <circle cx="15" cy="15" r="12" fill="#fff" fill-opacity=".45" stroke="var(--ink)" stroke-width="4"/>
+      <line x1="24" y1="24" x2="37" y2="37" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <!-- 示意圖：台灣金門大橋（白色橋塔、斜拉鋼索、貼著海面） -->
+    <symbol id="br-tw" viewBox="0 0 240 140">
+      <rect width="240" height="140" fill="#BFE3F5"/>
+      <ellipse cx="60" cy="24" rx="28" ry="8" fill="#fff" opacity=".85"/><ellipse cx="175" cy="18" rx="32" ry="9" fill="#fff" opacity=".75"/>
+      <path d="M0 62 Q40 50 92 60 L92 66 H0Z" fill="#5E8F7A"/>
+      <rect y="64" width="240" height="76" fill="#3FB1A8"/>
+      <path d="M10 70 L240 120 L240 128 L10 75Z" fill="#F4F4F4" stroke="#1F2430" stroke-width="2" stroke-linejoin="round"/>
+      <g fill="#fff" stroke="#1F2430" stroke-width="2" stroke-linejoin="round">
+        <path d="M47 79 l2 -14 h4 l2 14z"/><path d="M92 89 l2 -20 h5 l2 20z"/><path d="M142 100 l2 -28 h6 l2 28z"/><path d="M196 112 l3 -38 h8 l3 38z"/>
+      </g>
+      <g stroke="#1F2430" stroke-width="1.3" fill="none">
+        <path d="M51 65 L24 74 M51 65 L78 83"/><path d="M96 69 L66 82 M96 69 L126 95"/><path d="M147 72 L110 92 M147 72 L184 108"/><path d="M203 74 L160 104 M203 74 L238 119"/>
+      </g>
+      <path d="M0 140 V132 Q60 126 120 134 T240 132 V140Z" fill="#2F9A92" opacity=".7"/>
+    </symbol>
+    <!-- 示意圖：舊金山 Golden Gate Bridge（橘紅色吊橋、兩座高塔） -->
+    <symbol id="br-sf" viewBox="0 0 240 140">
+      <rect width="240" height="140" fill="#D6E2EA"/>
+      <ellipse cx="40" cy="30" rx="40" ry="10" fill="#fff" opacity=".8"/><ellipse cx="200" cy="52" rx="44" ry="10" fill="#fff" opacity=".7"/>
+      <path d="M0 96 Q30 70 62 82 Q80 88 96 96Z" fill="#7A9A6B"/><path d="M144 96 Q170 80 200 78 Q224 76 240 88 V96Z" fill="#7A9A6B"/>
+      <rect y="96" width="240" height="44" fill="#2F6F8F"/>
+      <rect x="0" y="94" width="240" height="5" fill="#8A8F98" stroke="#1F2430" stroke-width="1.5"/>
+      <g fill="#C0362C" stroke="#1F2430" stroke-width="1.5">
+        <rect x="64" y="28" width="12" height="70"/><rect x="164" y="28" width="12" height="70"/>
+        <rect x="62" y="44" width="16" height="5"/><rect x="62" y="62" width="16" height="5"/><rect x="162" y="44" width="16" height="5"/><rect x="162" y="62" width="16" height="5"/>
+      </g>
+      <path d="M0 62 Q34 54 70 30 Q120 74 170 30 Q206 54 240 62" fill="none" stroke="#C0362C" stroke-width="3"/>
+      <g stroke="#C0362C" stroke-width="1.2">
+        <path d="M18 58 V95 M36 50 V95 M54 40 V95 M92 52 V95 M120 59 V95 M148 52 V95 M186 40 V95 M204 50 V95 M222 58 V95"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<main id="main">
+
+  <header class="step">
+    <p class="eyebrow">小偵探小珍的案件簿</p>
+    <h1>這張金門大橋照片，是真的嗎？</h1>
+    <p class="lead">AI 嘟嘟寫了一段金門大橋的介紹，配上一張很漂亮的照片。小偵探小珍要一句一句拆開來查。</p>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 250" role="img" aria-label="小偵探小珍拿著放大鏡，看著一張有橋的照片和幾行文字的投影片；右邊是機器人嘟嘟，說自己很有把握。">
+        <use href="#kid" x="14" y="62" width="120" height="156"/>
+        <use href="#lens" x="100" y="90" width="56" height="56"/>
+        <rect x="158" y="40" width="200" height="150" rx="12" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+        <svg x="168" y="50" width="100" height="58"><use href="#br-tw" width="100" height="58"/></svg>
+        <g fill="var(--line)" stroke="var(--ink)" stroke-width="1.5"><rect x="278" y="54" width="70" height="8" rx="4"/><rect x="278" y="72" width="60" height="8" rx="4"/><rect x="278" y="90" width="66" height="8" rx="4"/><rect x="170" y="124" width="178" height="8" rx="4"/><rect x="170" y="142" width="160" height="8" rx="4"/><rect x="170" y="160" width="170" height="8" rx="4"/></g>
+        <use href="#robot" x="376" y="78" width="92" height="120"/>
+        <g><rect x="360" y="30" width="116" height="34" rx="17" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="418" y="53" fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="16" text-anchor="middle">我很有把握！</text></g>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="18" text-anchor="middle"><text x="74" y="238">小珍</text><text x="422" y="238">嘟嘟</text></g>
+      </svg>
+      <figcaption>圖中的橋是手繪示意圖，不是原照片。</figcaption>
+    </figure>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" aria-labelledby="s1">
+    <div class="step-head"><span class="num" aria-hidden="true">1</span><h2 id="s1">一張投影片，有兩個部分</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 250" role="img" aria-label="一張投影片被分成兩半：左邊是文字，右邊是照片。小珍的放大鏡要分別檢查這兩個部分。">
+        <rect x="40" y="30" width="400" height="190" rx="14" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="240" y1="40" x2="240" y2="210" stroke="var(--ink)" stroke-width="3" stroke-dasharray="8 8"/>
+        <g fill="var(--line)" stroke="var(--ink)" stroke-width="1.5"><rect x="58" y="60" width="160" height="10" rx="5"/><rect x="58" y="84" width="150" height="10" rx="5"/><rect x="58" y="108" width="156" height="10" rx="5"/><rect x="58" y="132" width="140" height="10" rx="5"/><rect x="58" y="156" width="150" height="10" rx="5"/></g>
+        <svg x="258" y="66" width="164" height="96"><use href="#br-tw" width="164" height="96"/></svg>
+        <rect x="258" y="66" width="164" height="96" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="20" text-anchor="middle"><text x="140" y="196">文字（AI 寫的）</text><text x="340" y="196">照片</text></g>
+        <use href="#lens" x="170" y="108" width="46" height="46"/>
+        <use href="#lens" x="392" y="132" width="46" height="46"/>
+      </svg>
+      <figcaption>照片和文字要<b>分開查</b>。照片是真的，文字不一定是真的。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" aria-labelledby="s2">
+    <div class="step-head"><span class="num" aria-hidden="true">2</span><h2 id="s2">先看照片：這是哪一座橋？</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 270" role="img" aria-label="左邊是舊金山的金門大橋示意圖：橘紅色吊橋、兩座高塔。右邊是照片裡的橋的示意圖：白色橋塔、斜拉鋼索、貼著海面。兩座橋長得不一樣。">
+        <svg x="14" y="14" width="214" height="124"><use href="#br-sf" width="214" height="124"/></svg>
+        <rect x="14" y="14" width="214" height="124" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <svg x="252" y="14" width="214" height="124"><use href="#br-tw" width="214" height="124"/></svg>
+        <rect x="252" y="14" width="214" height="124" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" text-anchor="middle">
+          <text x="121" y="166" font-size="18">美國舊金山</text><text x="121" y="190" font-size="15">橘紅色吊橋、兩座高塔</text>
+          <text x="359" y="166" font-size="18">照片裡的橋</text><text x="359" y="190" font-size="15">白色橋塔、斜拉鋼索</text>
+        </g>
+        <rect x="120" y="212" width="240" height="38" rx="19" fill="var(--ok)"/>
+        <text x="240" y="237" fill="var(--ok-ink)" font-family="var(--font)" font-weight="800" font-size="18" text-anchor="middle">照片裡不是舊金山那座橋</text>
+      </svg>
+      <figcaption>舊金山那座是橘紅色的吊橋<a class="fn" href="#fn6" aria-label="附註 6">[6]</a>。照片裡是白色橋塔的橋，和台灣金門大橋「脊背橋」的樣子相符<a class="fn" href="#fn2" aria-label="附註 2">[2]</a>，投影片也標示照片取自金門觀光旅遊網<a class="fn" href="#fn7" aria-label="附註 7">[7]</a>。兩邊都是手繪示意圖。</figcaption>
+    </figure>
+    <div class="verdict"><span class="badge b-true">照片：真的橋</span><span>是一座真實存在的橋，也不是舊金山那座。</span></div>
+    <p class="note"><b>要老實講的限制：</b>我只做了肉眼比對，沒有用反向搜圖，也沒有做修圖檢測，所以不能保證這張照片完全沒被修改。確認照片，還要找到它最早出現的地方。</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" aria-labelledby="s3">
+    <div class="step-head"><span class="num" aria-hidden="true">3</span><h2 id="s3">再查文字：7 個說法，真還是假？</h2></div>
+    <p class="lead">這是 AI 嘟嘟寫的 7 個說法。每一句選一個答案，馬上看結果。</p>
+    <div class="controls">
+      <button type="button" class="alt" id="revealAll">全部揭曉</button>
+      <button type="button" class="alt" id="resetAll">重來</button>
+    </div>
+    <p class="score" id="score" role="status" aria-live="polite">還沒作答。每一句都選一個答案。</p>
+
+    <ol class="claims" id="claims">
+      <li class="claim" data-answer="true">
+        <p class="q"><span>1</span>「連接大金門與小金門的『金門大橋』」</p>
+        <div class="choices" role="group" aria-label="第 1 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-true">真的</span></p><p class="you"></p><p>金門大橋連接大金門與小金門，過橋車程約 5 分鐘<a class="fn" href="#fn2" aria-label="附註 2">[2]</a>。</p></div>
+      </li>
+      <li class="claim" data-answer="maybe">
+        <p class="q"><span>2</span>「是台灣最著名的地標之一」</p>
+        <div class="choices" role="group" aria-label="第 2 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-maybe">不一定</span></p><p class="you"></p><p>這是意見，不是事實。「最著名」沒有標準，沒辦法判真假。</p></div>
+      </li>
+      <li class="claim" data-answer="true">
+        <p class="q"><span>3</span>「全長 5.4 公里」</p>
+        <div class="choices" role="group" aria-label="第 3 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-true">真的</span></p><p class="you"></p><p>公視與 TVBS 的報導都寫全長 5.4 公里<a class="fn" href="#fn1" aria-label="附註 1">[1]</a><a class="fn" href="#fn2" aria-label="附註 2">[2]</a>，其中跨海路段約 4.8 公里<a class="fn" href="#fn4" aria-label="附註 4">[4]</a>。</p></div>
+      </li>
+      <li class="claim" data-answer="false">
+        <p class="q"><span>4</span>「由首席工程師約瑟夫·斯特勞斯設計」</p>
+        <div class="choices" role="group" aria-label="第 4 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-false">假的</span></p><p class="you"></p><p>斯特勞斯是<b>舊金山</b>那座橋的首席工程師<a class="fn" href="#fn6" aria-label="附註 6">[6]</a>。台灣金門大橋的設計監造單位是台灣世曦工程顧問公司<a class="fn" href="#fn5" aria-label="附註 5">[5]</a>。</p></div>
+      </li>
+      <li class="claim" data-answer="true">
+        <p class="q"><span>5</span>「這座壯觀的白色脊背橋」</p>
+        <div class="choices" role="group" aria-label="第 5 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-true">真的</span></p><p class="you"></p><p>報導稱它是脊背橋<a class="fn" href="#fn2" aria-label="附註 2">[2]</a>（公視寫成「斜張橋」<a class="fn" href="#fn1" aria-label="附註 1">[1]</a>，媒體用詞不同，不算 AI 的錯）。照片裡的橋塔與橋墩也是白色<a class="fn" href="#fn7" aria-label="附註 7">[7]</a>。</p></div>
+      </li>
+      <li class="claim" data-answer="false">
+        <p class="q"><span>6</span>「於 1937 年完工通車」</p>
+        <div class="choices" role="group" aria-label="第 6 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-false">假的</span></p><p class="you"></p><p>1937 年 5 月 27 日開放的是<b>舊金山</b>那座橋<a class="fn" href="#fn6" aria-label="附註 6">[6]</a>。台灣金門大橋是 2022 年 10 月 30 日下午 3 時開放通車<a class="fn" href="#fn3" aria-label="附註 3">[3]</a>。</p></div>
+      </li>
+      <li class="claim" data-answer="maybe">
+        <p class="q"><span>7</span>「這座橋也是台灣目前最長的跨海大橋」</p>
+        <div class="choices" role="group" aria-label="第 7 句的答案"><button type="button" data-pick="true">真的</button><button type="button" data-pick="false">假的</button><button type="button" data-pick="maybe">不一定</button></div>
+        <div class="result is-hidden" role="status"><p><span class="badge b-maybe">不一定</span></p><p class="you"></p><p>2022 年的報導寫它是「全台最長跨海大橋」，比澎湖跨海大橋長近 3 公里<a class="fn" href="#fn4" aria-label="附註 4">[4]</a>；另一篇寫「國內規模最大」<a class="fn" href="#fn1" aria-label="附註 1">[1]</a>。「目前」要看現在有沒有更長的橋，我沒有查現況。</p></div>
+      </li>
+    </ol>
+    <p class="sum" id="sum">答案：3 句真的、2 句假的、2 句不一定。</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" aria-labelledby="s4">
+    <div class="step-head"><span class="num" aria-hidden="true">4</span><h2 id="s4">為什麼會錯？兩座橋同名</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 326" role="img" aria-label="兩座同名的金門大橋：舊金山那座是 1937 年、首席工程師斯特勞斯；台灣這座是 2022 年、台灣世曦設計監造、5.4 公里、白色。AI 把兩邊的資料拼成同一段話。">
+        <rect x="14" y="14" width="210" height="150" rx="14" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+        <rect x="256" y="14" width="210" height="150" rx="14" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" text-anchor="middle">
+          <text x="119" y="42" font-size="17">舊金山的金門大橋</text>
+          <text x="361" y="42" font-size="17">台灣的金門大橋</text>
+        </g>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="700" font-size="16" text-anchor="start">
+          <text x="34" y="78">1937 年開放</text><text x="34" y="106">首席工程師斯特勞斯</text><text x="34" y="134">橘紅色吊橋</text>
+          <text x="276" y="78">2022 年通車</text><text x="276" y="106">台灣世曦設計監造</text><text x="276" y="134">全長 5.4 公里、白色</text>
+        </g>
+        <g stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"><path d="M119 170 V196 L220 218"/><path d="M361 170 V196 L260 218"/></g>
+        <path d="M212 206 L232 220 L206 226Z" fill="var(--ink)"/><path d="M268 206 L248 220 L274 226Z" fill="var(--ink)"/>
+        <rect x="40" y="226" width="400" height="88" rx="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="16" text-anchor="middle">
+          <text x="240" y="254">AI 把兩座同名橋的資料拼成一段話</text>
+          <text x="240" y="278" font-weight="700">1937 與斯特勞斯，是舊金山的</text>
+          <text x="240" y="300" font-weight="700">5.4 公里與白色，是台灣的</text>
+        </g>
+      </svg>
+      <figcaption>金門大橋有兩座，名字一樣。AI 把兩座的資料拼在一起，所以<b>對的和錯的混在同一段話裡</b>，最難發現<a class="fn" href="#fn3" aria-label="附註 3">[3]</a><a class="fn" href="#fn5" aria-label="附註 5">[5]</a><a class="fn" href="#fn6" aria-label="附註 6">[6]</a>。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" aria-labelledby="s5">
+    <div class="step-head"><span class="num" aria-hidden="true">5</span><h2 id="s5">偵探怎麼查？橫向閱讀</h2></div>
+    <div class="steps3">
+      <div class="card"><svg viewBox="0 0 100 80" role="img" aria-label="一個箭頭離開一個頁面"><rect x="8" y="10" width="44" height="58" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/><path d="M60 40 H92 M80 28 L92 40 L80 52" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>離開這一頁</b><small>不要一直盯著 AI 的那段話</small></div>
+      <div class="card"><svg viewBox="0 0 100 80" role="img" aria-label="三張不同的紙"><rect x="8" y="22" width="36" height="46" rx="5" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/><rect x="32" y="12" width="36" height="46" rx="5" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/><rect x="56" y="22" width="36" height="46" rx="5" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/></svg><b>找三個來源</b><small>來源要不一樣才算數</small></div>
+      <div class="card"><svg viewBox="0 0 100 80" role="img" aria-label="一個勾勾與一個叉叉"><path d="M14 42 L30 58 L52 22" fill="none" stroke="var(--ok)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 24 L90 56 M90 24 L62 56" fill="none" stroke="var(--bad)" stroke-width="8" stroke-linecap="round"/></svg><b>比對再決定</b><small>對的留下，錯的挑出來</small></div>
+    </div>
+    <p class="sum">照片是真的，說明卻是 AI 拼湊的。真的照片配上錯的文字，也會讓人相信錯的事。</p>
+  </section>
+
+  <!-- 附註 -->
+  <section class="step" aria-labelledby="src">
+    <h2 id="src">資料來源（附註）</h2>
+    <ol class="sources">
+      <li id="fn1">公視新聞網〈金門大橋耗時12年打造月底通車 便利性改善大小金門城鄉差距〉，2022-10-26。<a href="https://news.pts.org.tw/article/606453" target="_blank" rel="noopener">news.pts.org.tw/article/606453</a><br><span class="use">用在：全長 5.4 公里；「國內規模最大的跨海大橋」；通車前預告 10 月 30 日。此篇把橋型寫成「斜張橋」。</span></li>
+      <li id="fn2">TVBS〈金門大橋即將於10月30日通車！串聯大小金門僅需5分鐘車程〉，2022-10-27。<a href="https://cars.tvbs.com.tw/car-news/82932" target="_blank" rel="noopener">cars.tvbs.com.tw/car-news/82932</a><br><span class="use">用在：連接大小金門、車程約 5 分鐘；「該座脊背橋全長5.4公里」。</span></li>
+      <li id="fn3">台灣英文新聞〈千呼萬喚始通車 大小金門喜相連〉，2022-10-30。<a href="https://www.taiwannews.com.tw/zh/news/4702554" target="_blank" rel="noopener">taiwannews.com.tw/zh/news/4702554</a><br><span class="use">用在：「上午舉行通車典禮，下午3時正式開放通車」，也就是 2022 年 10 月 30 日。</span></li>
+      <li id="fn4">公視新聞網〈金門大橋通車，開啟離島「一日生活圈」〉，2022-10-31。<a href="https://news.pts.org.tw/article/607076" target="_blank" rel="noopener">news.pts.org.tw/article/607076</a><br><span class="use">用在：全長 5.4 公里、跨海路段約 4.8 公里；「比澎湖跨海大橋長了近3公里」；小標題「全台最長跨海大橋」。</span></li>
+      <li id="fn5">工商時報〈金門大橋獲國際大獎！台灣工程技術再登世界舞台〉，2024-12-13。<a href="https://www.ctee.com.tw/news/20241213701322-431401" target="_blank" rel="noopener">ctee.com.tw/news/20241213701322-431401</a><br><span class="use">用在：設計監造單位是台灣世曦工程顧問股份有限公司（獲 IRF 國際道路協會 2024 年全球道路成就獎設計類首獎）。</span></li>
+      <li id="fn6">Wikipedia（英文）“Golden Gate Bridge”。<a href="https://en.wikipedia.org/wiki/Golden_Gate_Bridge" target="_blank" rel="noopener">en.wikipedia.org/wiki/Golden_Gate_Bridge</a><br><span class="use">用在：1937 年 5 月 27 日開放（行人先，車輛隔天）；Joseph Strauss 是 chief engineer（另有 Charles Ellis、Leon Moisseiff、Irving Morrow 的設計貢獻）；全長約 2,737 公尺；橘紅色（International Orange）吊橋。</span></li>
+      <li id="fn7">《真相、詭計與人工智慧：資訊真偽與查證》簡報第 22–23 頁（金門大橋橫向閱讀）。投影片標示照片「取自金門觀光旅遊網」：<a href="https://kinmen.travel/zh-tw/travel/attraction/1966" target="_blank" rel="noopener">kinmen.travel/zh-tw/travel/attraction/1966</a><br><span class="use">用在：AI 說法的原文；照片出處。該網頁的內容我讀不到，只能引用投影片上的標示。</span></li>
+    </ol>
+    <p class="note"><b>查證限制：</b>(1) 照片只做肉眼比對，沒有反向搜圖或修圖檢測。(2) 舊金山那座橋的資料，我只讀了一個來源（附註 6），要用的話建議再對照官方網站。(3)「台灣目前最長」是 2022 年報導的說法，我沒有查現況。(4) 各家媒體對橋型的用詞不同（脊背橋、斜張橋）。(5) 這些來源是 2026-11-17 讀的，之後可能更新。</p>
+  </section>
+
+  <!-- 授權說明 -->
+  <section class="step" aria-labelledby="lic">
+    <h2 id="lic">授權說明</h2>
+    <div class="note license">
+      <p><b>本頁的文字、程式、版面與插圖</b>（不含附註中第三方新聞與資料的內容）© 2026 Cyclone，依<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener license">創用 CC 姓名標示-非商業性-相同方式分享 4.0 國際授權條款（CC BY-NC-SA 4.0）</a>授權。</p>
+      <p>你可以分享與改作，條件是：標示作者 Cyclone 並連回本頁；只用在非商業用途；改作後要用相同的授權分享。</p>
+      <p>本頁基於麻省理工學院的 Day of AI™。本教材及其所有衍生教材均受 Creative Commons License International 4.0（CC BY-NC-SA 4.0）以及麻省理工學院在 <a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI 使用條款</a>中規定的條款和條件的約束。DAY OF AI 與 MIT 的標誌不在授權內，本頁沒有使用。</p>
+      <p>附註所列新聞與百科的內容，著作權屬於各自的權利人；本頁只引用事實並附出處。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="id-line">
+    <span class="who">
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcset="avatar.png">
+        <img src="avatar.gif" width="40" height="40" alt="Cyclone 的龍頭像">
+      </picture>
+      Cyclone
+    </span>
+    <span>UDL 教材設計・AI 教材與工具實作</span>
+    <span>© 2026 Cyclone</span>
+  </div>
+  <details class="about" id="about">
+    <summary>關於與聲明・About</summary>
+    <div class="about-body">
+      <div class="langbar" role="group" aria-label="語言 Language">
+        <button type="button" id="langZh" aria-pressed="true">中文</button>
+        <button type="button" id="langEn" aria-pressed="false">English</button>
+      </div>
+
+      <div id="aboutZh" lang="zh-Hant-TW">
+        <p class="tagline">同一份教材，每個孩子都有路走進來。</p>
+        <h3>我是誰</h3>
+        <p>我是 Cyclone。我相信教材從一開始就該為不同的孩子設計：看得懂、聽得到、點得到、寫得下。我致力以全方位學習設計（UDL）的理念規劃每一份教材，再和 AI 一起做成網站、練習單與學習遊戲，讓老師拿了就能用，孩子用自己的方式學會。</p>
+        <h3>這個頁面</h3>
+        <p>「金門大橋真偽拆解」用一張金門大橋投影片，示範怎麼查證 AI 寫的說明。免費、免登入、沒有廣告，只供非營利教學使用。</p>
+        <h3>AI 怎麼參與</h3>
+        <p>頁面程式、版面與插圖，是我和 AI 程式助理一起完成的；各項事實也是 AI 助理查證後整理，出處與限制都列在「資料來源（附註）」。內容持續核對中，如果發現錯誤，歡迎告訴我。</p>
+        <h3>資料來源與授權</h3>
+        <p>投影片上 AI 的說法與橫向閱讀的方法，出自 Day of AI 課程《真相、詭計與人工智慧：資訊真偽與查證》（親子天下教育創新中心中文版，CC BY-NC-SA 4.0）。各項事實的查證與出處，是這個頁面另外整理的，見上方附註。投影片的照片不放進本頁，橋的插圖是手繪示意圖。本頁基於麻省理工學院的 Day of AI™。本教材及其所有衍生教材均受 Creative Commons License International 4.0（CC BY-NC-SA 4.0）以及麻省理工學院在 Day of AI 使用條款中規定的條款和條件的約束。DAY OF AI 與 MIT 的標誌不在授權內，本頁沒有使用，也不代表它們的官方立場。完整條款：<a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI 使用條款</a>。</p>
+        <h3>隱私</h3>
+        <p>本站沒有帳號，不蒐集任何個人資料，也沒有追蹤程式。你的答案只留在這個頁面，重新整理就會清掉。</p>
+        <h3>著作權與免責</h3>
+        <p>頁面程式、版面、文字與插圖 © 2026 Cyclone，依 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener license">CC BY-NC-SA 4.0</a> 授權分享（詳見頁面下方「授權說明」）。查證結果依附註來源整理，來源可能更新，使用前請自行再確認。本頁內容供教學參考；如果和課堂老師或正式教材的說法不同，請以老師與正式教材為準。</p>
+      </div>
+
+      <div id="aboutEn" lang="en" hidden>
+        <p class="tagline">One set of materials, a way in for every child.</p>
+        <h3>About me</h3>
+        <p>I'm Cyclone. I believe learning materials should be designed for different children from the start: easy to read, easy to hear, easy to tap, easy to write. I'm committed to planning every piece around the principles of Universal Design for Learning (UDL), then building it with AI into websites, worksheets and learning games, so teachers can use it right away and every child can learn in their own way.</p>
+        <h3>This page</h3>
+        <p>"Kinmen Bridge Fact Check" uses one slide about a bridge to show how to check what an AI wrote. Free, no sign-in, no ads, for non-commercial educational use only.</p>
+        <h3>How AI took part</h3>
+        <p>The page code, layout and illustrations were built together with an AI coding assistant, and the facts were checked and compiled by the AI assistant too. Sources and limits are listed under "Sources". The content is still being reviewed. If you find a mistake, please let me know.</p>
+        <h3>Sources and license</h3>
+        <p>The AI statement on the slide and the lateral reading method come from the Day of AI lesson "Truth, Tricks, and AI: Learning to Verify Information" (Traditional Chinese edition by the CommonWealth Education Innovation Hub, CC BY-NC-SA 4.0). The fact checking and its sources were compiled separately for this page and are listed above. The slide's photo is not included here; the bridges are hand-drawn schematics. This page is based on MIT's Day of AI™. This material and all derivatives are subject to the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0) and the terms and conditions set by MIT in the Day of AI terms of use. The DAY OF AI and MIT logos are not covered by the license and are not used here, and this page does not represent their official position. Full terms: <a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI terms of use</a>.</p>
+        <h3>Privacy</h3>
+        <p>No accounts, no personal data collected, no trackers. Your answers stay on this page and are cleared when you reload.</p>
+        <h3>Copyright and disclaimer</h3>
+        <p>Page code, layout, text and illustrations © 2026 Cyclone, shared under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener license">CC BY-NC-SA 4.0</a> (see "License" at the bottom of the page). You may share and adapt it with attribution to Cyclone and a link back to this page, for non-commercial use only, and under the same license. Fact-check results were compiled from the listed sources, which may change; please re-check before you rely on them. This page is for teaching reference; if it differs from your teacher or the official materials, please follow those.</p>
+      </div>
+    </div>
+  </details>
+</footer>
+
+<script>
+(function () {
+  var LABEL = { 'true': '真的', 'false': '假的', 'maybe': '不一定' };
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.claim'));
+  var scoreEl = document.getElementById('score');
+
+  function showResult(card, picked, scored) {
+    var res = card.querySelector('.result');
+    var you = card.querySelector('.you');
+    res.classList.remove('is-hidden');
+    if (scored) {
+      var ok = picked === card.dataset.answer;
+      you.textContent = '你選「' + LABEL[picked] + '」：' + (ok ? '猜對了。' : '猜錯了，答案是「' + LABEL[card.dataset.answer] + '」。');
+    } else {
+      you.textContent = '答案是「' + LABEL[card.dataset.answer] + '」。';
+    }
+    card.querySelectorAll('.choices button').forEach(function (b) {
+      b.disabled = true;
+      var isPicked = scored && b.dataset.pick === picked;
+      b.classList.toggle('picked', isPicked);
+      b.setAttribute('aria-pressed', String(isPicked));
+    });
+  }
+  function update() {
+    var answered = 0, right = 0;
+    cards.forEach(function (c) {
+      if (c.dataset.picked) { answered++; if (c.dataset.picked === c.dataset.answer) { right++; } }
+    });
+    if (answered === 0) { scoreEl.textContent = '還沒作答。每一句都選一個答案。'; }
+    else if (answered < cards.length) { scoreEl.textContent = '已作答 ' + answered + ' / ' + cards.length + '，猜對 ' + right + ' 句。'; }
+    else { scoreEl.textContent = '全部作答完畢：猜對 ' + right + ' / ' + cards.length + ' 句。'; }
+  }
+  cards.forEach(function (c) {
+    c.querySelectorAll('.choices button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (c.dataset.picked) { return; }
+        c.dataset.picked = b.dataset.pick;
+        showResult(c, b.dataset.pick, true);
+        update();
+      });
+    });
+  });
+  document.getElementById('revealAll').addEventListener('click', function () {
+    cards.forEach(function (c) { if (!c.dataset.picked) { showResult(c, null, false); } });
+    scoreEl.textContent = '已揭曉全部答案。';
+  });
+  document.getElementById('resetAll').addEventListener('click', function () {
+    cards.forEach(function (c) {
+      delete c.dataset.picked;
+      c.querySelector('.result').classList.add('is-hidden');
+      c.querySelectorAll('.choices button').forEach(function (b) { b.disabled = false; b.classList.remove('picked'); b.removeAttribute('aria-pressed'); });
+    });
+    update();
+  });
+
+  // 關於與聲明：中英切換
+  var zh = document.getElementById('aboutZh'), en = document.getElementById('aboutEn');
+  var bZh = document.getElementById('langZh'), bEn = document.getElementById('langEn');
+  function lang(l) {
+    var isEn = l === 'en';
+    zh.hidden = isEn; en.hidden = !isEn;
+    bZh.setAttribute('aria-pressed', String(!isEn));
+    bEn.setAttribute('aria-pressed', String(isEn));
+  }
+  bZh.addEventListener('click', function () { lang('zh'); });
+  bEn.addEventListener('click', function () { lang('en'); });
+  if (location.hash === '#about') { document.getElementById('about').open = true; }
+})();
+</script>
+</body>
+</html>
