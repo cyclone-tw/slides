@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>珍奶演算法</title>
+<meta name="description" content="用一杯珍珠奶茶，說明什麼是演算法。大圖、少字，五歲也看得懂。">
+<style>
+/* 版面概念：繪本式單頁。一個角色故事（小珍與機器人嘟嘟）+ 六個編號步驟，每步一張大圖、一句說明。 */
+:root {
+  --bg: #F1F8F5;        /* 薄荷白 */
+  --surface: #FFFFFF;
+  --paper: #FFF6DA;     /* 說明書紙色 */
+  --ink: #2B1D17;       /* 深咖啡 */
+  --muted: #5A463C;
+  --brand: #8A4F2B;     /* 奶茶棕（文字用） */
+  --btn: #C2255F;       /* 吸管粉（按鈕底） */
+  --btn-ink: #FFFFFF;
+  --pink: #E0457B;
+  --tea: #C48F5E;
+  --milk: #EBD2AF;
+  --pearl: #2A1E1A;
+  --robot: #BFD9E8;
+  --skin: #F7D2B5;
+  --taro: #8B6DB8;
+  --cupfill: rgba(255, 255, 255, .55);
+  --lid: #F4F4F4;
+  --line: #CFE3DB;
+  --focus: #1B5FD6;
+  --font: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1310; --surface: #2A1F1A; --paper: #3A2E25; --ink: #F6EDE6; --muted: #CDB9AB;
+    --brand: #E8B07E; --btn: #F28FB2; --btn-ink: #2B1D17; --cupfill: rgba(255, 255, 255, .12);
+    --lid: #D9D4CE; --line: #44342C; --focus: #8DB4FF; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1B1310; --surface: #2A1F1A; --paper: #3A2E25; --ink: #F6EDE6; --muted: #CDB9AB;
+  --brand: #E8B07E; --btn: #F28FB2; --btn-ink: #2B1D17; --cupfill: rgba(255, 255, 255, .12);
+  --lid: #D9D4CE; --line: #44342C; --focus: #8DB4FF; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  font-size: 1.125rem; line-height: 1.7;
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+.skip { position: absolute; left: -999px; top: 8px; background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: 10px; z-index: 5; }
+.skip:focus { left: 8px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+main { max-width: 780px; margin-inline: auto; padding-block: 28px 12px; display: grid; gap: 28px; }
+h1, h2 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 7vw, 3.1rem); font-weight: 800; }
+h2 { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 800; }
+p { margin: 0; }
+.eyebrow { color: var(--brand); font-weight: 700; letter-spacing: .08em; font-size: 1rem; }
+.lead { font-size: 1.25rem; color: var(--muted); max-width: 34em; }
+.hero { display: grid; gap: 14px; }
+figure { margin: 0; }
+.scene {
+  background: var(--surface); border: 3px solid var(--ink); border-radius: 26px; padding: 14px;
+  display: block; width: 100%; height: auto;
+}
+figcaption { margin-top: 12px; font-size: 1.2rem; max-width: 36em; }
+.term { color: var(--brand); font-weight: 800; white-space: nowrap; }
+.step { display: grid; gap: 14px; }
+.step-head { display: flex; align-items: center; gap: 14px; }
+.num {
+  flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--bg); font-weight: 800; font-size: 1.6rem; line-height: 1;
+}
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button {
+  font: inherit; font-weight: 800; min-height: 48px; min-width: 48px; padding: 8px 20px; border-radius: 16px;
+  border: 3px solid var(--ink); background: var(--btn); color: var(--btn-ink); cursor: pointer;
+}
+button.alt { background: var(--surface); color: var(--ink); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+button:active { transform: translateY(2px); }
+.pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.pills li {
+  padding: 4px 14px; border-radius: 999px; border: 2px solid var(--ink); background: var(--surface); font-weight: 700; font-size: 1rem;
+}
+.pills li.done { background: var(--ink); color: var(--bg); }
+.pills li.next { border-style: dashed; }
+.status { font-weight: 700; color: var(--brand); min-height: 1.7em; }
+.recap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.recap .card {
+  background: var(--surface); border: 3px solid var(--ink); border-radius: 22px; padding: 12px 10px;
+  text-align: center; display: grid; gap: 4px; justify-items: center; align-content: start;
+}
+.recap svg { width: 100%; max-width: 110px; height: auto; }
+.recap b { font-size: 1.3rem; }
+.recap small { color: var(--muted); font-size: 1rem; }
+.takeaway { font-size: 1.35rem; font-weight: 800; text-align: center; text-wrap: balance; }
+.is-hidden { display: none; }
+footer { max-width: 780px; margin: 36px auto 0; padding-block: 24px 40px; border-top: 2px solid var(--line); text-align: center; font-size: 1rem; }
+.id-line { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; align-items: center; color: var(--muted); }
+.id-line img { width: 40px; height: 40px; border-radius: 50%; display: block; border: 2px solid var(--ink); background: var(--surface); }
+.who { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; }
+details.about { margin-top: 14px; text-align: left; }
+details.about > summary {
+  display: inline-block; cursor: pointer; font-weight: 800; color: var(--brand); text-decoration: underline;
+  text-underline-offset: 4px; min-height: 24px;
+}
+details.about[open] > summary { margin-bottom: 10px; }
+.about-body { background: var(--surface); border: 2px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 12px; font-size: 1rem; line-height: 1.75; }
+.about-body h3 { margin: 6px 0 0; font-size: 1.05rem; color: var(--brand); }
+.about-body a { color: var(--brand); text-underline-offset: 3px; }
+.tagline { font-weight: 800; font-size: 1.15rem; color: var(--ink); }
+.langbar { display: flex; gap: 8px; }
+.langbar button { min-height: 44px; font-size: 1rem; padding: 4px 16px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .layer.show { animation: pop .45s ease-out; }
+  #builder.shake { animation: shake .6s ease-in-out; }
+  .about-body { animation: fadein .6s ease-out; }
+  .spark { animation: twinkle 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+}
+@keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes shake { 0%,100% { transform: translateX(0) } 20% { transform: translateX(-6px) rotate(-3deg) } 40% { transform: translateX(6px) rotate(3deg) } 60% { transform: translateX(-5px) rotate(-2deg) } 80% { transform: translateX(5px) rotate(2deg) } }
+@keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+@keyframes twinkle { 0%,100% { transform: scale(1) } 50% { transform: scale(1.25) } }
+
+@media (max-width: 440px) {
+  body { font-size: 1.05rem; }
+  .recap { grid-template-columns: 1fr; }
+  .recap .card { grid-template-columns: 90px 1fr; text-align: left; justify-items: start; align-items: center; }
+  .recap .card svg { grid-row: span 2; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<!-- 共用圖形 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="robot" viewBox="0 0 100 130">
+      <line x1="50" y1="8" x2="50" y2="20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="7" r="5" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="16" y="20" width="68" height="50" rx="16" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="36" cy="43" r="6" fill="#2B1D17"/><circle cx="64" cy="43" r="6" fill="#2B1D17"/>
+      <circle cx="38" cy="41" r="2" fill="#fff"/><circle cx="66" cy="41" r="2" fill="#fff"/>
+      <path d="M38 57 Q50 66 62 57" fill="none" stroke="#2B1D17" stroke-width="3" stroke-linecap="round"/>
+      <rect x="26" y="74" width="48" height="40" rx="12" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="50" cy="94" r="7" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="32" y="114" width="14" height="12" rx="4" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+      <rect x="54" y="114" width="14" height="12" rx="4" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
+    </symbol>
+    <symbol id="kid" viewBox="0 0 100 130">
+      <circle cx="26" cy="24" r="12" fill="var(--ink)"/><circle cx="74" cy="24" r="12" fill="var(--ink)"/>
+      <circle cx="50" cy="48" r="28" fill="var(--skin)" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M23 44 Q50 10 77 44 Q62 30 23 44Z" fill="var(--ink)"/>
+      <circle cx="40" cy="53" r="4" fill="#2B1D17"/><circle cx="60" cy="53" r="4" fill="#2B1D17"/>
+      <circle cx="32" cy="63" r="5" fill="#E0457B" opacity=".45"/><circle cx="68" cy="63" r="5" fill="#E0457B" opacity=".45"/>
+      <path d="M42 64 Q50 73 58 64" fill="none" stroke="#2B1D17" stroke-width="3" stroke-linecap="round"/>
+      <path d="M22 130 L28 84 Q50 78 72 84 L78 130Z" fill="var(--taro)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <!-- 杯子：含茶與珍珠，無蓋 -->
+    <symbol id="bobacup" viewBox="0 0 120 190">
+      <clipPath id="cc"><path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z"/></clipPath>
+      <path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z" fill="var(--cupfill)"/>
+      <g clip-path="url(#cc)">
+        <rect x="10" y="56" width="104" height="130" fill="var(--tea)"/>
+        <path d="M10 74 Q35 64 60 74 T110 74 V94 Q85 104 60 94 T10 94Z" fill="var(--milk)" opacity=".75"/>
+        <g fill="#2A1E1A">
+          <circle cx="33" cy="168" r="7"/><circle cx="47" cy="168" r="7"/><circle cx="61" cy="168" r="7"/><circle cx="75" cy="168" r="7"/><circle cx="89" cy="168" r="7"/>
+          <circle cx="40" cy="155" r="7"/><circle cx="54" cy="155" r="7"/><circle cx="68" cy="155" r="7"/><circle cx="82" cy="155" r="7"/>
+          <circle cx="47" cy="142" r="7"/><circle cx="61" cy="142" r="7"/><circle cx="75" cy="142" r="7"/>
+        </g>
+        <g fill="#fff" opacity=".55"><circle cx="31" cy="166" r="2"/><circle cx="59" cy="166" r="2"/><circle cx="38" cy="153" r="2"/><circle cx="66" cy="153" r="2"/><circle cx="45" cy="140" r="2"/></g>
+      </g>
+      <path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="bobafull" viewBox="0 0 120 190">
+      <rect x="58" y="2" width="9" height="62" rx="4.5" fill="var(--pink)" stroke="var(--ink)" stroke-width="2.5" transform="rotate(12 62 36)"/>
+      <use href="#bobacup" width="120" height="190"/>
+      <rect x="8" y="28" width="104" height="12" rx="6" fill="var(--lid)" stroke="var(--ink)" stroke-width="3"/>
+    </symbol>
+    <symbol id="spark" viewBox="-10 -10 20 20"><path d="M0 -9 Q1.5 -1.5 9 0 Q1.5 1.5 0 9 Q-1.5 1.5 -9 0 Q-1.5 -1.5 0 -9Z" fill="#FFD23F" stroke="var(--ink)" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-in" viewBox="0 0 100 80">
+      <rect x="8" y="30" width="26" height="40" rx="4" fill="#fff" stroke="var(--ink)" stroke-width="3"/><rect x="8" y="46" width="26" height="10" fill="#6FA8DC"/>
+      <ellipse cx="62" cy="52" rx="20" ry="16" fill="#B77A4B" stroke="var(--ink)" stroke-width="3"/><circle cx="62" cy="32" r="4" fill="var(--ink)"/>
+      <circle cx="86" cy="64" r="5" fill="#2A1E1A"/><circle cx="76" cy="72" r="5" fill="#2A1E1A"/>
+    </symbol>
+    <symbol id="icon-steps" viewBox="0 0 100 80">
+      <g fill="var(--surface)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"><rect x="6" y="6" width="38" height="16" rx="8"/><rect x="30" y="32" width="38" height="16" rx="8"/><rect x="54" y="58" width="38" height="16" rx="8"/></g>
+      <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="13" text-anchor="middle"><text x="25" y="19">1</text><text x="49" y="45">2</text><text x="73" y="71">3</text></g>
+    </symbol>
+  </defs>
+</svg>
+
+<main id="main">
+
+  <header class="hero">
+    <p class="eyebrow">五歲也看得懂的「演算法」</p>
+    <h1>一杯珍奶，就是一個演算法</h1>
+    <p class="lead">小珍想喝珍奶。珍奶店的機器人店員「嘟嘟」，要照說明書做給她。</p>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 270" role="img" aria-label="小珍站在左邊，機器人嘟嘟站在右邊，中間是一杯插著吸管的珍珠奶茶。">
+        <ellipse cx="240" cy="252" rx="200" ry="8" fill="var(--line)"/>
+        <use href="#kid" x="22" y="60" width="130" height="169"/>
+        <use href="#bobafull" x="180" y="34" width="120" height="190"/>
+        <use href="#robot" x="330" y="60" width="130" height="169"/>
+        <use href="#spark" x="318" y="40" width="26" height="26"/>
+        <use href="#spark" x="158" y="52" width="20" height="20"/>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="20" text-anchor="middle">
+          <text x="87" y="40">小珍</text><text x="395" y="40">嘟嘟</text>
+        </g>
+      </svg>
+    </figure>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" aria-labelledby="s1">
+    <div class="step-head"><span class="num" aria-hidden="true">1</span><h2 id="s1">演算法，是一張做事說明書</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 280" role="img" aria-label="左邊是一張寫著五個步驟的珍奶說明書，箭頭指向機器人嘟嘟，嘟嘟想著一杯珍珠奶茶。">
+        <g transform="rotate(-3 125 140)">
+          <rect x="30" y="20" width="190" height="240" rx="16" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+          <g fill="var(--ink)" font-family="var(--font)" font-weight="800" text-anchor="start">
+            <text x="125" y="58" font-size="20" text-anchor="middle">珍奶說明書</text>
+            <g font-size="17">
+              <text x="52" y="100">1　放珍珠</text><text x="52" y="132">2　倒茶和奶</text><text x="52" y="164">3　加糖</text><text x="52" y="196">4　放冰塊</text><text x="52" y="228">5　封杯搖一搖</text>
+            </g>
+          </g>
+        </g>
+        <path d="M236 140 H290" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M280 124 L300 140 L280 156Z" fill="var(--ink)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+        <use href="#robot" x="312" y="104" width="110" height="143"/>
+        <circle cx="300" cy="86" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+        <circle cx="326" cy="66" r="7" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+        <use href="#bobafull" x="344" y="6" width="64" height="101"/>
+      </svg>
+      <figcaption>照著一步一步做，就能做出你要的東西。這張說明書，叫做<span class="term">演算法（Algorithm）</span>。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" aria-labelledby="s2">
+    <div class="step-head"><span class="num" aria-hidden="true">2</span><h2 id="s2">先準備材料</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 230" role="img" aria-label="六樣材料：紅茶壺、牛奶盒、一碗珍珠、冰塊、空杯子、一罐糖。">
+        <g transform="translate(0 10) scale(.8333)">
+        <g stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <!-- 紅茶 -->
+          <g>
+            <ellipse cx="48" cy="104" rx="28" ry="24" fill="#B77A4B"/>
+            <path d="M74 98 Q92 86 90 70" fill="none"/>
+            <path d="M22 96 Q4 100 6 118" fill="none"/>
+            <ellipse cx="48" cy="82" rx="14" ry="5" fill="#9A6538"/><circle cx="48" cy="74" r="4" fill="#9A6538"/>
+          </g>
+          <!-- 牛奶 -->
+          <g>
+            <rect x="124" y="82" width="40" height="64" fill="#fff"/>
+            <path d="M124 82 L136 64 H152 L164 82Z" fill="#fff"/>
+            <rect x="124" y="104" width="40" height="20" fill="#6FA8DC"/>
+          </g>
+          <!-- 珍珠 -->
+          <g>
+            <path d="M206 106 H274 Q272 142 240 144 Q208 142 206 106Z" fill="#E9D8C5"/>
+            <g fill="#2A1E1A" stroke="none"><circle cx="218" cy="102" r="8"/><circle cx="234" cy="98" r="8"/><circle cx="250" cy="98" r="8"/><circle cx="264" cy="102" r="8"/><circle cx="226" cy="90" r="8"/><circle cx="242" cy="86" r="8"/><circle cx="257" cy="90" r="8"/></g>
+          </g>
+          <!-- 冰塊 -->
+          <g fill="#CFE9F7" fill-opacity=".85">
+            <rect x="302" y="112" width="30" height="30" rx="6" transform="rotate(-8 317 127)"/>
+            <rect x="334" y="104" width="30" height="30" rx="6" transform="rotate(10 349 119)"/>
+            <rect x="320" y="80" width="30" height="30" rx="6" transform="rotate(-4 335 95)"/>
+          </g>
+          <!-- 杯子 -->
+          <path d="M398 68 H466 L459 144 Q458 150 452 150 H412 Q406 150 405 144 Z" fill="var(--cupfill)"/>
+          <!-- 糖 -->
+          <g>
+            <rect x="508" y="88" width="40" height="58" rx="6" fill="#fff"/>
+            <rect x="502" y="72" width="52" height="16" rx="6" fill="#E8A0B5"/>
+            <g fill="#D9D9D9" stroke="none"><circle cx="520" cy="116" r="3"/><circle cx="533" cy="108" r="3"/><circle cx="540" cy="126" r="3"/><circle cx="524" cy="134" r="3"/></g>
+          </g>
+        </g>
+        <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="20" text-anchor="middle">
+          <text x="48" y="186">紅茶</text><text x="144" y="186">牛奶</text><text x="240" y="186">珍珠</text><text x="336" y="186">冰塊</text><text x="432" y="186">杯子</text><text x="528" y="186">糖</text>
+        </g>
+        </g>
+        <rect x="170" y="200" width="140" height="26" rx="13" fill="var(--btn)"/>
+        <text x="240" y="219" fill="var(--btn-ink)" font-family="var(--font)" font-weight="800" font-size="16" text-anchor="middle">這些都是「輸入」</text>
+      </svg>
+      <figcaption>放進去的東西，叫做<span class="term">輸入（Input）</span>。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 3 互動 -->
+  <section class="step" aria-labelledby="s3">
+    <div class="step-head"><span class="num" aria-hidden="true">3</span><h2 id="s3">再照順序做</h2></div>
+    <figure>
+      <svg id="builder" class="scene" viewBox="0 0 240 200" role="img" aria-label="正在做的珍珠奶茶杯子，會隨著步驟慢慢變滿。" style="max-height: 420px;">
+        <defs><clipPath id="bclip"><path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z"/></clipPath></defs>
+        <g transform="translate(60 4) scale(1)">
+          <path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z" fill="var(--cupfill)"/>
+          <g clip-path="url(#bclip)">
+            <g id="L2" class="layer is-hidden">
+              <rect x="10" y="56" width="104" height="130" fill="var(--tea)"/>
+              <path d="M10 74 Q35 64 60 74 T110 74 V94 Q85 104 60 94 T10 94Z" fill="var(--milk)" opacity=".75"/>
+            </g>
+            <g id="L1" class="layer is-hidden" fill="#2A1E1A">
+              <circle cx="33" cy="168" r="7"/><circle cx="47" cy="168" r="7"/><circle cx="61" cy="168" r="7"/><circle cx="75" cy="168" r="7"/><circle cx="89" cy="168" r="7"/>
+              <circle cx="40" cy="155" r="7"/><circle cx="54" cy="155" r="7"/><circle cx="68" cy="155" r="7"/><circle cx="82" cy="155" r="7"/>
+              <circle cx="47" cy="142" r="7"/><circle cx="61" cy="142" r="7"/><circle cx="75" cy="142" r="7"/>
+            </g>
+            <g id="L4" class="layer is-hidden" fill="#CFE9F7" fill-opacity=".8" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round">
+              <rect x="30" y="62" width="22" height="22" rx="5" transform="rotate(-8 41 73)"/>
+              <rect x="58" y="58" width="22" height="22" rx="5" transform="rotate(10 69 69)"/>
+              <rect x="80" y="70" width="20" height="20" rx="5" transform="rotate(-5 90 80)"/>
+            </g>
+          </g>
+          <g id="L3" class="layer is-hidden">
+            <use class="spark" href="#spark" x="30" y="40" width="20" height="20"/>
+            <use class="spark" href="#spark" x="62" y="34" width="24" height="24"/>
+            <use class="spark" href="#spark" x="92" y="42" width="18" height="18"/>
+          </g>
+          <path d="M14 38 H106 L97 170 Q96 178 88 178 H32 Q24 178 23 170 Z" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+          <g id="L5" class="layer is-hidden">
+            <rect x="58" y="-12" width="9" height="62" rx="4.5" fill="var(--pink)" stroke="var(--ink)" stroke-width="2.5" transform="rotate(12 62 22)"/>
+            <rect x="8" y="28" width="104" height="12" rx="6" fill="var(--lid)" stroke="var(--ink)" stroke-width="3"/>
+          </g>
+        </g>
+      </svg>
+      <figcaption>一步接一步，叫做<span class="term">處理的步驟（Process）</span>。按一下，幫嘟嘟做一杯！</figcaption>
+    </figure>
+    <ol class="pills" id="pills" aria-label="做珍奶的五個步驟">
+      <li>放珍珠</li><li>倒紅茶和牛奶</li><li>加糖</li><li>放冰塊</li><li>封杯、搖一搖</li>
+    </ol>
+    <div class="controls">
+      <button type="button" id="nextBtn">做第 1 步：放珍珠</button>
+      <button type="button" id="resetBtn" class="alt">重來</button>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite">杯子是空的。按下按鈕，開始做。</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" aria-labelledby="s4">
+    <div class="step-head"><span class="num" aria-hidden="true">4</span><h2 id="s4">做好了！</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 270" role="img" aria-label="小珍開心地拿到一杯珍珠奶茶，旁邊有閃亮亮的星星。">
+        <ellipse cx="240" cy="252" rx="200" ry="8" fill="var(--line)"/>
+        <use href="#kid" x="70" y="62" width="130" height="169"/>
+        <path d="M150 168 Q190 160 226 150" fill="none" stroke="var(--ink)" stroke-width="14" stroke-linecap="round"/>
+        <path d="M150 168 Q190 160 226 150" fill="none" stroke="var(--skin)" stroke-width="8" stroke-linecap="round"/>
+        <use href="#bobafull" x="214" y="40" width="120" height="190"/>
+        <use class="spark" href="#spark" x="350" y="40" width="34" height="34"/>
+        <use class="spark" href="#spark" x="190" y="24" width="24" height="24"/>
+        <use class="spark" href="#spark" x="372" y="130" width="22" height="22"/>
+        <rect x="350" y="190" width="110" height="30" rx="15" fill="var(--btn)"/>
+        <text x="405" y="211" fill="var(--btn-ink)" font-family="var(--font)" font-weight="800" font-size="17" text-anchor="middle">這是「輸出」</text>
+      </svg>
+      <figcaption>做出來的成品，叫做<span class="term">輸出（Output）</span>。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" aria-labelledby="s5">
+    <div class="step-head"><span class="num" aria-hidden="true">5</span><h2 id="s5">順序亂了，會怎樣？</h2></div>
+    <figure>
+      <svg class="scene" viewBox="0 0 480 270" role="img" aria-label="嘟嘟把杯子先封好蓋子，再從上面倒紅茶，紅茶從蓋子旁邊灑到桌上，變成一灘。">
+        <line x1="10" y1="244" x2="470" y2="244" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+        <use href="#robot" x="22" y="78" width="120" height="156"/>
+        <text x="150" y="86" fill="var(--btn)" font-family="var(--font)" font-weight="800" font-size="34">?!</text>
+        <!-- 封好的空杯 -->
+        <path d="M232 150 H322 L314 236 Q313 244 305 244 H249 Q241 244 240 236 Z" fill="var(--cupfill)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="226" y="138" width="102" height="14" rx="7" fill="var(--lid)" stroke="var(--ink)" stroke-width="3"/>
+        <!-- 茶壺 -->
+        <g stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <g transform="translate(-30 -12) rotate(-28 380 60)">
+            <ellipse cx="380" cy="60" rx="44" ry="34" fill="#B77A4B"/>
+            <path d="M338 56 Q310 62 312 84" fill="none"/>
+            <path d="M420 50 Q446 38 442 22" fill="none"/>
+            <ellipse cx="380" cy="30" rx="18" ry="6" fill="#9A6538"/>
+          </g>
+        </g>
+        <!-- 茶：從壺嘴流到蓋子，再沿杯壁淌到桌上 -->
+        <g fill="none" stroke="#B77A4B" stroke-linecap="round">
+          <path d="M301 106 Q299 122 296 137" stroke-width="8"/>
+          <path d="M324 142 Q334 190 318 238" stroke-width="6"/>
+          <path d="M232 142 Q222 190 240 238" stroke-width="6"/>
+        </g>
+        <g fill="#B77A4B"><circle cx="212" cy="150" r="4"/><circle cx="342" cy="132" r="4"/><circle cx="350" cy="152" r="3"/><circle cx="206" cy="176" r="3"/></g>
+        <ellipse cx="276" cy="246" rx="72" ry="9" fill="#B77A4B" opacity=".9"/>
+        <ellipse cx="344" cy="246" rx="40" ry="7" fill="#B77A4B" opacity=".9"/>
+      </svg>
+      <figcaption>先封杯、再倒茶，茶就灑了一桌。所以，<b>順序很重要</b>。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 6 互動 -->
+  <section class="step" aria-labelledby="s6">
+    <div class="step-head"><span class="num" aria-hidden="true">6</span><h2 id="s6">嘟嘟很老實</h2></div>
+    <div class="controls" role="group" aria-label="你對嘟嘟說的話">
+      <button type="button" id="sayA" aria-pressed="true" class="alt">你說：「加糖」</button>
+      <button type="button" id="sayB" aria-pressed="false" class="alt">你說：「加 2 匙糖」</button>
+    </div>
+    <figure>
+      <svg id="sugarScene" class="scene" viewBox="0 0 480 300" role="img" aria-label="嘟嘟在幫珍珠奶茶加糖。">
+        <line x1="10" y1="276" x2="470" y2="276" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+        <use href="#robot" x="14" y="100" width="130" height="169"/>
+        <use href="#bobacup" x="270" y="86" width="120" height="190"/>
+        <use href="#kid" x="404" y="196" width="68" height="88"/>
+        <!-- A：整袋糖 -->
+        <g id="sceneA">
+          <path d="M112 198 Q150 190 196 150" fill="none" stroke="var(--ink)" stroke-width="14" stroke-linecap="round"/>
+          <path d="M112 198 Q150 190 196 150" fill="none" stroke="var(--robot)" stroke-width="8" stroke-linecap="round"/>
+          <g transform="rotate(62 215 135)">
+            <path d="M180 100 H232 L240 170 Q240 182 228 182 H186 Q174 182 174 170Z" fill="#fff" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+            <text x="207" y="150" fill="#2B1D17" font-family="var(--font)" font-weight="800" font-size="26" text-anchor="middle">糖</text>
+          </g>
+          <g fill="#fff" stroke="var(--ink)" stroke-width="1.5"><circle cx="254" cy="112" r="4.5"/><circle cx="264" cy="100" r="4.5"/><circle cx="276" cy="92" r="4.5"/></g>
+          <path d="M262 130 Q278 72 330 70 Q382 72 398 130 Q330 138 262 130Z" fill="#fff" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+          <g fill="#fff" stroke="var(--ink)" stroke-width="1.5"><circle cx="248" cy="266" r="5"/><circle cx="300" cy="270" r="4"/><circle cx="372" cy="270" r="4"/><circle cx="236" cy="272" r="3.5"/></g>
+          <g>
+            <rect x="372" y="148" width="104" height="38" rx="19" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+            <text x="424" y="173" fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="18" text-anchor="middle">太甜了啦！</text>
+          </g>
+        </g>
+        <!-- B：2 匙糖 -->
+        <g id="sceneB" class="is-hidden">
+          <path d="M112 198 Q160 196 200 176" fill="none" stroke="var(--ink)" stroke-width="14" stroke-linecap="round"/>
+          <path d="M112 198 Q160 196 200 176" fill="none" stroke="var(--robot)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M200 176 L300 112" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="312" cy="106" rx="22" ry="12" fill="#fff" stroke="var(--ink)" stroke-width="3" transform="rotate(-30 312 106)"/>
+          <path d="M300 102 Q312 90 326 100" fill="#fff" stroke="var(--ink)" stroke-width="2.5"/>
+          <use class="spark" href="#spark" x="326" y="84" width="22" height="22"/>
+          <use class="spark" href="#spark" x="352" y="104" width="16" height="16"/>
+          <g>
+            <rect x="372" y="148" width="104" height="38" rx="19" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+            <text x="424" y="173" fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="18" text-anchor="middle">剛剛好！</text>
+          </g>
+        </g>
+      </svg>
+      <figcaption id="sugarCap" aria-live="polite">嘟嘟只會照字面做。你只說「加糖」，沒說多少，它就把整袋糖倒進去了！</figcaption>
+    </figure>
+    <p id="debugNote" class="status">按上面的按鈕，幫嘟嘟把指令寫清楚。</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" aria-labelledby="s7">
+    <div class="step-head"><span class="num" aria-hidden="true">7</span><h2 id="s7">一起複習</h2></div>
+    <div class="recap">
+      <div class="card"><svg viewBox="0 0 100 80" role="img" aria-label="材料圖示"><use href="#icon-in" width="100" height="80"/></svg><b>輸入</b><small>先準備材料</small></div>
+      <div class="card"><svg viewBox="0 0 100 80" role="img" aria-label="三個依序的步驟圖示"><use href="#icon-steps" width="100" height="80"/></svg><b>步驟</b><small>照順序做</small></div>
+      <div class="card"><svg viewBox="0 0 120 190" role="img" aria-label="一杯珍珠奶茶"><use href="#bobafull" width="120" height="190"/></svg><b>輸出</b><small>得到成品</small></div>
+    </div>
+    <p class="takeaway">演算法，就是讓事情做對的「步驟說明書」。<br>下次喝珍奶，想一想：店員也在用演算法喔！</p>
+    <p style="text-align:center;color:var(--muted)">指令不清楚，就要<span class="term">除錯（Debug）</span>：找出錯在哪裡，改對它。</p>
+  </section>
+</main>
+
+<footer>
+  <div class="id-line">
+    <span class="who">
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcset="avatar.png">
+        <img src="avatar.gif" width="40" height="40" alt="Cyclone 的龍頭像">
+      </picture>
+      Cyclone
+    </span>
+    <span>UDL 教材設計・AI 教材與工具實作</span>
+    <span>© 2026 Cyclone</span>
+  </div>
+  <details class="about" id="about">
+    <summary>關於與聲明・About</summary>
+    <div class="about-body">
+      <div class="langbar" role="group" aria-label="語言 Language">
+        <button type="button" class="alt" id="langZh" aria-pressed="true">中文</button>
+        <button type="button" class="alt" id="langEn" aria-pressed="false">English</button>
+      </div>
+
+      <div id="aboutZh" lang="zh-Hant-TW">
+        <p class="tagline">同一份教材，每個孩子都有路走進來。</p>
+        <h3>我是誰</h3>
+        <p>我是 Cyclone。我相信教材從一開始就該為不同的孩子設計：看得懂、聽得到、點得到、寫得下。我致力以全方位學習設計（UDL）的理念規劃每一份教材，再和 AI 一起做成網站、練習單與學習遊戲，讓老師拿了就能用，孩子用自己的方式學會。</p>
+        <h3>這個頁面</h3>
+        <p>「珍奶演算法」用一杯珍珠奶茶說明什麼是演算法。免費、免登入、沒有廣告，只供非營利教學使用。</p>
+        <h3>AI 怎麼參與</h3>
+        <p>頁面程式、版面與插圖，是我和 AI 程式助理一起完成的。內容持續核對中，如果發現錯誤，歡迎告訴我。</p>
+        <h3>資料來源與授權</h3>
+        <p>演算法有「輸入、處理的步驟、輸出」三個部分，這個說法參考 Day of AI 課程《演算法是什麼？》（親子天下教育創新中心中文版，CC BY-NC-SA 4.0）。珍珠奶茶的故事、角色與插圖是這個頁面自己做的。DAY OF AI 與 MIT 的標誌（logo）不在該課程的授權內，本頁沒有使用，也不代表它們的官方立場。完整條款：<a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI 使用條款</a>。</p>
+        <h3>隱私</h3>
+        <p>本站沒有帳號，不蒐集任何個人資料，也沒有追蹤程式。</p>
+        <h3>著作權與免責</h3>
+        <p>頁面程式、版面與插圖 © 2026 Cyclone。本頁內容供教學參考；如果和課堂老師或正式教材的說法不同，請以老師與正式教材為準。</p>
+      </div>
+
+      <div id="aboutEn" lang="en" hidden>
+        <p class="tagline">One set of materials, a way in for every child.</p>
+        <h3>About me</h3>
+        <p>I'm Cyclone. I believe learning materials should be designed for different children from the start: easy to read, easy to hear, easy to tap, easy to write. I'm committed to planning every piece around the principles of Universal Design for Learning (UDL), then building it with AI into websites, worksheets and learning games, so teachers can use it right away and every child can learn in their own way.</p>
+        <h3>This page</h3>
+        <p>"Boba Algorithm" explains what an algorithm is, using a cup of bubble tea. Free, no sign-in, no ads, for non-commercial educational use only.</p>
+        <h3>How AI took part</h3>
+        <p>The page code, layout and illustrations were built together with an AI coding assistant. The content is still being reviewed. If you find a mistake, please let me know.</p>
+        <h3>Sources and license</h3>
+        <p>The idea that an algorithm has an input, steps and an output follows the Day of AI lesson "What is an algorithm?" (Traditional Chinese edition by the CommonWealth Education Innovation Hub, CC BY-NC-SA 4.0). The bubble tea story, characters and illustrations were made for this page. The DAY OF AI and MIT logos are not covered by that lesson's license and are not used here, and this page does not represent their official position. Full terms: <a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI terms of use</a>.</p>
+        <h3>Privacy</h3>
+        <p>No accounts, no personal data collected, no trackers.</p>
+        <h3>Copyright and disclaimer</h3>
+        <p>Page code, layout and illustrations © 2026 Cyclone. This page is for teaching reference; if it differs from your teacher or the official materials, please follow those.</p>
+      </div>
+    </div>
+  </details>
+</footer>
+
+<script>
+(function () {
+  // ---- 步驟 3：動手做一杯 ----
+  var steps = [
+    { id: 'L1', text: '放珍珠' },
+    { id: 'L2', text: '倒紅茶和牛奶' },
+    { id: 'L3', text: '加糖' },
+    { id: 'L4', text: '放冰塊' },
+    { id: 'L5', text: '封杯、搖一搖' }
+  ];
+  var done = 0;
+  var nextBtn = document.getElementById('nextBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var statusEl = document.getElementById('status');
+  var pills = document.querySelectorAll('#pills li');
+  var builder = document.getElementById('builder');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function render(justAdded) {
+    steps.forEach(function (s, i) {
+      var el = document.getElementById(s.id);
+      var visible = i < done;
+      el.classList.toggle('is-hidden', !visible);
+      el.classList.toggle('show', visible && justAdded === i);
+    });
+    pills.forEach(function (li, i) {
+      li.classList.toggle('done', i < done);
+      li.classList.toggle('next', i === done);
+      if (i === done) { li.setAttribute('aria-current', 'step'); } else { li.removeAttribute('aria-current'); }
+    });
+    if (done < steps.length) {
+      nextBtn.textContent = '做第 ' + (done + 1) + ' 步：' + steps[done].text;
+      statusEl.textContent = done === 0 ? '杯子是空的。按下按鈕，開始做。' : '第 ' + done + ' 步完成：' + steps[done - 1].text + '。';
+    } else {
+      nextBtn.textContent = '再做一杯';
+      statusEl.textContent = '做好了！一杯珍珠奶茶。這杯是「輸出」。';
+    }
+  }
+  nextBtn.addEventListener('click', function () {
+    if (done >= steps.length) { done = 0; render(-1); return; }
+    var idx = done;
+    done += 1;
+    render(idx);
+    if (done === steps.length && !reduce) {
+      builder.classList.remove('shake'); void builder.getBoundingClientRect(); builder.classList.add('shake');
+    }
+  });
+  resetBtn.addEventListener('click', function () { done = 0; render(-1); });
+  render(-1);
+
+  // ---- 步驟 6：幫嘟嘟除錯 ----
+  var sayA = document.getElementById('sayA');
+  var sayB = document.getElementById('sayB');
+  var sceneA = document.getElementById('sceneA');
+  var sceneB = document.getElementById('sceneB');
+  var cap = document.getElementById('sugarCap');
+  var note = document.getElementById('debugNote');
+  var sugarSvg = document.getElementById('sugarScene');
+  function say(which) {
+    var b = which === 'B';
+    sceneA.classList.toggle('is-hidden', b);
+    sceneB.classList.toggle('is-hidden', !b);
+    sayA.setAttribute('aria-pressed', String(!b));
+    sayB.setAttribute('aria-pressed', String(b));
+    if (b) {
+      cap.textContent = '改成「加 2 匙糖」，嘟嘟就知道要加多少了，剛剛好。';
+      note.textContent = '找出錯在哪裡、把它改對，這就是除錯。';
+      sugarSvg.setAttribute('aria-label', '嘟嘟用小湯匙加了兩匙糖，小珍說剛剛好。');
+    } else {
+      cap.textContent = '嘟嘟只會照字面做。你只說「加糖」，沒說多少，它就把整袋糖倒進去了！';
+      note.textContent = '按上面的按鈕，幫嘟嘟把指令寫清楚。';
+      sugarSvg.setAttribute('aria-label', '嘟嘟把整袋糖倒進杯子，糖堆得滿出來，小珍說太甜了。');
+    }
+  }
+  sayA.addEventListener('click', function () { say('A'); });
+  sayB.addEventListener('click', function () { say('B'); });
+  say('A');
+
+  // ---- 關於與聲明：中英切換 ----
+  var zh = document.getElementById('aboutZh');
+  var en = document.getElementById('aboutEn');
+  var bZh = document.getElementById('langZh');
+  var bEn = document.getElementById('langEn');
+  function lang(l) {
+    var isEn = l === 'en';
+    zh.hidden = isEn; en.hidden = !isEn;
+    bZh.setAttribute('aria-pressed', String(!isEn));
+    bEn.setAttribute('aria-pressed', String(isEn));
+  }
+  bZh.addEventListener('click', function () { lang('zh'); });
+  bEn.addEventListener('click', function () { lang('en'); });
+  if (location.hash === '#about') { document.getElementById('about').open = true; }
+})();
+</script>
+</body>
+</html>
