@@ -144,9 +144,9 @@ details.about[open] > summary { margin-bottom: 10px; }
       <line x1="50" y1="8" x2="50" y2="20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
       <circle cx="50" cy="7" r="5" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
       <rect x="16" y="20" width="68" height="50" rx="16" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
-      <circle cx="36" cy="43" r="6" fill="var(--ink)"/><circle cx="64" cy="43" r="6" fill="var(--ink)"/>
+      <circle cx="36" cy="43" r="6" fill="#2B1D17"/><circle cx="64" cy="43" r="6" fill="#2B1D17"/>
       <circle cx="38" cy="41" r="2" fill="#fff"/><circle cx="66" cy="41" r="2" fill="#fff"/>
-      <path d="M38 57 Q50 66 62 57" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M38 57 Q50 66 62 57" fill="none" stroke="#2B1D17" stroke-width="3" stroke-linecap="round"/>
       <rect x="26" y="74" width="48" height="40" rx="12" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
       <circle cx="50" cy="94" r="7" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
       <rect x="32" y="114" width="14" height="12" rx="4" fill="var(--robot)" stroke="var(--ink)" stroke-width="3"/>
@@ -245,7 +245,8 @@ details.about[open] > summary { margin-bottom: 10px; }
   <section class="step" aria-labelledby="s2">
     <div class="step-head"><span class="num" aria-hidden="true">2</span><h2 id="s2">先準備材料</h2></div>
     <figure>
-      <svg class="scene" viewBox="0 0 480 230" role="img" aria-label="五樣材料：紅茶壺、牛奶盒、一碗珍珠、冰塊、空杯子。">
+      <svg class="scene" viewBox="0 0 480 230" role="img" aria-label="六樣材料：紅茶壺、牛奶盒、一碗珍珠、冰塊、空杯子、一罐糖。">
+        <g transform="translate(0 10) scale(.8333)">
         <g stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
           <!-- 紅茶 -->
           <g>
@@ -273,9 +274,16 @@ details.about[open] > summary { margin-bottom: 10px; }
           </g>
           <!-- 杯子 -->
           <path d="M398 68 H466 L459 144 Q458 150 452 150 H412 Q406 150 405 144 Z" fill="var(--cupfill)"/>
+          <!-- 糖 -->
+          <g>
+            <rect x="508" y="88" width="40" height="58" rx="6" fill="#fff"/>
+            <rect x="502" y="72" width="52" height="16" rx="6" fill="#E8A0B5"/>
+            <g fill="#D9D9D9" stroke="none"><circle cx="520" cy="116" r="3"/><circle cx="533" cy="108" r="3"/><circle cx="540" cy="126" r="3"/><circle cx="524" cy="134" r="3"/></g>
+          </g>
         </g>
         <g fill="var(--ink)" font-family="var(--font)" font-weight="800" font-size="20" text-anchor="middle">
-          <text x="48" y="186">紅茶</text><text x="144" y="186">牛奶</text><text x="240" y="186">珍珠</text><text x="336" y="186">冰塊</text><text x="432" y="186">杯子</text>
+          <text x="48" y="186">紅茶</text><text x="144" y="186">牛奶</text><text x="240" y="186">珍珠</text><text x="336" y="186">冰塊</text><text x="432" y="186">杯子</text><text x="528" y="186">糖</text>
+        </g>
         </g>
         <rect x="170" y="200" width="140" height="26" rx="13" fill="var(--btn)"/>
         <text x="240" y="219" fill="var(--btn-ink)" font-family="var(--font)" font-weight="800" font-size="16" text-anchor="middle">這些都是「輸入」</text>
@@ -430,9 +438,9 @@ details.about[open] > summary { margin-bottom: 10px; }
           </g>
         </g>
       </svg>
-      <figcaption id="sugarCap">嘟嘟只會照字面做。你只說「加糖」，沒說多少，它就把整袋糖倒進去了！</figcaption>
+      <figcaption id="sugarCap" aria-live="polite">嘟嘟只會照字面做。你只說「加糖」，沒說多少，它就把整袋糖倒進去了！</figcaption>
     </figure>
-    <p id="debugNote" class="status">按右邊的按鈕，幫嘟嘟把指令寫清楚。</p>
+    <p id="debugNote" class="status">按上面的按鈕，幫嘟嘟把指令寫清楚。</p>
   </section>
 
   <!-- 7 -->
@@ -477,11 +485,11 @@ details.about[open] > summary { margin-bottom: 10px; }
         <h3>AI 怎麼參與</h3>
         <p>頁面程式、版面與插圖，是我和 AI 程式助理一起完成的。內容持續核對中，如果發現錯誤，歡迎告訴我。</p>
         <h3>資料來源與授權</h3>
-        <p>演算法有「輸入、處理的步驟、輸出」三個部分，這個說法參考 Day of AI 課程《演算法是什麼？》（親子天下教育創新中心中文版，CC BY-NC-SA 4.0）。珍珠奶茶的故事、角色與插圖是這個頁面自己做的。DAY OF AI 與 MIT 的名稱與標誌不在該課程的授權內，本頁沒有使用。完整條款：<a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI 使用條款</a>。</p>
+        <p>演算法有「輸入、處理的步驟、輸出」三個部分，這個說法參考 Day of AI 課程《演算法是什麼？》（親子天下教育創新中心中文版，CC BY-NC-SA 4.0）。珍珠奶茶的故事、角色與插圖是這個頁面自己做的。DAY OF AI 與 MIT 的標誌（logo）不在該課程的授權內，本頁沒有使用，也不代表它們的官方立場。完整條款：<a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI 使用條款</a>。</p>
         <h3>隱私</h3>
         <p>本站沒有帳號，不蒐集任何個人資料，也沒有追蹤程式。</p>
         <h3>著作權與免責</h3>
-        <p>頁面程式、版面與插圖 © 2026 Cyclone。</p>
+        <p>頁面程式、版面與插圖 © 2026 Cyclone。本頁內容供教學參考；如果和課堂老師或正式教材的說法不同，請以老師與正式教材為準。</p>
       </div>
 
       <div id="aboutEn" lang="en" hidden>
@@ -493,11 +501,11 @@ details.about[open] > summary { margin-bottom: 10px; }
         <h3>How AI took part</h3>
         <p>The page code, layout and illustrations were built together with an AI coding assistant. The content is still being reviewed. If you find a mistake, please let me know.</p>
         <h3>Sources and license</h3>
-        <p>The idea that an algorithm has an input, steps and an output follows the Day of AI lesson "What is an algorithm?" (Traditional Chinese edition by the CommonWealth Education Innovation Hub, CC BY-NC-SA 4.0). The bubble tea story, characters and illustrations were made for this page. The DAY OF AI and MIT names and logos are not covered by that lesson's license and are not used here. Full terms: <a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI terms of use</a>.</p>
+        <p>The idea that an algorithm has an input, steps and an output follows the Day of AI lesson "What is an algorithm?" (Traditional Chinese edition by the CommonWealth Education Innovation Hub, CC BY-NC-SA 4.0). The bubble tea story, characters and illustrations were made for this page. The DAY OF AI and MIT logos are not covered by that lesson's license and are not used here, and this page does not represent their official position. Full terms: <a href="https://www.dayofai.org/privacy-and-terms-of-use" target="_blank" rel="noopener">Day of AI terms of use</a>.</p>
         <h3>Privacy</h3>
         <p>No accounts, no personal data collected, no trackers.</p>
         <h3>Copyright and disclaimer</h3>
-        <p>Page code, layout and illustrations © 2026 Cyclone.</p>
+        <p>Page code, layout and illustrations © 2026 Cyclone. This page is for teaching reference; if it differs from your teacher or the official materials, please follow those.</p>
       </div>
     </div>
   </details>
@@ -573,7 +581,7 @@ details.about[open] > summary { margin-bottom: 10px; }
       sugarSvg.setAttribute('aria-label', '嘟嘟用小湯匙加了兩匙糖，小珍說剛剛好。');
     } else {
       cap.textContent = '嘟嘟只會照字面做。你只說「加糖」，沒說多少，它就把整袋糖倒進去了！';
-      note.textContent = '按右邊的按鈕，幫嘟嘟把指令寫清楚。';
+      note.textContent = '按上面的按鈕，幫嘟嘟把指令寫清楚。';
       sugarSvg.setAttribute('aria-label', '嘟嘟把整袋糖倒進杯子，糖堆得滿出來，小珍說太甜了。');
     }
   }
