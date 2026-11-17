@@ -1,5 +1,19 @@
 [
   {
+    "folder": "2026-11-17-kinmen-bridge-factcheck",
+    "title": "金門大橋真偽拆解",
+    "description": "用一張金門大橋投影片，拆解 AI 說明的真偽：照片是真的橋，說明卻把兩座同名的橋拼在一起。",
+    "category": "Slides",
+    "date": "2026-11-17",
+    "url": "https://cyclone-tw.github.io/slides/2026-11-17-kinmen-bridge-factcheck/",
+    "accent": {
+      "a": "#f5f5f0",
+      "b": "#8fb5ff",
+      "bg": "#111111",
+      "hue": 296
+    }
+  },
+  {
     "folder": "2026-11-17-boba-algorithm",
     "title": "珍奶演算法",
     "description": "用一杯珍珠奶茶，說明什麼是演算法。大圖、少字，五歲也看得懂。",
